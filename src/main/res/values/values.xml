@@ -24,4 +24,7 @@
     <dimen name="smallfloating_gradient_right">28dp</dimen> <!-- sf_size - bf_radius, where does the gradient start -> before the second corner of the imagebutton starts -->
     <dimen name="smallfloating_gradient_width">60dp</dimen>
     <dimen name="smallfloating_gradient_end">88dp</dimen> <!-- sf_gradient_right + sf_gradient_width, where does the gradient end -->
+
+    <dimen name="widget_default_width_min">80dp</dimen>
+    <dimen name="widget_default_height_min">40dp</dimen>
 </resources>
