@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:left="0dp" android:top="0dp" android:bottom="@dimen/bigfloating_radius" android:right="@dimen/bigfloating_radius">
+        <shape>
+            <solid android:color="@color/backgroundTint" />
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <solid android:color="@color/background" />
+            <corners android:radius="@dimen/bigfloating_radius" />
+            <size android:width="@dimen/bigfloating_size" android:height="@dimen/bigfloating_size" />
+        </shape>
+    </item>
+</layer-list>

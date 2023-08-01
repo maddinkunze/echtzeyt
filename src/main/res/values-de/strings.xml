@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="btnSearchDescription">Anzeigen</string>
+    <string name="edtSearchTip">Station eingeben…</string>
+    <string name="btnSettingsDescription">Einstellungen</string>
+    <string name="settingsSaveContent">Letzte Station speichern</string>
+    <string name="settingsDarkMode">Dunkler Modus</string>
+    <string name="settingsFastMode">Schnelle Updates</string>
+    <string name="updateNotYet">Noch nicht aktualisiert!</string>
+    <string name="updateLast">"Letzte Aktualisierung: "</string>
+    <string name="settingsAutoDark">Systemthema übernehmen</string>
+    <string name="btnLikeDescription">Station zu Lesezeichen hinzufügen</string>
+    <string name="btnBookmarksDescription">Lesezeichen anzeigen</string>
+    <string name="updateEmpty">Hier gibt es nichts zu sehen!</string>
+    <string name="btnMenuDescription">Menü öffnen</string>
+    <string name="appNameSettings">Einstellungen</string>
+    <string name="btnDonateDescription">Unterstütze mich</string>
+    <string name="btnMessageDescription">Feedback</string>
+    <string name="btnAnnouncementDescription">Benachrichtigung</string>
+    <string name="txtBookmarksHeading">Gespeicherte Stationen:</string>
+    <string name="txtBookmarksEmpty">Du hast noch keine Favoriten. Füge Favoriten mit dem Stern neben der Suchleiste hinzu! Du kannst die Favoriten als Schnellzugriff nutzen. Tippe einfach auf eine Station in den Favoriten um die Station anzuzeigen.</string>
+    <string name="contactSubject">Feedback / Fehlermeldung</string>
+    <string name="contactBody">Hey,\n\n --- bitte beschreibe describe deine Wünsche/Probleme/… entweder in Deutsch oder Englisch ---\n\n\n ---\nViele Grüße</string>
+    <string name="contactBodyError">\n\nDie folgenden Fehler sind aufgetreten:\n\n</string>
+    <string name="contactError">Ein Fehler ist aufgetreten. Hast du ein E-Mail Programm installiert?</string>
+    <string name="contactTitle">Gib dein Feedback ab (E-Mail)</string>
+    <string name="urlNotificationQuery">\?lang=de</string>
+    <string name="notificationTitleDefault">Dieser Fehler sollte hier nicht sein?!</string>
+    <string name="notificationTextDefault">Scheinbar gab es einen Fehler während ein Fehler aufgetreten ist :/ Das hier ist der Standardtext und du solltest ihn nicht sehen. Ignoriere ihn oder melde das hier per Mail an mich. Klick rechts unten um Feedback zu geben.</string>
+    <string name="btnClose">Schließen</string>
+    <string name="notificationToastInvalid">Derzeit gibt es keine Benachrichtigungen oder Informationen.</string>
+    <string name="notificationToastOtherError">Es ist ein unerwarterter Fehler beim Anzeigen der letzten Benachrichtung aufgetreten, bitte versuche es später erneut.</string>
+    <string name="sendLogsTitle">Fehler senden?</string>
+    <string name="sendLogsText">Es scheint so als wäre dir gerade etwas ungewöhnliches passiert. Möchtest du die letzten aufgezeichneten Fehler zusammen mit deinem Feedback senden?</string>
+    <string name="sendLogsYes">Ja, sende Fehlerbericht</string>
+    <string name="sendLogsNo">Nein</string>
+    <string name="_libraryEchtzeytBasedOn">basiert auf\u0020</string>
+</resources>

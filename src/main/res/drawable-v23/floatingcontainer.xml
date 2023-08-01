@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:enterFadeDuration="@integer/material_motion_duration_short_1"
+    android:exitFadeDuration="@integer/material_motion_duration_short_1" >
+
+    <item>
+        <layer-list>
+            <item
+                android:gravity="right"
+                android:right="@dimen/smallfloating_gradient_right"
+                android:width="@dimen/smallfloating_gradient_width">
+                <shape>
+                    <gradient
+                        android:startColor="@color/backgroundHover"
+                        android:endColor="@color/backgroundTint"
+                        android:type="linear"/>
+                </shape>
+            </item>
+            <item
+                android:gravity="right"
+                android:right="@dimen/smallfloating_gradient_end">
+                <shape>
+                    <solid android:color="@color/backgroundHover" />
+                    <corners android:topLeftRadius="@dimen/bigfloating_radius" android:bottomLeftRadius="@dimen/bigfloating_radius" />
+                </shape>
+            </item>
+            <item
+                android:top="@dimen/smallfloating_stroke_width"
+                android:left="@dimen/smallfloating_stroke_width"
+                android:bottom="@dimen/smallfloating_stroke_width"
+                android:right="@dimen/smallfloating_stroke_width">
+                <shape>
+                    <solid android:color="@color/backgroundHover" />
+                    <!--stroke android:color="@color/backgroundTint" android:width="2dp" /-->
+                    <corners android:radius="@dimen/bigfloating_radius" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+</selector>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="text_size">18sp</dimen>
+    <dimen name="text_padding">2sp</dimen>
+    <dimen name="button_size">44dp</dimen>
+    <dimen name="button_radius">4dp</dimen>
+    <dimen name="button_margin">10dp</dimen>
+    <dimen name="button_padding">8dp</dimen>
+    <dimen name="toolbar_height">46dp</dimen>
+    <dimen name="toolbar_radius">20dp</dimen>
+    <dimen name="layout_padding">16dp</dimen>
+    <dimen name="bigfloating_size">56dp</dimen>
+    <dimen name="bigfloating_radius">20dp</dimen>
+    <dimen name="bigfloating_margin">25dp</dimen>
+    <dimen name="bigfloating_padding">12dp</dimen>
+    <dimen name="smallfloating_size">48dp</dimen>
+    <dimen name="smallfloating_padding">9dp</dimen>
+    <dimen name="smallfloating_padding_text_x">10dp</dimen>
+    <dimen name="smallfloating_padding_text_y">3dp</dimen>
+    <dimen name="smallfloating_margin_text">2dp</dimen>
+    <dimen name="smallfloating_margin_side">29dp</dimen>
+    <dimen name="smallfloating_margin_bottom">8dp</dimen>
+    <dimen name="smallfloating_stroke_width">3dp</dimen>
+    <dimen name="smallfloating_gradient_right">28dp</dimen> <!-- sf_size - bf_radius, where does the gradient start -> before the second corner of the imagebutton starts -->
+    <dimen name="smallfloating_gradient_width">60dp</dimen>
+    <dimen name="smallfloating_gradient_end">88dp</dimen> <!-- sf_gradient_right + sf_gradient_width, where does the gradient end -->
+</resources>

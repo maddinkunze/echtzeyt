@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:enterFadeDuration="@integer/material_motion_duration_short_1"
+    android:exitFadeDuration="@integer/material_motion_duration_short_1" >
+
+    <item>
+        <layer-list>
+            <item>
+                <shape>
+                    <solid android:color="@color/backgroundHover" />
+                    <stroke android:color="@color/backgroundTint" android:width="2dp" />
+                    <corners android:radius="@dimen/bigfloating_radius" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+</selector>

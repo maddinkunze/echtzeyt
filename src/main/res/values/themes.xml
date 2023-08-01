@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.Echtzeyt" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/foreground</item>
+        <item name="colorPrimaryVariant">@color/foreground</item>
+        <item name="colorOnPrimary">@color/foreground</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/background</item>
+        <item name="colorSecondaryVariant">@color/background</item>
+        <item name="colorOnSecondary">@color/background</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="l">@color/foreground</item>
+        <!-- Customize your theme here. -->
+        <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
+    </style>
+</resources>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#FF121212</color>
+    <color name="backgroundTint">#303030</color>
+    <color name="backgroundHover">#3C3C3C</color>
+    <color name="backgroundClose">#FF7878</color>
+    <color name="backgroundNotification">#392E25</color>
+    <color name="foreground">#D0D0D0</color>
+    <color name="foregroundHint">#909090</color>
+    <color name="foregroundNotification">#DAC8C8</color>
+    <color name="error">#804040</color>
+    <color name="success">#408040</color>
+</resources>

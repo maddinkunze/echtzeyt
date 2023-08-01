@@ -1,0 +1,643 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    tools:context=".EchtzeytActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/toolbar"
+        android:minHeight="@dimen/toolbar_height"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="@string/appName"
+        app:titleMarginStart="6dp"
+        app:titleTextColor="?attr/colorSecondary" />
+
+    <LinearLayout
+        android:id="@+id/focusableLayout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/layoutSearchbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/layout_padding"
+        android:layout_marginLeft="@dimen/layout_padding"
+        android:layout_marginTop="@dimen/layout_padding"
+        android:layout_marginEnd="@dimen/layout_padding"
+        android:layout_marginRight="@dimen/layout_padding"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+            <com.maddin.echtzeyt.components.InstantAutoCompleteTextView
+                android:id="@+id/edtSearch"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/button_size"
+                android:layout_weight="1"
+                android:background="@color/background"
+                android:fontFamily="@font/roboto"
+                android:hint="@string/edtSearchTip"
+                android:inputType="textNoSuggestions"
+                android:maxLines="1"
+                android:padding="0dp"
+                android:paddingStart="5dp"
+                android:paddingLeft="5dp"
+                android:paddingTop="0dp"
+                android:paddingEnd="0dp"
+                android:paddingRight="0dp"
+                android:paddingBottom="0dp"
+                android:singleLine="true"
+                android:textColor="@color/foreground"
+                android:textColorHint="@color/foregroundHint"
+                android:textCursorDrawable="@null"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                tools:ignore="TextContrastCheck,TouchTargetSizeCheck,VisualLintTextFieldSize" />
+
+        <ImageButton
+            android:id="@+id/btnLike"
+            android:layout_width="@dimen/button_size"
+            android:layout_height="@dimen/button_size"
+            android:layout_marginStart="@dimen/button_margin"
+            android:layout_marginLeft="@dimen/button_margin"
+            android:background="@drawable/imagebutton"
+            android:contentDescription="@string/btnLikeDescription"
+            android:padding="@dimen/button_padding"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_star"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <ImageButton
+            android:id="@+id/btnSearch"
+            android:layout_width="@dimen/button_size"
+            android:layout_height="@dimen/button_size"
+            android:layout_marginStart="@dimen/layout_padding"
+            android:layout_marginLeft="@dimen/layout_padding"
+            android:background="@drawable/imagebutton"
+            android:contentDescription="@string/btnSearchDescription"
+            android:padding="@dimen/button_padding"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_search"
+            tools:ignore="TouchTargetSizeCheck" />
+
+    </LinearLayout>
+
+    <!--Spinner
+        android:id="@+id/spinnerSearch"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/layout_padding"
+        android:layout_marginLeft="@dimen/layout_padding"
+        android:layout_marginEnd="@dimen/layout_padding"
+        android:layout_marginRight="@dimen/layout_padding"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" /-->
+
+    <View
+        android:id="@+id/dividerSearch"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:alpha="0.4"
+        android:background="@color/foreground"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layoutSearchbar" />
+
+    <com.maddin.echtzeyt.components.BottomFadeEdgeScrollView
+        android:id="@+id/scrollLayoutScroll"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="14dp"
+        android:fadingEdgeLength="32dp"
+        android:requiresFadingEdge="vertical"
+        android:scrollbars="none"
+        app:layout_constraintBottom_toTopOf="@+id/txtLastUpdated"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dividerSearch">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layoutScroll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp">
+
+            <TextView
+                android:id="@+id/txtLineNumbers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:fontFamily="@font/roboto"
+                android:gravity="top|end"
+                android:lineSpacingExtra="@dimen/text_padding"
+                android:textColor="@color/foreground"
+                android:textIsSelectable="false"
+                android:textSize="@dimen/text_size"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_min="25dp" />
+
+            <HorizontalScrollView
+                android:id="@+id/scrollLineNames"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginRight="10dp"
+                android:fadingEdgeLength="30dp"
+                android:overScrollMode="never"
+                android:requiresFadingEdge="horizontal"
+                android:scrollbars="none"
+                app:layout_constraintEnd_toStartOf="@id/txtLineTimesHour"
+                app:layout_constraintStart_toEndOf="@+id/txtLineNumbers"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <LinearLayout
+                    android:id="@+id/layoutLineNames"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/txtLineNames"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:fontFamily="@font/roboto"
+                        android:gravity="start|center_vertical"
+                        android:lineSpacingExtra="@dimen/text_padding"
+                        android:singleLine="false"
+                        android:textColor="@color/foreground"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <TextView
+                android:id="@+id/txtLineTimesHour"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:layout_marginRight="5dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/roboto"
+                android:gravity="top|end"
+                android:lineSpacingExtra="@dimen/text_padding"
+                android:textColor="@color/foreground"
+                android:textSize="@dimen/text_size"
+                android:visibility="gone"
+                app:layout_constraintEnd_toStartOf="@+id/txtLineTimesMin"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/txtLineTimesMin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:layout_marginRight="5dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/roboto"
+                android:gravity="top|end"
+                android:lineSpacingExtra="@dimen/text_padding"
+                android:textColor="@color/foreground"
+                android:textSize="@dimen/text_size"
+                app:layout_constraintEnd_toStartOf="@+id/txtLineTimesSec"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_min="20dp" />
+
+            <TextView
+                android:id="@+id/txtLineTimesSec"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/roboto"
+                android:gravity="top|end"
+                android:lineSpacingExtra="@dimen/text_padding"
+                android:textColor="@color/foreground"
+                android:textSize="@dimen/text_size"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_min="20dp" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.maddin.echtzeyt.components.BottomFadeEdgeScrollView>
+
+    <TextView
+        android:id="@+id/txtLastUpdated"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
+        android:alpha="0.4"
+        android:text="@string/updateNotYet"
+        android:textColor="@color/error"
+        android:textSize="11sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="TextContrastCheck" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutBookmarks"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/bigfloating_margin"
+        android:layout_marginLeft="@dimen/bigfloating_margin"
+        android:layout_marginBottom="@dimen/bigfloating_margin"
+        android:alpha="0"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <Space
+            android:id="@+id/bookmarksSpace1"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/bigfloating_size"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <View
+            android:id="@+id/bookmarksFillerMain"
+            android:layout_width="@dimen/bigfloating_size"
+            android:layout_height="@dimen/bigfloating_radius"
+            android:background="@color/backgroundTint"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/bookmarksSpace1" />
+
+        <View
+            android:id="@+id/bookmarksFiller2"
+            android:layout_width="@dimen/bigfloating_size"
+            android:layout_height="@dimen/bigfloating_size"
+            android:background="@drawable/innerradius"
+            app:layout_constraintStart_toEndOf="@+id/bookmarksFillerMain"
+            app:layout_constraintTop_toTopOf="@+id/bookmarksSpace1" />
+
+        <LinearLayout
+            android:id="@+id/bookmarksItemsLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bookmarks"
+            android:orientation="vertical"
+            android:paddingBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/bookmarksFiller2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_max="300dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/bookmarksHeading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="5dp"
+                android:fontFamily="@font/roboto"
+                android:gravity="center"
+                android:text="@string/txtBookmarksHeading"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/bookmarksEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginRight="10dp"
+                android:alpha="0.5"
+                android:fontFamily="@font/roboto"
+                android:text="@string/txtBookmarksEmpty" />
+
+            <ScrollView
+                android:id="@+id/bookmarksItemsScroll"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/txtBookmarksHeading"
+                android:minHeight="200dp">
+
+                <LinearLayout
+                    android:id="@+id/bookmarksItems"
+                    android:layout_width="match_parent"
+                    android:layout_height="600dp"
+                    android:orientation="vertical" />
+            </ScrollView>
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageButton
+        android:id="@+id/btnBookmarks"
+        android:layout_width="@dimen/bigfloating_size"
+        android:layout_height="@dimen/bigfloating_size"
+        android:layout_marginStart="@dimen/bigfloating_margin"
+        android:layout_marginLeft="@dimen/bigfloating_margin"
+        android:layout_marginBottom="@dimen/bigfloating_margin"
+        android:background="@drawable/floatingbutton"
+        android:clickable="true"
+        android:contentDescription="@string/btnBookmarksDescription"
+        android:focusable="true"
+        android:padding="@dimen/bigfloating_padding"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/ic_bookmark" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/notificationWindow"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/notification"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/btnMenu"
+        app:layout_constraintEnd_toEndOf="@id/btnMenu"
+        app:layout_constraintStart_toStartOf="@id/btnBookmarks">
+
+        <ImageButton
+            android:id="@+id/notificationButtonClose"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:background="@drawable/closebutton"
+            android:contentDescription="@string/btnClose"
+            android:padding="2dp"
+            android:scaleType="centerInside"
+            app:tint="@color/backgroundNotification"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_close"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <LinearLayout
+            android:id="@+id/notificationTitle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="40dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="40dp"
+            android:layout_marginRight="40dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/notificationTitleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/notificationTitleDefault"
+                android:textAlignment="gravity"
+                android:textColor="@color/foregroundNotification"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/notificationText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/notificationTextDefault"
+            android:textColor="@color/foregroundNotification"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/notificationTitle" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageButton
+        android:id="@+id/btnMenu"
+        android:layout_width="@dimen/bigfloating_size"
+        android:layout_height="@dimen/bigfloating_size"
+        android:layout_marginEnd="@dimen/bigfloating_margin"
+        android:layout_marginRight="@dimen/bigfloating_margin"
+        android:layout_marginBottom="@dimen/bigfloating_margin"
+        android:background="@drawable/floatingbutton"
+        android:clickable="true"
+        android:contentDescription="@string/btnMenuDescription"
+        android:focusable="true"
+        android:padding="@dimen/bigfloating_padding"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_menu" />
+
+    <LinearLayout
+        android:id="@+id/layoutButtonSettings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/smallfloating_margin_side"
+        android:layout_marginRight="@dimen/smallfloating_margin_side"
+        android:layout_marginBottom="@dimen/smallfloating_margin_bottom"
+        android:background="@drawable/floatingcontainer"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/btnMenu"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/lblSettings"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/smallfloating_margin_text"
+            android:layout_marginRight="@dimen/smallfloating_margin_text"
+            android:layout_weight="1"
+            android:labelFor="@id/btnSettings"
+            android:paddingLeft="@dimen/smallfloating_padding_text_x"
+            android:paddingTop="@dimen/smallfloating_padding_text_y"
+            android:paddingRight="@dimen/smallfloating_padding_text_x"
+            android:paddingBottom="@dimen/smallfloating_padding_text_y"
+            android:text="@string/btnSettingsDescription"
+            android:textColor="@color/foreground"
+            tools:ignore="TextContrastCheck" />
+
+        <ImageButton
+            android:id="@+id/btnSettings"
+            android:layout_width="@dimen/smallfloating_size"
+            android:layout_height="@dimen/smallfloating_size"
+            android:background="@drawable/floatingbutton"
+            android:clickable="true"
+            android:contentDescription="@string/btnSettingsDescription"
+            android:focusable="true"
+            android:padding="@dimen/smallfloating_padding"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_settings" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutButtonDonate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/smallfloating_margin_side"
+        android:layout_marginRight="@dimen/smallfloating_margin_side"
+        android:layout_marginBottom="@dimen/smallfloating_margin_bottom"
+        android:background="@drawable/floatingcontainer"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/layoutButtonSettings"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/lblDonate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/smallfloating_margin_text"
+            android:layout_marginRight="@dimen/smallfloating_margin_text"
+            android:layout_weight="1"
+            android:labelFor="@id/btnDonate"
+            android:paddingLeft="@dimen/smallfloating_padding_text_x"
+            android:paddingTop="@dimen/smallfloating_padding_text_y"
+            android:paddingRight="@dimen/smallfloating_padding_text_x"
+            android:paddingBottom="@dimen/smallfloating_padding_text_y"
+            android:text="@string/btnDonateDescription"
+            android:textColor="@color/foreground"
+            tools:ignore="TextContrastCheck" />
+
+        <ImageButton
+            android:id="@+id/btnDonate"
+            android:layout_width="@dimen/smallfloating_size"
+            android:layout_height="@dimen/smallfloating_size"
+            android:background="@drawable/floatingbutton"
+            android:clickable="true"
+            android:contentDescription="@string/btnDonateDescription"
+            android:focusable="true"
+            android:padding="@dimen/smallfloating_padding"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_donate" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutButtonMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/smallfloating_margin_side"
+        android:layout_marginRight="@dimen/smallfloating_margin_side"
+        android:layout_marginBottom="@dimen/smallfloating_margin_bottom"
+        android:background="@drawable/floatingcontainer"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/layoutButtonDonate"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/lblMessage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/smallfloating_margin_text"
+            android:layout_marginRight="@dimen/smallfloating_margin_text"
+            android:layout_weight="1"
+            android:labelFor="@id/btnMessage"
+            android:paddingLeft="@dimen/smallfloating_padding_text_x"
+            android:paddingTop="@dimen/smallfloating_padding_text_y"
+            android:paddingRight="@dimen/smallfloating_padding_text_x"
+            android:paddingBottom="@dimen/smallfloating_padding_text_y"
+            android:text="@string/btnMessageDescription"
+            android:textColor="@color/foreground"
+            tools:ignore="TextContrastCheck" />
+
+        <ImageButton
+            android:id="@+id/btnMessage"
+            android:layout_width="@dimen/smallfloating_size"
+            android:layout_height="@dimen/smallfloating_size"
+            android:background="@drawable/floatingbutton"
+            android:clickable="true"
+            android:contentDescription="@string/btnMessageDescription"
+            android:focusable="true"
+            android:padding="@dimen/smallfloating_padding"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_message" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutButtonAnnouncement"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/smallfloating_margin_side"
+        android:layout_marginRight="@dimen/smallfloating_margin_side"
+        android:layout_marginBottom="@dimen/smallfloating_margin_bottom"
+        android:background="@drawable/floatingcontainer"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/layoutButtonMessage"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/lblAnnouncement"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/smallfloating_margin_text"
+            android:layout_marginRight="@dimen/smallfloating_margin_text"
+            android:layout_weight="1"
+            android:labelFor="@id/btnAnnouncement"
+            android:paddingLeft="@dimen/smallfloating_padding_text_x"
+            android:paddingTop="@dimen/smallfloating_padding_text_y"
+            android:paddingRight="@dimen/smallfloating_padding_text_x"
+            android:paddingBottom="@dimen/smallfloating_padding_text_y"
+            android:text="@string/btnAnnouncementDescription"
+            android:textColor="@color/foreground"
+            tools:ignore="TextContrastCheck" />
+
+        <ImageButton
+            android:id="@+id/btnAnnouncement"
+            android:layout_width="@dimen/smallfloating_size"
+            android:layout_height="@dimen/smallfloating_size"
+            android:background="@drawable/floatingbutton"
+            android:clickable="true"
+            android:contentDescription="@string/btnAnnouncementDescription"
+            android:focusable="true"
+            android:padding="@dimen/smallfloating_padding"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_announcement" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

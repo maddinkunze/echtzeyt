@@ -1,0 +1,45 @@
+<resources>
+    <string name="appName" translatable="false">Echtzeyt</string>
+    <string name="appVersion" translatable="false" />
+    <string name="appNameSettings">Settings</string>
+    <string name="btnSearchDescription">Show</string>
+    <string name="btnLikeDescription">Add this station to bookmarks</string>
+    <string name="edtSearchTip">Enter station name…</string>
+    <string name="stringEmpty" translatable="false"> </string>
+    <string name="btnBookmarksDescription">Show bookmarks</string>
+    <string name="btnSettingsDescription">Settings</string>
+    <string name="btnDonateDescription">Support me</string>
+    <string name="btnMessageDescription">Feedback</string>
+    <string name="btnAnnouncementDescription">Announcement</string>
+    <string name="txtBookmarksHeading">Saved stations:</string>
+    <string name="txtBookmarksEmpty">No favourites yet. Use the star icon next to the search bar to add a station to your favourites. You can use your favourite stations as a quick access. Simply tap on the station you want to check out.</string>
+    <string name="settingsSaveContent">Save last station</string>
+    <string name="settingsAutoDark">Stick to system theme</string>
+    <string name="settingsDarkMode">Dark Mode</string>
+    <string name="settingsFastMode">Fast Updates</string>
+    <string name="updateNotYet">Not updated yet!</string>
+    <string name="updateLast">Last updated:</string>
+    <string name="updateEmpty">Nothing to see here!</string>
+    <string name="btnMenuDescription">Show menu</string>
+    <string name="contactTitle">Give feedback (email)</string>
+    <string name="contactEmail" translatable="false" />
+    <string name="contactSubject">Feedback / Bug report</string>
+    <string name="contactBody">Hey,\n\n --- please describe you wishes/problems/… either in english or german ---\n\n\n ---\nGreetings</string>
+    <string name="contactBodyError">\n\n The following errors occurred while trying to use the app:\n\n</string>
+    <string name="contactError">An error occurred, do you have an email client installed?</string>
+    <string name="urlSupportMe" translatable="false" />
+    <string name="urlNotification" translatable="false" />
+    <string name="urlNotificationQuery" />
+    <string name="notificationTitleDefault">You should not see this error?!</string>
+    <string name="notificationTextDefault">Hi, apparently there was an error while displaying the error :/ This is the default text and you should not see it. You can either close or report it to me via e-mail, see the bottom right menu to report it.</string>
+    <string name="notificationToastInvalid">Currently, there is no notification, announcement or other information.</string>
+    <string name="notificationToastOtherError">An unexpected error occurred while trying to show you the latest announcement, please try again later.</string>
+    <string name="btnClose">Close</string>
+    <string name="sendLogsTitle">Send logs?</string>
+    <string name="sendLogsText">It seems you may experienced something unusual. Do you want to report it by including the latest errors in your feedback email?</string>
+    <string name="sendLogsYes">Yes, send error logs</string>
+    <string name="sendLogsNo">No</string>
+    <string name="_libraryEchtzeytBasedOn">based on\u0020</string>
+    <string name="_libraryEchtzeytName" translatable="false">Echtzeyt</string>
+    <string name="_libraryEchtzeytVersion" translatable="false" />
+</resources>

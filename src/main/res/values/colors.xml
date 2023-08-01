@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#DDDDDD</color>
+    <color name="backgroundTint">#EEEEEE</color>
+    <color name="backgroundHover">#E6D4F1</color>
+    <color name="backgroundClose">#DD2020</color>
+    <color name="backgroundNotification">#FDEBDC</color>
+    <color name="foreground">#8800AE</color>
+    <color name="foregroundHint">#8B3D0355</color>
+    <color name="foregroundNotification">#1A1A1A</color>
+    <color name="error">#915A5A</color>
+    <color name="success">#628E62</color>
+</resources>
