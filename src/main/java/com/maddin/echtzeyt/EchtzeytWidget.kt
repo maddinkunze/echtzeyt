@@ -123,7 +123,7 @@ open class EchtzeytWidget : AppWidgetProvider() {
         val preferences = openConfiguration(context, widgetId)
         val stationName = preferences.getString("station", lastWidgetInfo?.stationName ?: "")
         if (stationName.isNullOrBlank()) {
-            widgetInformation.remove(widgetId)
+            unloadWidget(widgetId)
             loadWidgetContent(context, widgetId, null)
             return
         }
@@ -134,7 +134,7 @@ open class EchtzeytWidget : AppWidgetProvider() {
         val stepsAlive = lastWidgetInfo?.stepsAlive ?: 0
         val widgetInfo = WidgetInformation(widgetId, context, System.currentTimeMillis(), 0, updateEvery, durationActive, 0, stepsAlive, stationName, lastStation)
 
-        if (flags.and(LOAD_FLAG_START_RUNNING) > 0) {
+        if ((lastWidgetInfo != null) || (flags.and(LOAD_FLAG_START_RUNNING) > 0)) {
             widgetInformation[widgetId] = widgetInfo
         } else {
             widgetInformation.remove(widgetId)
