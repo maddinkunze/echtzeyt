@@ -297,6 +297,7 @@ open class EchtzeytActivity : AppCompatActivity() {
                 txtLastUpdated.setTextColor(resources.getColor(R.color.error))
                 txtLastUpdated.alpha = 1f
                 val oa = ObjectAnimator.ofFloat(txtLastUpdated, "alpha", 0.4f).setDuration(300)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) { oa.setAutoCancel(true) }
                 oa.startDelay = 300; oa.start()
             }
 
@@ -364,6 +365,7 @@ open class EchtzeytActivity : AppCompatActivity() {
             txtLastUpdated.setTextColor(resources.getColor(R.color.success))
             txtLastUpdated.alpha = 1f
             val oa = ObjectAnimator.ofFloat(txtLastUpdated, "alpha", 0.4f).setDuration(300)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) { oa.setAutoCancel(true) }
             oa.startDelay = 300; oa.start()
         }
 
@@ -466,7 +468,10 @@ open class EchtzeytActivity : AppCompatActivity() {
 
             val notificationWindow = findViewById<View>(R.id.notificationWindow)
             notificationWindow.visibility = View.VISIBLE
-            ObjectAnimator.ofFloat(notificationWindow, View.ALPHA, 1f).setDuration(100).start()
+
+            val oa = ObjectAnimator.ofFloat(notificationWindow, View.ALPHA, 1f).setDuration(100)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) { oa.setAutoCancel(true) }
+            oa.start()
         }
 
         val mainLooper = Looper.getMainLooper()
@@ -486,7 +491,9 @@ open class EchtzeytActivity : AppCompatActivity() {
     private fun closeNotification() {
         val notificationWindow = findViewById<View>(R.id.notificationWindow)
         Handler(Looper.getMainLooper()).post {
-            ObjectAnimator.ofFloat(notificationWindow, View.ALPHA, 0f).setDuration(100).start()
+            val oa = ObjectAnimator.ofFloat(notificationWindow, View.ALPHA, 0f).setDuration(100)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) { oa.setAutoCancel(true) }
+            oa.start()
         }
         notificationWindow.postDelayed({notificationWindow.visibility = View.GONE}, 100)
 
@@ -538,6 +545,7 @@ open class EchtzeytActivity : AppCompatActivity() {
         if (menuOpened || forceClose) { // If open or forceClose -> close menu
             for (menuItem in menuItems.reversed()) {
                 val oa = ObjectAnimator.ofFloat(menuItem, "alpha", 0f).setDuration(duration)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) { oa.setAutoCancel(true) }
                 oa.startDelay = delay; oa.start()
                 menuItem.postDelayed({
                     if (menuOpened) { return@postDelayed } // if the menu got opened again don't hide the item
@@ -551,6 +559,7 @@ open class EchtzeytActivity : AppCompatActivity() {
                 val menuItem = menuItems[i]
                 menuItem.visibility = View.VISIBLE
                 val oa = ObjectAnimator.ofFloat(menuItem, "alpha", 1f).setDuration(duration)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) { oa.setAutoCancel(true) }
                 oa.startDelay = delay; oa.start()
                 delay += delayStep
             }
@@ -578,12 +587,22 @@ open class EchtzeytActivity : AppCompatActivity() {
         val duration = 100L
         val bookmarksLayout = findViewById<View>(R.id.layoutBookmarks)
         if (forceClose || bookmarksOpened) {
-            ObjectAnimator.ofFloat(bookmarksLayout, View.ALPHA, 0f).setDuration(duration).start()
-            bookmarksLayout.postDelayed({bookmarksLayout.visibility = View.GONE}, duration)
+            val oa = ObjectAnimator.ofFloat(bookmarksLayout, View.ALPHA, 0f).setDuration(duration)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) { oa.setAutoCancel(true) }
+            oa.start()
+
+            bookmarksLayout.postDelayed({
+                if (bookmarksOpened) { return@postDelayed }
+                bookmarksLayout.visibility = View.GONE }, duration)
+
             bookmarksOpened = false
         } else {
             bookmarksLayout.visibility = View.VISIBLE
-            ObjectAnimator.ofFloat(bookmarksLayout, View.ALPHA, 1f).setDuration(duration).start()
+
+            val oa = ObjectAnimator.ofFloat(bookmarksLayout, View.ALPHA, 1f).setDuration(duration)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) { oa.setAutoCancel(true) }
+            oa.start()
+
             bookmarksOpened = true
         }
     }
