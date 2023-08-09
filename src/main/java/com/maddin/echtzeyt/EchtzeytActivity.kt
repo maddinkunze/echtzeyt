@@ -20,7 +20,6 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.view.children
 import com.maddin.echtzeyt.components.InstantAutoCompleteTextView
 import com.maddin.echtzeyt.randomcode.ClassifiedException
 import com.maddin.transportapi.RealtimeConnection
