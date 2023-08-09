@@ -19,6 +19,8 @@
         <item>30 Sekunden</item>
         <item>1 Minute</item>
     </string-array>
+    <string name="widgetNotLoaded">Widget nicht geladen</string>
+    <string name="widgetNotLoadedInfo">Du kannst versuchen das Widget (neu) zu laden indem du drauf klickst oder die Größe oder andere Einstellungen (kurzzeitig) veränderst</string>
     <string name="widgetNoStation">Keine Station ausgewählt</string>
     <string name="widgetReload">Lade/Starte Widget neu</string>
     <string name="widgetStop">Stoppe Widget</string>
