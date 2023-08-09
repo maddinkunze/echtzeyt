@@ -1,6 +1,362 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layoutWidget"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_background"
+    android:clipChildren="true"
+    android:clipToPadding="true"
+    android:orientation="vertical"
+    android:theme="@style/Theme.Echtzeyt">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/layoutWidgetToolbar"
+        android:orientation="horizontal"
+        android:paddingLeft="5dp"
+        android:paddingTop="2dp"
+        android:paddingRight="5dp">
+
+        <TextView
+            android:id="@+id/txtWidgetLineNumbers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="right|end"
+            android:singleLine="false"
+            android:textSize="@dimen/widget_text_size" />
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginEnd="1dp"
+            android:layout_marginRight="1dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/txtWidgetLineNames"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginEnd="-10000dp"
+                android:layout_marginRight="-10000dp"
+                android:singleLine="false"
+                android:textSize="@dimen/widget_text_size"
+                android:textStyle="bold"
+                tools:ignore="VisualLintBounds" />
+
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="match_parent"
+                android:layout_alignBottom="@id/txtWidgetLineNames"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:importantForAccessibility="no"
+                android:src="@drawable/widget_linenames_fadingedge"
+                app:srcCompat="@drawable/widget_linenames_fadingedge" />
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/txtWidgetTimesHours"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="right|end"
+            android:singleLine="false"
+            android:textSize="@dimen/widget_text_size" />
+
+        <TextView
+            android:id="@+id/txtWidgetTimesMinutes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="right|end"
+            android:singleLine="false"
+            android:textSize="@dimen/widget_text_size" />
+
+        <TextView
+            android:id="@+id/txtWidgetTimesSeconds"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="right|end"
+            android:singleLine="false"
+            android:textSize="@dimen/widget_text_size" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/imgWidgetOverflowBorder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="@dimen/widget_toolbar_offset_internal"
+        android:layout_marginLeft="@dimen/widget_toolbar_offset_internal"
+        android:layout_marginEnd="@dimen/widget_toolbar_offset_internal"
+        android:layout_marginRight="@dimen/widget_toolbar_offset_internal"
+        android:layout_marginBottom="@dimen/widget_toolbar_offset_internal"
+        android:clickable="false"
+        android:focusableInTouchMode="false"
+        android:importantForAccessibility="no"
+        android:src="@drawable/widget_foreground"
+        app:srcCompat="@drawable/widget_foreground"
+        tools:ignore="VisualLintBounds" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/imgWidgetOverflowBorder"
+        android:layout_marginBottom="@dimen/widget_toolbar_padding"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="10dp"
+            android:layout_marginTop="@dimen/widget_toolbar_title_size"
+            android:layout_marginBottom="@dimen/widget_toolbar_text_size"
+            android:orientation="vertical"
+            tools:ignore="UselessLeaf" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/widget_corner_radius"
+            android:orientation="vertical"
+            tools:ignore="UselessLeaf" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="false"
+            android:focusableInTouchMode="false"
+            android:importantForAccessibility="no"
+            android:src="@drawable/widget_bottom_fadingedge"
+            app:srcCompat="@drawable/widget_bottom_fadingedge"
+            tools:ignore="ImageContrastCheck" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/layoutWidgetToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/widget_toolbar">
+
+        <LinearLayout
+            android:id="@+id/layoutToolbarCorner"
+            android:layout_width="wrap_content"
+            android:layout_height="1dp"
+            android:alpha="0.1"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto"
+                android:singleLine="true"
+                android:text=" - "
+                android:textColor="@android:color/transparent"
+                android:textSize="@dimen/widget_corner_radius"
+                tools:ignore="HardcodedText,SpUsage,TextSizeCheck,TextContrastCheck" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutToolbarButtons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/layoutToolbarButtonsAlignRetract"
+            android:layout_alignRight="@+id/layoutToolbarButtonsAlignRetract"
+            android:layout_alignBottom="@id/layoutToolbarText"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="8dp"
+                android:layout_marginTop="@dimen/widget_toolbar_title_size"
+                android:layout_marginBottom="@dimen/widget_toolbar_text_size"
+                android:orientation="vertical"
+                tools:ignore="UselessLeaf"></LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutButtonWidgetReload"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="8dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/widget_toolbar_title_size"
+                    android:layout_marginLeft="@dimen/widget_toolbar_title_size"
+                    android:layout_marginEnd="@dimen/widget_toolbar_text_size"
+                    android:layout_marginRight="@dimen/widget_toolbar_text_size"
+                    android:orientation="horizontal"
+                    tools:ignore="UselessLeaf" />
+
+                <ImageButton
+                    android:id="@+id/btnWidgetReload"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="@dimen/widget_toolbar_padding"
+                    android:background="@drawable/widget_button"
+                    android:contentDescription="@string/widgetReload"
+                    android:padding="5dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_play"
+                    tools:ignore="TouchTargetSizeCheck"
+                    tools:src="@drawable/ic_play" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutButtonWidgetStop"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <LinearLayout
+                    android:layout_width="8dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/widget_toolbar_title_size"
+                    android:layout_marginLeft="@dimen/widget_toolbar_title_size"
+                    android:layout_marginEnd="@dimen/widget_toolbar_text_size"
+                    android:layout_marginRight="@dimen/widget_toolbar_text_size"
+                    android:orientation="horizontal"
+                    tools:ignore="UselessLeaf" />
+
+                <ImageButton
+                    android:id="@+id/btnWidgetStop"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="@dimen/widget_toolbar_padding"
+                    android:background="@drawable/widget_button"
+                    android:contentDescription="@string/widgetStop"
+                    android:padding="5dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_stop"
+                    tools:ignore="TouchTargetSizeCheck"
+                    tools:src="@drawable/ic_stop" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/imgToolbarForeground"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignBottom="@id/layoutToolbarText"
+            android:layout_marginStart="@dimen/widget_toolbar_offset_internal"
+            android:layout_marginLeft="@dimen/widget_toolbar_offset_internal"
+            android:layout_marginTop="@dimen/widget_toolbar_offset_internal"
+            android:layout_marginEnd="@dimen/widget_toolbar_offset_internal"
+            android:layout_marginRight="@dimen/widget_toolbar_offset_internal"
+            android:clickable="false"
+            android:focusableInTouchMode="false"
+            android:importantForAccessibility="no"
+            android:src="@drawable/widget_toolbar_foreground"
+            app:srcCompat="@drawable/widget_toolbar_foreground"
+            tools:ignore="VisualLintBounds" />
+
+        <LinearLayout
+            android:id="@+id/layoutToolbarText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@id/layoutToolbarButtons"
+            android:layout_toLeftOf="@id/layoutToolbarButtons"
+            android:layout_toEndOf="@+id/layoutToolbarCorner"
+            android:layout_toRightOf="@+id/layoutToolbarCorner"
+            android:clipChildren="false"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/widget_toolbar_title_size"
+                android:layout_marginTop="@dimen/widget_toolbar_padding"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/txtWidgetStationName"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/widget_toolbar_text_height"
+                    android:includeFontPadding="false"
+                    android:lines="1"
+                    android:singleLine="true"
+                    android:text="@string/widgetNoStation"
+                    android:textColor="@color/foregroundWidget"
+                    android:textSize="@dimen/widget_toolbar_title_size"
+                    tools:ignore="TextContrastCheck,VisualLintBounds" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/widget_toolbar_text_size"
+                android:layout_marginTop="@dimen/widget_toolbar_title_padding"
+                android:layout_marginBottom="@dimen/widget_toolbar_padding"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/txtWidgetUpdate"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/widget_toolbar_text_height"
+                    android:includeFontPadding="false"
+                    android:lines="1"
+                    android:minHeight="@dimen/widget_toolbar_text_height"
+                    android:singleLine="true"
+                    android:text="@string/updateNotYet"
+                    android:textColor="@color/errorWidget"
+                    android:textSize="@dimen/widget_toolbar_text_size"
+                    tools:ignore="TextContrastCheck,VisualLintBounds,TextSizeCheck" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutToolbarButtonsAlignExtend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="5dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/widget_toolbar_text_size"
+                android:layout_marginLeft="@dimen/widget_toolbar_text_size"
+                android:layout_marginEnd="@dimen/widget_toolbar_title_size"
+                android:layout_marginRight="@dimen/widget_toolbar_title_size"
+                android:orientation="horizontal"
+                tools:ignore="UselessLeaf" />
+
+            <LinearLayout
+                android:layout_width="@dimen/widget_corner_radius"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                tools:ignore="UselessLeaf" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutToolbarButtonsAlignRetract"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/layoutToolbarButtonsAlignExtend"
+            android:layout_alignLeft="@+id/layoutToolbarButtonsAlignExtend"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="5dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/widget_toolbar_text_size"
+                android:layout_marginLeft="@dimen/widget_toolbar_text_size"
+                android:layout_marginEnd="@dimen/widget_toolbar_title_size"
+                android:layout_marginRight="@dimen/widget_toolbar_title_size"
+                android:orientation="horizontal"
+                tools:ignore="UselessLeaf" />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>

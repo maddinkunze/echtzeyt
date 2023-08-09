@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <inset android:insetTop="1px">
+            <shape android:shape="rectangle">
+                <stroke android:width="@dimen/widget_toolbar_padding_internal" android:color="@color/background" />
+                <corners android:radius="@dimen/widget_corner_radius" />
+            </shape>
+        </inset>
+    </item>
+</selector>

@@ -4,10 +4,18 @@
     <color name="backgroundTint">#EEEEEE</color>
     <color name="backgroundHover">#E6D4F1</color>
     <color name="backgroundClose">#DD2020</color>
+    <color name="backgroundSunken">#BBBBBB</color>
+    <color name="backgroundWidgetToolbar">@color/foreground</color>
     <color name="backgroundNotification">#FDEBDC</color>
     <color name="foreground">#8800AE</color>
     <color name="foregroundHint">#8B3D0355</color>
+    <color name="foregroundText">#606060</color>
+    <color name="foregroundWidget">@color/background</color>
     <color name="foregroundNotification">#1A1A1A</color>
     <color name="error">#915A5A</color>
+    <color name="errorWidget">#FF765E</color>
     <color name="success">#628E62</color>
+    <color name="successWidget">#97FF69</color>
+
+    <color name="transparent">@android:color/transparent</color>
 </resources>

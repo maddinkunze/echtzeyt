@@ -2,6 +2,7 @@ package com.maddin.echtzeyt
 
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
+import android.appwidget.AppWidgetManager
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
@@ -21,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.children
 import com.maddin.echtzeyt.components.InstantAutoCompleteTextView
+import com.maddin.echtzeyt.randomcode.ClassifiedException
 import com.maddin.transportapi.RealtimeConnection
 import com.maddin.transportapi.Station
 import org.json.JSONObject
@@ -29,6 +31,7 @@ import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.concurrent.thread
+
 
 @Suppress("deprecation", "unused")
 fun setAppLocale(context: Context, language: String) {
@@ -65,11 +68,14 @@ open class EchtzeytActivity : AppCompatActivity() {
     private var bookmarksOpened = false
 
     private lateinit var preferences: SharedPreferences
-    private var currentStation = ""
+    private var currentStationName = ""
+    private var currentStation: Station? = null
     private var savedStations: MutableSet<String> = mutableSetOf()
     private lateinit var adapterSearch: ArrayAdapter<String>
     private lateinit var transportStationAPI: com.maddin.transportapi.StationAPI
     private lateinit var transportRealtimeAPI: com.maddin.transportapi.RealtimeAPI
+
+    protected var widgetClasses = mutableListOf<Class<*>>()
 
     private var currentNotification: JSONObject? = null
     private var lastClosedNotification = ""
@@ -78,6 +84,7 @@ open class EchtzeytActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //setAppLocale(this, "de")
+        updateWidgets()
         setContentView(R.layout.activity_main)
 
         initVariables()
@@ -85,6 +92,22 @@ open class EchtzeytActivity : AppCompatActivity() {
         initHandlers()
         initApp()
         initThreads()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateWidgets()
+    }
+
+    private fun updateWidgets() {
+        for (widgetClass in widgetClasses) {
+            val intent = Intent(this, widgetClass)
+            intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+            val widgetIds = AppWidgetManager.getInstance(application).getAppWidgetIds(ComponentName(application, widgetClass))
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds)
+            sendBroadcast(intent)
+        }
+
     }
 
     private fun initVariables() {
@@ -121,7 +144,7 @@ open class EchtzeytActivity : AppCompatActivity() {
 
         // Save last station?
         if (!preferences.contains("saveStation")) { preferences.edit().putBoolean("saveStation", true).apply() }
-        if (preferences.getBoolean("saveStation", true)) { currentStation = preferences.getString("station", "")!! }
+        if (preferences.getBoolean("saveStation", true)) { currentStationName = preferences.getString("station", "")!! }
 
         // Dark mode
         if (!preferences.contains("darkMode")) { preferences.edit().putBoolean("darkMode", AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES).apply() }
@@ -131,6 +154,10 @@ open class EchtzeytActivity : AppCompatActivity() {
             preferences.getBoolean("darkMode", false) -> { AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES) }
             else -> { AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO) }
         }
+
+        // Update interval (legacy code from when the user could choose between normal mode -> every 5s and fast mode -> every 1s)
+        if (preferences.contains("fastMode")) { preferences.edit().putInt("updateEvery", if (preferences.getBoolean("fastMode", false)) { 1000 } else { 5000 }).remove("fastMode").apply() }
+        if (!preferences.contains("updateEvery")) { preferences.edit().putInt("updateEvery", 5000).apply() }
 
         // Saved stations
         if (!preferences.contains("savedStations")) { preferences.edit().putStringSet("savedStations", savedStations).apply() }
@@ -162,7 +189,7 @@ open class EchtzeytActivity : AppCompatActivity() {
         // Listener when the main search input changes
         edtSearch.addOnTextChangedListener { text ->
             val search = text.toString()
-            if (search == currentStation) { edtSearch.clearFocus(); return@addOnTextChangedListener }
+            if (search == currentStationName) { edtSearch.clearFocus(); return@addOnTextChangedListener }
 
             currentStationSearch = search
             shouldUpdateSearch = true
@@ -184,7 +211,6 @@ open class EchtzeytActivity : AppCompatActivity() {
         btnMenu.setOnClickListener { toggleMenu() }
 
         // Open settings when clicking the settings button
-        println("MADDIN101: $packageName")
         btnSettings.setOnClickListener { toggleMenu(true); startActivity(Intent().setComponent(ComponentName(this, "$packageName.SettingsActivity"))) }
 
         // Open the support/donation link when clicking the donation button
@@ -228,8 +254,8 @@ open class EchtzeytActivity : AppCompatActivity() {
     }
     private fun initApp() {
         val edtSearch = findViewById<AutoCompleteTextView>(R.id.edtSearch)
-        edtSearch.setText(currentStation)
-        if (currentStation.isNotEmpty()) { edtSearch.clearFocus() }
+        edtSearch.setText(currentStationName)
+        if (currentStationName.isNotEmpty()) { edtSearch.clearFocus() }
 
         commitToStation()
         updateBookmarks()
@@ -256,12 +282,16 @@ open class EchtzeytActivity : AppCompatActivity() {
         val edtTimesMin = findViewById<TextView>(R.id.txtLineTimesMin)
         val edtTimesSec = findViewById<TextView>(R.id.txtLineTimesSec)
         val txtLastUpdated = findViewById<TextView>(R.id.txtLastUpdated)
+        currentStationSearch = edtSearch.text.toString()
 
         val stops: List<RealtimeConnection>
         try {
-            val stations = transportStationAPI.getStations(edtSearch.text.toString())
-            if (stations.isEmpty()) { return }
-            stops = transportRealtimeAPI.getRealtimeInformation(stations[0]).connections
+            if ((currentStation == null) || (currentStation!!.name == currentStationSearch)) {
+                val stations = transportStationAPI.getStations(currentStationSearch)
+                if (stations.isEmpty()) { return }
+                currentStation = stations[0]
+            }
+            stops = transportRealtimeAPI.getRealtimeInformation(currentStation!!).connections
         } catch (e: Exception) {
             Handler(Looper.getMainLooper()).post {
                 txtLastUpdated.setTextColor(resources.getColor(R.color.error))
@@ -274,7 +304,7 @@ open class EchtzeytActivity : AppCompatActivity() {
             exceptions.add(ClassifiedException(e, classification))
 
             // Error -> next connection update in 2 seconds
-            scheduleNextConnectionsUpdate(System.currentTimeMillis() + 2000, curUpdateTime == nextUpdateConnections)
+            updateConnectionsIn(1000, curUpdateTime == nextUpdateConnections)
             return
         }
 
@@ -338,16 +368,13 @@ open class EchtzeytActivity : AppCompatActivity() {
         }
 
         // Usually the next update would be in 5 seconds
-        var delayNextUpdate = 5000
-        if (preferences.getBoolean("fastMode", false)) {
-            // but when fastMode is enabled, the next update will be in 0.5 seconds
-            delayNextUpdate = 500
-        }
+        val delayNextUpdate = preferences.getInt("updateEvery", 5000).toLong()
         // only force the update when nothing else has requested an update in the meantime (-> curUpdateTime would not be equal to nextUpdateConnections anymore)
-        scheduleNextConnectionsUpdate(System.currentTimeMillis() + delayNextUpdate, curUpdateTime == nextUpdateConnections)
+        updateConnectionsIn(delayNextUpdate, curUpdateTime == nextUpdateConnections)
     }
     private fun ntUpdateSearch() {
         val edtSearch = findViewById<InstantAutoCompleteTextView>(R.id.edtSearch)
+        currentStationSearch = edtSearch.text.toString()
 
         try {
             var stations = emptyList<Station>()
@@ -522,8 +549,6 @@ open class EchtzeytActivity : AppCompatActivity() {
             for (i in menuItems.indices) {
                 if (!menuVisible[i]) { continue }
                 val menuItem = menuItems[i]
-                print("Opening: ")
-                println(((menuItem as LinearLayout).children.first() as TextView).text)
                 menuItem.visibility = View.VISIBLE
                 val oa = ObjectAnimator.ofFloat(menuItem, "alpha", 1f).setDuration(duration)
                 oa.startDelay = delay; oa.start()
@@ -535,11 +560,11 @@ open class EchtzeytActivity : AppCompatActivity() {
 
     private fun toggleLike() {
         val btnLike = findViewById<ImageButton>(R.id.btnLike)
-        if (savedStations.contains(currentStation)) {
-            savedStations.remove(currentStation)
+        if (savedStations.contains(currentStationName)) {
+            savedStations.remove(currentStationName)
             btnLike.setImageResource(R.drawable.ic_star)
         } else {
-            savedStations.add(currentStation)
+            savedStations.add(currentStationName)
             btnLike.setImageResource(R.drawable.ic_star_filled)
         }
 
@@ -587,9 +612,9 @@ open class EchtzeytActivity : AppCompatActivity() {
         if (!stationName.isNullOrEmpty()) {
             edtSearch.text = stationName
         }
-        currentStation = edtSearch.text.toString()
-        preferences.edit().putString("station", currentStation).apply()
-        findViewById<ImageButton>(R.id.btnLike).setImageResource(if (savedStations.contains(currentStation)) { R.drawable.ic_star_filled } else { R.drawable.ic_star })
+        currentStationName = edtSearch.text.toString()
+        preferences.edit().putString("station", currentStationName).apply()
+        findViewById<ImageButton>(R.id.btnLike).setImageResource(if (savedStations.contains(currentStationName)) { R.drawable.ic_star_filled } else { R.drawable.ic_star })
 
         toggleBookmarks(true)
         updateConnections()
@@ -598,9 +623,16 @@ open class EchtzeytActivity : AppCompatActivity() {
         if ((next > nextUpdateConnections) && !force) { return }
         nextUpdateConnections = next
     }
+
+    private fun updateConnectionsIn(deltaTime: Long, force: Boolean = false) {
+        val now = System.currentTimeMillis()
+        val next = (nextUpdateConnections + deltaTime).coerceIn(now, now + deltaTime)
+        scheduleNextConnectionsUpdate(next, force)
+    }
+
     private fun updateConnections() {
         // schedule the next connection update to be now
-        scheduleNextConnectionsUpdate(System.currentTimeMillis())
+        scheduleNextConnectionsUpdate(0, true)
     }
 
     private fun clearFocus() {

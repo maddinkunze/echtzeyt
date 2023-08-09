@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:theme="@style/Theme.Echtzeyt"
+    tools:context=".EchtzeytWidgetConfigureActivity">
+
+    <LinearLayout
+        android:id="@+id/focusableLayoutWidgetConfiguration"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarWidgetConfiguration"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/toolbar"
+        android:minHeight="@dimen/toolbar_height"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="@string/widgetNameSettings"
+        app:titleMarginStart="6dp"
+        app:titleTextColor="?attr/colorSecondary" />
+
+    <ImageButton
+        android:id="@+id/btnWidgetConfigurationSave"
+        android:layout_width="@dimen/bigfloating_size"
+        android:layout_height="@dimen/bigfloating_size"
+        android:layout_marginEnd="@dimen/bigfloating_margin"
+        android:layout_marginRight="@dimen/bigfloating_margin"
+        android:layout_marginBottom="@dimen/bigfloating_margin"
+        android:background="@drawable/floatingbutton"
+        android:contentDescription="@string/btnSettingsDescription"
+        android:padding="@dimen/bigfloating_padding"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_check"
+        tools:ignore="DuplicateSpeakableTextCheck" />
+
+    <com.maddin.echtzeyt.components.InstantAutoCompleteTextView
+        android:id="@+id/edtWidgetConfigurationSearch"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/button_size"
+        android:layout_marginStart="@dimen/layout_padding"
+        android:layout_marginLeft="@dimen/layout_padding"
+        android:layout_marginTop="@dimen/layout_padding"
+        android:layout_marginEnd="@dimen/layout_padding"
+        android:layout_marginRight="@dimen/layout_padding"
+        android:layout_weight="1"
+        android:background="@color/background"
+        android:fontFamily="@font/roboto"
+        android:hint="@string/edtSearchTip"
+        android:inputType="textNoSuggestions"
+        android:maxLines="1"
+        android:padding="0dp"
+        android:paddingStart="5dp"
+        android:paddingLeft="5dp"
+        android:paddingTop="0dp"
+        android:paddingEnd="0dp"
+        android:paddingRight="0dp"
+        android:paddingBottom="0dp"
+        android:singleLine="true"
+        android:textColor="@color/foreground"
+        android:textColorHint="@color/foregroundHint"
+        android:textCursorDrawable="@null"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbarWidgetConfiguration"
+        tools:ignore="TextContrastCheck,TouchTargetSizeCheck,VisualLintTextFieldSize" />
+
+    <LinearLayout
+        android:id="@+id/layoutWidgetConfigurationRunUntil"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/settings_switch_margin"
+        android:layout_marginLeft="@dimen/settings_switch_margin"
+        android:layout_marginTop="@dimen/settings_switch_margin"
+        android:layout_marginEnd="@dimen/settings_switch_margin"
+        android:layout_marginRight="@dimen/settings_switch_margin"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/edtWidgetConfigurationSearch">
+
+        <TextView
+            android:id="@+id/lblRunUntilWidgetConfigure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/settings_label_margin"
+            android:layout_marginRight="@dimen/settings_label_margin"
+            android:text="@string/widgetConfigureRunUntil"
+            android:textColor="@color/foreground"
+            android:textSize="@dimen/settings_label_size" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1" />
+
+        <com.maddin.echtzeyt.components.LabeledDiscreteSeekBar
+            android:id="@+id/selectRunUntilWidgetConfiguration"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            app:labelColor="@color/background"
+            app:thumbPaddingBottom="3dp"
+            app:thumbPaddingLeft="8dp"
+            app:thumbPaddingRight="8dp"
+            app:thumbPaddingTop="3dp"
+            app:thumbRadius="15dp"
+            app:thumbTextSize="14sp"
+            app:thumbTint="@color/foreground"
+            app:trackHeight="6dp"
+            app:trackTint="@color/backgroundSunken" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutWidgetConfigurationRunEvery"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/settings_switch_margin"
+        android:layout_marginLeft="@dimen/settings_switch_margin"
+        android:layout_marginTop="@dimen/settings_switch_margin"
+        android:layout_marginEnd="@dimen/settings_switch_margin"
+        android:layout_marginRight="@dimen/settings_switch_margin"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layoutWidgetConfigurationRunUntil">
+
+        <TextView
+            android:id="@+id/lblRunEveryWidgetConfigure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/settings_label_margin"
+            android:layout_marginRight="@dimen/settings_label_margin"
+            android:text="@string/widgetConfigureRunEvery"
+            android:textColor="@color/foreground"
+            android:textSize="@dimen/settings_label_size" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1" />
+
+        <com.maddin.echtzeyt.components.LabeledDiscreteSeekBar
+            android:id="@+id/selectRunEveryWidgetConfiguration"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            app:labelColor="@color/background"
+            app:thumbPaddingBottom="3dp"
+            app:thumbPaddingLeft="8dp"
+            app:thumbPaddingRight="8dp"
+            app:thumbPaddingTop="3dp"
+            app:thumbRadius="15dp"
+            app:thumbTextSize="14sp"
+            app:thumbTint="@color/foreground"
+            app:trackHeight="6dp"
+            app:trackTint="@color/backgroundSunken" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

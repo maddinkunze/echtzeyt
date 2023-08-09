@@ -1,11 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="widgetDescription">Echtzeit Informationen in einem kleinen Widget</string>
+    <string name="widgetConfigureRunUntil">Aktivitätsdauer</string>
+    <string-array name="widgetConfigureRunUntilOptionNames">
+        <item>30 Sekunden</item>
+        <item>1 Minute</item>
+        <item>2 Minuten</item>
+        <item>5 Minuten</item>
+        <item>10 Minuten</item>
+        <item>dauerhaft</item>
+    </string-array>
+    <string name="widgetConfigureRunEvery">Update Intervall</string>
+    <string-array name="widgetConfigureRunEveryOptionNames">
+        <item>1 Sekunde</item>
+        <item>2 Sekunden</item>
+        <item>5 Sekunden</item>
+        <item>10 Sekunden</item>
+        <item>30 Sekunden</item>
+        <item>1 Minute</item>
+    </string-array>
+    <string name="widgetNoStation">Keine Station ausgewählt</string>
+    <string name="widgetReload">Lade/Starte Widget neu</string>
+    <string name="widgetStop">Stoppe Widget</string>
     <string name="btnSearchDescription">Anzeigen</string>
     <string name="edtSearchTip">Station eingeben…</string>
     <string name="btnSettingsDescription">Einstellungen</string>
     <string name="settingsSaveContent">Letzte Station speichern</string>
     <string name="settingsDarkMode">Dunkler Modus</string>
-    <string name="settingsFastMode">Schnelle Updates</string>
+    <string name="settingsUpdateInterval">Update Intervall</string>
+    <string-array name="settingsUpdateIntervalOptionNames">
+        <item>1 Sekunde</item>
+        <item>2 Sekunden</item>
+        <item>5 Sekunden</item>
+        <item>10 Sekunden</item>
+        <item>30 Sekunden</item>
+        <item>1 Minute</item>
+    </string-array>
     <string name="updateNotYet">Noch nicht aktualisiert!</string>
     <string name="updateLast">"Letzte Aktualisierung: "</string>
     <string name="settingsAutoDark">Systemthema übernehmen</string>
@@ -35,4 +65,5 @@
     <string name="sendLogsYes">Ja, sende Fehlerbericht</string>
     <string name="sendLogsNo">Nein</string>
     <string name="_libraryEchtzeytBasedOn">basiert auf\u0020</string>
+    <string name="widgetNameSettings">Einstellungen</string>
 </resources>

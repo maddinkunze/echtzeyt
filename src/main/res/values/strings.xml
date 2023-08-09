@@ -2,6 +2,33 @@
     <string name="appName" translatable="false">Echtzeyt</string>
     <string name="appVersion" translatable="false" />
     <string name="appNameSettings">Settings</string>
+    <string name="widgetName" translatable="false">Echtzeyt Widget</string>
+    <string name="widgetNameSettings">Configure</string>
+    <string name="widgetDescription">Realtime information in a small widget</string>
+    <string name="widgetClassConfigure" translatable="false">com.maddin.echtzeyt.EchtzeytWidgetConfigure</string>
+    <string name="widgetConfigureRunUntil">Run for/until</string>
+    <string-array name="widgetConfigureRunUntilOptionNames">
+        <item>30 seconds</item>
+        <item>1 minute</item>
+        <item>2 minutes</item>
+        <item>5 minutes</item>
+        <item>10 minutes</item>
+        <item>stopped</item>
+    </string-array>
+    <string name="widgetConfigureRunEvery">Update every</string>
+    <string-array name="widgetConfigureRunEveryOptionNames">
+        <item>second</item>
+        <item>2 seconds</item>
+        <item>5 seconds</item>
+        <item>10 seconds</item>
+        <item>30 seconds</item>
+        <item>minute</item>
+    </string-array>
+    <string name="widgetNotLoaded">Widget not loaded</string>
+    <string name="widgetNotLoadedInfo">You can click on, resize or change the settings of this widget to (re-)activate it</string>
+    <string name="widgetNoStation">No station selected</string>
+    <string name="widgetReload">Reload/Update widget</string>
+    <string name="widgetStop">Stop widget</string>
     <string name="btnSearchDescription">Show</string>
     <string name="btnLikeDescription">Add this station to bookmarks</string>
     <string name="edtSearchTip">Enter station name…</string>
@@ -16,7 +43,15 @@
     <string name="settingsSaveContent">Save last station</string>
     <string name="settingsAutoDark">Stick to system theme</string>
     <string name="settingsDarkMode">Dark Mode</string>
-    <string name="settingsFastMode">Fast Updates</string>
+    <string name="settingsUpdateInterval">Update Interval</string>
+    <string-array name="settingsUpdateIntervalOptionNames">
+        <item>1 second</item>
+        <item>2 seconds</item>
+        <item>5 seconds</item>
+        <item>10 seconds</item>
+        <item>30 seconds</item>
+        <item>1 minute</item>
+    </string-array>
     <string name="updateNotYet">Not updated yet!</string>
     <string name="updateLast">Last updated:</string>
     <string name="updateEmpty">Nothing to see here!</string>

@@ -25,6 +25,24 @@
     <dimen name="smallfloating_gradient_width">60dp</dimen>
     <dimen name="smallfloating_gradient_end">88dp</dimen> <!-- sf_gradient_right + sf_gradient_width, where does the gradient end -->
 
+    <dimen name="settings_switch_margin">15dp</dimen>
+    <dimen name="settings_switch_padding">10dp</dimen>
+    <dimen name="settings_label_margin">5dp</dimen>
+    <dimen name="settings_label_size">18sp</dimen>
+
     <dimen name="widget_default_width_min">80dp</dimen>
     <dimen name="widget_default_height_min">40dp</dimen>
+    <dimen name="widget_corner_radius">16dp</dimen>
+    <dimen name="widget_inner_radius">8dp</dimen>
+    <dimen name="widget_toolbar_padding">3dp</dimen>
+    <dimen name="widget_toolbar_offset_internal">-1dp</dimen> <!-- overriding white "overlap" on the widgets edges due to rounding errors -->
+    <dimen name="widget_toolbar_padding_internal">4dp</dimen> <!-- toolbar_padding - toolbar_offset_internal -->
+    <dimen name="widget_toolbar_title_size">14sp</dimen>
+    <dimen name="widget_toolbar_text_size">10sp</dimen>
+    <dimen name="widget_toolbar_title_padding">2dp</dimen>
+    <dimen name="widget_toolbar_text_height">20sp</dimen> <!-- just to avoid the text clipping, better solution may be needed -->
+    <dimen name="widget_button_radius">4dp</dimen>
+    <dimen name="widget_text_size">12sp</dimen>
+
+    <dimen name="padding_negative_safe">-10000dp</dimen>
 </resources>

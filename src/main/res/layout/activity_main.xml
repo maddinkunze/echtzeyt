@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
+    android:theme="@style/Theme.Echtzeyt"
     tools:context=".EchtzeytActivity">
 
     <androidx.appcompat.widget.Toolbar
@@ -197,7 +198,7 @@
                         android:lineSpacingExtra="@dimen/text_padding"
                         android:singleLine="false"
                         android:textColor="@color/foreground"
-                        android:textSize="18sp"
+                        android:textSize="@dimen/text_size"
                         android:textStyle="bold" />
                 </LinearLayout>
             </HorizontalScrollView>

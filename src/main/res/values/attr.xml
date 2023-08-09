@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="LabeledDiscreteSeekBar" >
+        <attr name="thumbTextSize" format="dimension" />
+        <attr name="thumbPadding" format="dimension" />
+        <attr name="thumbPaddingLeft" format="dimension" />
+        <attr name="thumbPaddingTop" format="dimension" />
+        <attr name="thumbPaddingRight" format="dimension" />
+        <attr name="thumbPaddingBottom" format="dimension" />
+        <attr name="thumbRadius" format="dimension" />
+        <attr name="thumbTint" format="color" />
+        <attr name="trackTint" format="color" />
+        <attr name="trackHeight" format="dimension" />
+        <attr name="labelColor" format="color" />
+    </declare-styleable>
+</resources>

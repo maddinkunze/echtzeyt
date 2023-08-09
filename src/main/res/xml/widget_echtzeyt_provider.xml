@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--suppress AndroidDomInspection (needed for android:configure="@string/widgetClassConfigure") -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:configure="@string/widgetClassConfigure"
+    android:minWidth="@dimen/widget_default_width_min"
+    android:minHeight="@dimen/widget_default_height_min"
+    android:description="@string/widgetDescription"
+    android:initialLayout="@layout/widget_echtzeyt_initial"
+    android:updatePeriodMillis="@integer/widgetUpdateInterval"
+    android:resizeMode="horizontal|vertical"/>

@@ -1,4 +1,4 @@
-package com.maddin.echtzeyt
+package com.maddin.echtzeyt.randomcode
 
 data class ClassifiedException(val exception: Exception, val classified: Boolean, val classifiedAs: String) {
     constructor(exception: Exception, classified: Boolean) : this(exception, classified, "")

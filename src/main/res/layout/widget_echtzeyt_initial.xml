@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_background"
+    android:gravity="center">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/layoutWidgetVersion"
+        android:layout_margin="@dimen/widget_toolbar_padding"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="@string/widgetNotLoaded"
+            android:textColor="@color/error"
+            android:textSize="12sp"
+            tools:ignore="TextContrastCheck" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="@string/widgetNotLoadedInfo"
+            android:textColor="@color/foregroundText"
+            android:textSize="8sp"
+            tools:ignore="SmallSp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutWidgetVersion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="@dimen/widget_toolbar_padding"
+        android:layout_marginLeft="@dimen/widget_toolbar_padding"
+        android:layout_marginEnd="@dimen/widget_toolbar_padding"
+        android:layout_marginRight="@dimen/widget_toolbar_padding"
+        android:layout_marginBottom="@dimen/widget_toolbar_padding"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/widgetName"
+            android:textColor="@color/foregroundHint"
+            android:textSize="6sp"
+            tools:ignore="SmallSp,TextContrastCheck" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" @ "
+            android:textColor="@color/foregroundHint"
+            android:textSize="6sp"
+            tools:ignore="HardcodedText,SmallSp,TextContrastCheck" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/appVersion"
+            android:textColor="@color/foregroundHint"
+            android:textSize="6sp"
+            tools:ignore="SmallSp" />
+    </LinearLayout>
+
+</RelativeLayout>

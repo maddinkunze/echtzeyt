@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Base application theme. -->
+
     <style name="Theme.Echtzeyt" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/foreground</item>
@@ -10,5 +10,8 @@
         <item name="colorSecondary">@color/background</item>
         <item name="colorSecondaryVariant">@color/background</item>
         <item name="colorOnSecondary">@color/background</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">@color/foreground</item>
+        <!-- Customize your theme here. -->
     </style>
 </resources>
