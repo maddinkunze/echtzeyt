@@ -13,7 +13,7 @@
     <color name="foregroundWidget">@color/foreground</color>
     <color name="foregroundNotification">#DAC8C8</color>
     <color name="error">#804040</color>
-    <color name="errorWidget">#DC8787</color>
+    <color name="errorWidget">#D57E7E</color>
     <color name="success">#408040</color>
-    <color name="successWidget">#9AE887</color>
+    <color name="successWidget">#8EDF7B</color>
 </resources>

@@ -285,7 +285,7 @@ open class EchtzeytActivity : AppCompatActivity() {
 
         val stops: List<RealtimeConnection>
         try {
-            if ((currentStation == null) || (currentStation!!.name == currentStationSearch)) {
+            if ((currentStation == null) || (currentStation!!.name != currentStationSearch)) {
                 val stations = transportStationAPI.getStations(currentStationSearch)
                 if (stations.isEmpty()) { return }
                 currentStation = stations[0]
