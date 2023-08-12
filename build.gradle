@@ -8,7 +8,7 @@ android {
     buildToolsVersion '30.0.3'
 
     defaultConfig {
-        versionName "1.2.0"
+        versionName "1.2.1"
         minSdkVersion 16
         multiDexEnabled true
         vectorDrawables {
