@@ -2,6 +2,7 @@ package com.maddin.echtzeyt
 
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
+import android.app.ActivityManager
 import android.appwidget.AppWidgetManager
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
@@ -55,6 +56,8 @@ val EXAMPLE_API = com.maddin.transportapi.impl.EmptyAPI()
 // val EXAMPLE_API = com.maddin.transportapi.impl.ExampleAPI() // uncomment this to test the app with mock data
 
 open class EchtzeytActivity : AppCompatActivity() {
+    private var isInForeground = false
+    private var nextCheckForeground = 0L
     private var shouldUpdateSearch = false
     private var nextUpdateConnections = 0L
     private var nextUpdateNotifications = 0L
@@ -95,7 +98,18 @@ open class EchtzeytActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        isInForeground = true
         updateWidgets()
+    }
+
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        isInForeground = true
+    }
+
+    override fun onStop() {
+        super.onStop()
+        isInForeground = false
     }
 
     private fun updateWidgets() {
@@ -135,6 +149,8 @@ open class EchtzeytActivity : AppCompatActivity() {
         if (!this::transportRealtimeAPI.isInitialized) {
             this.transportRealtimeAPI = EXAMPLE_API
         }
+
+        isInForeground = true
 
         PREFERENCES_NAME = packageName
     }
@@ -236,6 +252,12 @@ open class EchtzeytActivity : AppCompatActivity() {
         // Connections thread
         thread(start = true, isDaemon = true) {
             while (true) {
+                ntCheckIfInForeground()
+                if (!isInForeground) {
+                    Thread.sleep(500)
+                    continue
+                }
+
                 val time = System.currentTimeMillis()
                 if (time > nextUpdateConnections) { ntUpdateConnections() }
                 Thread.sleep(50)
@@ -245,6 +267,11 @@ open class EchtzeytActivity : AppCompatActivity() {
         // Notifications thread
         thread(start = true, isDaemon = true) {
             while (true) {
+                ntCheckIfInForeground()
+                if (!isInForeground) {
+                    Thread.sleep(10000)
+                    continue
+                }
                 val time = System.currentTimeMillis()
                 if (time > nextUpdateNotifications) { ntUpdateNotifications() }
                 Thread.sleep(50)
@@ -408,6 +435,17 @@ open class EchtzeytActivity : AppCompatActivity() {
         }
 
         shouldUpdateSearch = false
+    }
+
+    private fun ntCheckIfInForeground() {
+        val timeNow = System.currentTimeMillis()
+        if (timeNow < nextCheckForeground) { return }
+
+        val appProcessInfo = ActivityManager.RunningAppProcessInfo()
+        ActivityManager.getMyMemoryState(appProcessInfo)
+        isInForeground = (appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) || (appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE)
+
+        nextCheckForeground = timeNow + 10_000
     }
 
     private fun ntUpdateNotifications() {
