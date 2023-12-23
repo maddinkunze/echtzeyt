@@ -7,7 +7,7 @@ android {
     compileSdk 33
 
     defaultConfig {
-        versionName "1.2.1"
+        versionName "1.2.2"
         minSdkVersion 16
         multiDexEnabled true
         vectorDrawables {
