@@ -99,6 +99,7 @@ open class EchtzeytActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         isInForeground = true
+        nextUpdateConnections = 0
         updateWidgets()
     }
 
@@ -445,7 +446,8 @@ open class EchtzeytActivity : AppCompatActivity() {
         ActivityManager.getMyMemoryState(appProcessInfo)
         isInForeground = (appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) || (appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE)
 
-        nextCheckForeground = timeNow + 10_000
+        val delayNextUpdate = preferences.getInt("updateEvery", 5000)
+        nextCheckForeground = timeNow + 2 * delayNextUpdate.coerceAtLeast(5_000)
     }
 
     private fun ntUpdateNotifications() {
