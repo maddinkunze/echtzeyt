@@ -315,7 +315,7 @@ open class EchtzeytActivity : AppCompatActivity() {
         val stops: List<RealtimeConnection>
         try {
             if ((currentStation == null) || (currentStation!!.name != currentStationSearch)) {
-                val stations = transportStationAPI.getStations(currentStationSearch)
+                val stations = transportStationAPI.searchStations(currentStationSearch)
                 if (stations.isEmpty()) { return }
                 currentStation = stations[0]
             }
@@ -337,7 +337,6 @@ open class EchtzeytActivity : AppCompatActivity() {
             return
         }
 
-        var stop: RealtimeConnection
         var departure: Long
         var depHours: Long
         var maxHours = 0
@@ -351,14 +350,13 @@ open class EchtzeytActivity : AppCompatActivity() {
         var textTimesMin = ""
         var textTimesSec = ""
 
-        for (index in stops.indices) {
-            stop = stops[index]
+        for (stop in stops) {
             departure = stop.departsIn().coerceAtLeast(0)
             depHours = departure.div(3600)
             depMin = departure.div(60).rem(60)
             depSec = departure.rem(60)
-            textNumbers += "${stop.vehicle.name}\n"
-            textNames += "${stop.vehicle.directionName}\n"
+            textNumbers += "${stop.vehicle.line?.name}\n"
+            textNames += "${stop.vehicle.direction?.name}\n"
             padMin = 0
             if (depHours > 0) {
                 maxHours = max(maxHours, depHours.toInt())
@@ -411,7 +409,7 @@ open class EchtzeytActivity : AppCompatActivity() {
         try {
             var stations = emptyList<Station>()
             if (currentStationSearch.isNotEmpty()) {
-                stations = transportStationAPI.getStations(currentStationSearch)
+                stations = transportStationAPI.searchStations(currentStationSearch)
             }
 
             Handler(Looper.getMainLooper()).post {

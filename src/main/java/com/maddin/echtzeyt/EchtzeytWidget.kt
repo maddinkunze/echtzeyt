@@ -206,7 +206,7 @@ open class EchtzeytWidget : AppWidgetProvider() {
         if ((widgetInfo.station == null) || (widgetInfo.station!!.name != widgetInfo.stationName)) {
             var stations = emptyList<Station>()
             try {
-                stations = transportStationAPI.getStations(widgetInfo.stationName)
+                stations = transportStationAPI.searchStations(widgetInfo.stationName)
             } catch (_: Exception) {}
 
             if (stations.isEmpty()) {
@@ -235,8 +235,8 @@ open class EchtzeytWidget : AppWidgetProvider() {
         var txtTimeMinutes = ""
         var txtTimeSeconds = ""
         for (connection in connections.connections) {
-            txtLineNumbers += "${connection.vehicle.name}\n"
-            txtLineNames += "${connection.vehicle.directionName}\n"
+            txtLineNumbers += "${connection.vehicle.line?.name}\n"
+            txtLineNames += "${connection.vehicle.direction?.name}\n"
             val timeDepart = connection.departsIn()
             val departHour = timeDepart.div(3600)
             val departMinute = timeDepart.div(60).mod(60)
@@ -513,7 +513,7 @@ open class EchtzeytWidgetConfigureActivity : AppCompatActivity() {
         try {
             var stations = emptyList<Station>()
             if (stationSearch.isNotEmpty()) {
-                stations = transportStationAPI.getStations(stationSearch)
+                stations = transportStationAPI.searchStations(stationSearch)
             }
 
             Handler(Looper.getMainLooper()).post {
