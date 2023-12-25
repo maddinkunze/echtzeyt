@@ -21,13 +21,15 @@ class InstantAutoCompleteTextView : AppCompatAutoCompleteTextView {
     // basically showDropDown but somehow works
     fun showSuggestions(): Boolean {
         return if (windowVisibility == VISIBLE) {
-            performFiltering(text, 0)
+            performFiltering("", 0)
             showDropDown()
             true
         } else {
             false
         }
     }
+
+    override fun performFiltering(text: CharSequence?, keyCode: Int) {}
 
     fun addOnTextChangedListener(listener: (text: CharSequence?) -> Unit) {
         addTextChangedListener(object : TextWatcher {

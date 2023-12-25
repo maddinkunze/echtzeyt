@@ -26,6 +26,7 @@ import com.maddin.echtzeyt.randomcode.ClassifiedException
 import com.maddin.transportapi.RealtimeConnection
 import com.maddin.transportapi.Station
 import org.json.JSONObject
+import java.lang.IndexOutOfBoundsException
 import java.lang.Integer.max
 import java.net.URL
 import java.text.SimpleDateFormat
@@ -403,7 +404,9 @@ open class EchtzeytActivity : AppCompatActivity() {
     }
     private fun ntUpdateSearch() {
         val edtSearch = findViewById<InstantAutoCompleteTextView>(R.id.edtSearch)
-        currentStationSearch = edtSearch.text.toString()
+        try {
+            currentStationSearch = edtSearch.text.toString()
+        } catch (_: IndexOutOfBoundsException) { } // quite normal due to threading
 
         try {
             var stations = emptyList<Station>()
@@ -419,8 +422,8 @@ open class EchtzeytActivity : AppCompatActivity() {
                     return@post
                 }
 
-                for (index in stations.indices) {
-                    val stationName = stations[index].name
+                for (station in stations) {
+                    val stationName = station.name
                     if (stationName == currentStationSearch) { clearFocus(); return@post }
                     adapterSearch.add(stationName)
                 }
