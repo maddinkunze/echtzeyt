@@ -129,9 +129,7 @@ class LabeledDiscreteSeekBar(context: Context, attrs: AttributeSet?, defStyleAtt
         setMeasuredDimension(measuredWidth, measuredHeight.coerceAtLeast(mThumb.intrinsicHeight))
     }
 
-    override fun onDraw(canvas: Canvas?) {
-        if (canvas == null) { return }
-
+    override fun onDraw(canvas: Canvas) {
         canvas.save()
         canvas.translate(0f, 0.5f * (height - mBackground.intrinsicHeight))
         mBackground.setBounds(0, 0, mBackground.intrinsicWidth, mBackground.intrinsicHeight)
