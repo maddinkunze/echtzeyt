@@ -25,6 +25,14 @@
     <dimen name="smallfloating_gradient_width">60dp</dimen>
     <dimen name="smallfloating_gradient_end">88dp</dimen> <!-- sf_gradient_right + sf_gradient_width, where does the gradient end -->
 
+    <dimen name="stationmarker_size">100dp</dimen> <!-- maximum size, it will be scaled down by the classes in StopMarker.kt -->
+    <dimen name="stationmarker_icon_size">70dp</dimen>
+    <dimen name="stationmarker_radius">20dp</dimen>
+    <dimen name="stationmarker_arrow_height">14dp</dimen>
+    <dimen name="stationmarker_arrow_size">20dp</dimen> <!-- TODO: how calculated? -->
+    <dimen name="stationmarker_arrow_offset">4dp</dimen> <!-- TODO: how calculated? -->
+    <drawable name="stationmarker_icon">@drawable/ic_bus</drawable>
+
     <dimen name="settings_switch_margin">15dp</dimen>
     <dimen name="settings_switch_padding">10dp</dimen>
     <dimen name="settings_label_margin">5dp</dimen>

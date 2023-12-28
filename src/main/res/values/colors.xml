@@ -7,11 +7,13 @@
     <color name="backgroundSunken">#BBBBBB</color>
     <color name="backgroundWidgetToolbar">@color/foreground</color>
     <color name="backgroundNotification">#FDEBDC</color>
+    <color name="backgroundStationmarker">@color/backgroundTint</color>
     <color name="foreground">#8800AE</color>
     <color name="foregroundHint">#8B3D0355</color>
     <color name="foregroundText">#606060</color>
     <color name="foregroundWidget">@color/backgroundTint</color>
     <color name="foregroundNotification">#1A1A1A</color>
+    <color name="foregroundStationmarker">@color/foreground</color>
     <color name="error">#915A5A</color>
     <color name="errorWidget">#FF8974</color>
     <color name="success">#628E62</color>

@@ -228,7 +228,7 @@ open class EchtzeytActivity : AppCompatActivity() {
         btnMenu.setOnClickListener { toggleMenu() }
 
         // Open settings when clicking the settings button
-        btnSettings.setOnClickListener { toggleMenu(true); startActivity(Intent().setComponent(ComponentName(this, "$packageName.SettingsActivity"))) }
+        btnSettings.setOnClickListener { toggleMenu(true); startActivity(Intent().setComponent(ComponentName(this, "$packageName.MapActivity"))) }
 
         // Open the support/donation link when clicking the donation button
         btnDonate.setOnClickListener { toggleMenu(true); startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(resources.getString(R.string.urlSupportMe)))) }
