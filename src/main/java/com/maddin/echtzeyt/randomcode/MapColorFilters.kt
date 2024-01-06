@@ -1,7 +1,9 @@
 package com.maddin.echtzeyt.randomcode
 
+import android.graphics.ColorFilter
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
+import org.osmdroid.views.MapView
 import java.lang.IndexOutOfBoundsException
 
 /*class Matrix4x4(private val values: FloatArray) {
@@ -209,16 +211,7 @@ fun getColorMappingMatrixFilter(mappings: Array<Pair<ColorRGB, ColorRGB>>) : Col
     return ColorMatrixColorFilter(matrix)
 }
 
-@Suppress("PrivatePropertyName")
-private lateinit var FILTER_OSM_DARK: ColorMatrixColorFilter
-@Suppress("PrivatePropertyName")
-private lateinit var FILTER_OSM_LIGHT: ColorMatrixColorFilter
-
-fun getDarkColorMatrixFilter() : ColorMatrixColorFilter {
-    if (::FILTER_OSM_DARK.isInitialized) {
-        return FILTER_OSM_DARK
-    }
-
+val FILTER_OSM_DARK by lazy {
     val white = ColorRGB(255, 255, 254)
     val gray = ColorRGB(-10, -10, -10)
 
@@ -232,21 +225,15 @@ fun getDarkColorMatrixFilter() : ColorMatrixColorFilter {
     val lightgray = ColorRGB(200, 200, 200)
 
 
-    FILTER_OSM_DARK = getColorMappingMatrixFilter(arrayOf(
+    getColorMappingMatrixFilter(arrayOf(
         Pair(white, gray),
         Pair(yellow, darkyellow),
         Pair(green, darkgreen),
         Pair(darkgray, lightgray)
     ))
-
-    return FILTER_OSM_DARK
 }
 
-fun getLightColorMatrixFilter() : ColorMatrixColorFilter {
-    if (::FILTER_OSM_LIGHT.isInitialized) {
-        return FILTER_OSM_LIGHT
-    }
-
+val FILTER_OSM_LIGHT by lazy {
     val gray = ColorRGB(210, 210, 211)
     val white = ColorRGB(240, 240, 240)
 
@@ -257,15 +244,17 @@ fun getLightColorMatrixFilter() : ColorMatrixColorFilter {
     val lightgreen = ColorRGB(50, 200, 20)
 
     val darkgray = ColorRGB(12, 12, 12)
-    val lightgray = ColorRGB(40, 40, 40)
+    val lightgray = ColorRGB(120, 120, 120)
 
 
-    FILTER_OSM_LIGHT = getColorMappingMatrixFilter(arrayOf(
+    getColorMappingMatrixFilter(arrayOf(
         Pair(gray, white),
         Pair(yellow, lightyellow),
         Pair(green, lightgreen),
         Pair(darkgray, lightgray)
     ))
+}
 
-    return FILTER_OSM_LIGHT
+fun setFilter(map: MapView, filter: ColorFilter) {
+    map.overlayManager.tilesOverlay.setColorFilter(filter)
 }

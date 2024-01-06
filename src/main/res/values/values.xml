@@ -33,6 +33,18 @@
     <dimen name="stationmarker_arrow_offset">4dp</dimen> <!-- TODO: how calculated? -->
     <drawable name="stationmarker_icon">@drawable/ic_bus</drawable>
 
+    <dimen name="pullup_close_margin">-4dp</dimen> <!-- distance between the close button and the ok button on a pullup menu -->
+
+    <item name="map_zoom_start" type="dimen" format="float">17</item>
+    <item name="map_zoom_min" type="dimen" format="float">12</item>
+    <item name="map_zoom_max" type="dimen" format="float">19.5</item>
+    <item name="map_lat_start" type="dimen" format="float">0</item>
+    <item name="map_lat_min" type="dimen" format="float">-90</item>
+    <item name="map_lat_max" type="dimen" format="float">90</item>
+    <item name="map_lon_start" type="dimen" format="float">0</item>
+    <item name="map_lon_min" type="dimen" format="float">-180</item>
+    <item name="map_lon_max" type="dimen" format="float">180</item>
+
     <dimen name="settings_switch_margin">15dp</dimen>
     <dimen name="settings_switch_padding">10dp</dimen>
     <dimen name="settings_label_margin">5dp</dimen>

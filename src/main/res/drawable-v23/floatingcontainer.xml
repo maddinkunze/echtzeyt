@@ -11,7 +11,7 @@
                 android:width="@dimen/smallfloating_gradient_width">
                 <shape>
                     <gradient
-                        android:startColor="@color/backgroundHover"
+                        android:startColor="@color/backgroundButtonHover"
                         android:endColor="@color/backgroundTint"
                         android:type="linear"/>
                 </shape>
@@ -20,7 +20,7 @@
                 android:gravity="right"
                 android:right="@dimen/smallfloating_gradient_end">
                 <shape>
-                    <solid android:color="@color/backgroundHover" />
+                    <solid android:color="@color/backgroundButtonHover" />
                     <corners android:topLeftRadius="@dimen/bigfloating_radius" android:bottomLeftRadius="@dimen/bigfloating_radius" />
                 </shape>
             </item>
@@ -30,7 +30,7 @@
                 android:bottom="@dimen/smallfloating_stroke_width"
                 android:right="@dimen/smallfloating_stroke_width">
                 <shape>
-                    <solid android:color="@color/backgroundHover" />
+                    <solid android:color="@color/backgroundButtonHover" />
                     <!--stroke android:color="@color/backgroundTint" android:width="2dp" /-->
                     <corners android:radius="@dimen/bigfloating_radius" />
                 </shape>

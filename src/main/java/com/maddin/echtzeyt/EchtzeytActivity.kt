@@ -65,7 +65,12 @@ open class EchtzeytActivity : AppCompatActivity() {
     private var currentStationSearch = ""
 
     private var menuOpened = false
-    private lateinit var menuIds: IntArray
+    protected val menuIds by lazy { intArrayOf(
+        R.id.layoutButtonSettings,
+        R.id.layoutButtonDonate,
+        R.id.layoutButtonMessage,
+        R.id.layoutButtonAnnouncement
+    ) }
     private lateinit var menuVisible: BooleanArray
     private var menuItems: MutableList<View> = mutableListOf()
     private var bookmarksOpened = false
@@ -126,12 +131,6 @@ open class EchtzeytActivity : AppCompatActivity() {
     }
 
     private fun initVariables() {
-        menuIds = intArrayOf(
-            R.id.layoutButtonSettings,
-            R.id.layoutButtonDonate,
-            R.id.layoutButtonMessage,
-            R.id.layoutButtonAnnouncement
-        )
         for (menuId in menuIds) {
             val menuItem = findViewById<View>(menuId)
             menuItem.alpha = 0f
@@ -188,6 +187,7 @@ open class EchtzeytActivity : AppCompatActivity() {
     private fun initHandlers() {
         val edtSearch = findViewById<InstantAutoCompleteTextView>(R.id.edtSearch)
         val btnSearch = findViewById<ImageButton>(R.id.btnSearch)
+        val btnMap = findViewById<ImageButton>(R.id.btnMap)
         val btnLike = findViewById<ImageButton>(R.id.btnLike)
         val btnBookmarks = findViewById<ImageButton>(R.id.btnBookmarks)
         val btnMenu = findViewById<ImageButton>(R.id.btnMenu)
@@ -218,6 +218,9 @@ open class EchtzeytActivity : AppCompatActivity() {
         // Update station times and close the dropdown when clicking on the search button
         btnSearch.setOnClickListener { clearFocus(); commitToStation() }
 
+        // Open map (for selecting a station) when the map button is clicked
+        btnMap.setOnClickListener { startActivity(Intent().setComponent(ComponentName(this, "$packageName.MapActivity"))) }
+
         // Toggle like when clicking the star/like button
         btnLike.setOnClickListener { toggleLike() }
 
@@ -228,7 +231,7 @@ open class EchtzeytActivity : AppCompatActivity() {
         btnMenu.setOnClickListener { toggleMenu() }
 
         // Open settings when clicking the settings button
-        btnSettings.setOnClickListener { toggleMenu(true); startActivity(Intent().setComponent(ComponentName(this, "$packageName.MapActivity"))) }
+        btnSettings.setOnClickListener { toggleMenu(true); startActivity(Intent().setComponent(ComponentName(this, "$packageName.SettingsActivity"))) }
 
         // Open the support/donation link when clicking the donation button
         btnDonate.setOnClickListener { toggleMenu(true); startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(resources.getString(R.string.urlSupportMe)))) }

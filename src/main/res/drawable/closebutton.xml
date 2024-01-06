@@ -5,14 +5,14 @@
 
     <item android:state_pressed="true">
         <shape>
-            <solid android:color="@color/backgroundClose" />
+            <solid android:color="@color/backgroundButtonClose" />
             <corners android:radius="@dimen/bigfloating_radius" />
         </shape>
     </item>
 
     <item>
         <shape>
-            <solid android:color="@color/backgroundClose" />
+            <solid android:color="@color/backgroundButtonClose" />
             <corners android:radius="@dimen/bigfloating_radius" />
         </shape>
     </item>

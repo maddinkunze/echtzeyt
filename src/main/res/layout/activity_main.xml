@@ -87,11 +87,24 @@
             tools:ignore="TouchTargetSizeCheck" />
 
         <ImageButton
+            android:id="@+id/btnMap"
+            android:layout_width="@dimen/button_size"
+            android:layout_height="@dimen/button_size"
+            android:layout_marginStart="@dimen/button_margin"
+            android:layout_marginLeft="@dimen/button_margin"
+            android:background="@drawable/imagebutton"
+            android:contentDescription="@string/btnLikeDescription"
+            android:padding="@dimen/button_padding"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_map"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <ImageButton
             android:id="@+id/btnSearch"
             android:layout_width="@dimen/button_size"
             android:layout_height="@dimen/button_size"
-            android:layout_marginStart="@dimen/layout_padding"
-            android:layout_marginLeft="@dimen/layout_padding"
+            android:layout_marginStart="@dimen/button_margin"
+            android:layout_marginLeft="@dimen/button_margin"
             android:background="@drawable/imagebutton"
             android:contentDescription="@string/btnSearchDescription"
             android:padding="@dimen/button_padding"
@@ -385,7 +398,8 @@
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/btnMenu"
         app:layout_constraintEnd_toEndOf="@id/btnMenu"
-        app:layout_constraintStart_toStartOf="@id/btnBookmarks">
+        app:layout_constraintStart_toStartOf="@id/btnBookmarks"
+        tools:visibility="visible">
 
         <ImageButton
             android:id="@+id/notificationButtonClose"
@@ -398,10 +412,10 @@
             android:contentDescription="@string/btnClose"
             android:padding="2dp"
             android:scaleType="centerInside"
-            app:tint="@color/backgroundNotification"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_close"
+            app:tint="@color/backgroundNotification"
             tools:ignore="TouchTargetSizeCheck" />
 
         <LinearLayout

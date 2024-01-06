@@ -2,10 +2,14 @@
 <resources>
     <color name="background">#DDDDDD</color>
     <color name="backgroundTint">#EEEEEE</color>
-    <color name="backgroundHover">#E6D4F1</color>
-    <color name="backgroundClose">#DD2020</color>
+    <color name="backgroundButton">@color/backgroundTint</color>
+    <color name="backgroundButtonHover">#E6D4F1</color>
+    <color name="backgroundButtonSecond">#FFFFFF</color>
+    <color name="backgroundButtonSecondHover">#E1C9EF</color>
+    <color name="backgroundButtonClose">#DD2020</color>
     <color name="backgroundSunken">#BBBBBB</color>
     <color name="backgroundWidgetToolbar">@color/foreground</color>
+    <color name="backgroundPullup">@color/backgroundTint</color>
     <color name="backgroundNotification">#FDEBDC</color>
     <color name="backgroundStationmarker">@color/backgroundTint</color>
     <color name="foreground">#8800AE</color>

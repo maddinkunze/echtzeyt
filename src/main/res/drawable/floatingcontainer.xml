@@ -7,7 +7,7 @@
         <layer-list>
             <item>
                 <shape>
-                    <solid android:color="@color/backgroundHover" />
+                    <solid android:color="@color/backgroundButtonHover" />
                     <stroke android:color="@color/backgroundTint" android:width="2dp" />
                     <corners android:radius="@dimen/bigfloating_radius" />
                 </shape>

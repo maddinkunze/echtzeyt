@@ -13,4 +13,14 @@
         <attr name="trackHeight" format="dimension" />
         <attr name="labelColor" format="color" />
     </declare-styleable>
+
+    <declare-styleable name="PullupScrollView">
+        <attr name="minimumVisibleHeight" format="dimension" />
+        <attr name="fadeDuration" format="integer" />
+        <attr name="fadeInDuration" format="integer" />
+        <attr name="fadeOutDuration" format="integer" />
+        <attr name="fadeDurationRelative" format="float" />
+        <attr name="fadeInDurationRelative" format="float" />
+        <attr name="fadeOutDurationRelative" format="float" />
+    </declare-styleable>
 </resources>
