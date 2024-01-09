@@ -5,14 +5,14 @@
 
     <item android:state_pressed="true">
         <shape>
-            <solid android:color="@color/backgroundButtonHover" />
+            <solid android:color="@color/backgroundButtonSecondHover" />
             <corners android:radius="@dimen/bigfloating_radius" />
         </shape>
     </item>
 
     <item>
         <shape>
-            <solid android:color="@color/backgroundButton" />
+            <solid android:color="@color/backgroundButtonSecond" />
             <corners android:radius="@dimen/bigfloating_radius" />
         </shape>
     </item>

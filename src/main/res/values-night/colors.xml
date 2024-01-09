@@ -22,8 +22,8 @@
     <color name="successWidget">#8EDF7B</color>
 
     <array name="shadow_colors">
-        <item>#A0080820</item>
-        <item>#40000010</item>
+        <item>#80080820</item>
+        <item>#30000010</item>
         <item>#00000000</item>
     </array>
 </resources>

@@ -3,7 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:theme="@style/Theme.Echtzeyt"
+    tools:context=".MapActivity" >
+
+    <View
+        android:id="@+id/fillerCutout"
+        android:layout_width="match_parent"
+        android:layout_height="0.00001px"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="PxUsage" />
 
     <org.osmdroid.views.MapView
         android:id="@+id/mapView"
@@ -37,12 +48,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:minimumVisibleHeight="80dp">
-
-        <!--LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clipToPadding="false"
-            android:orientation="vertical"-->
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -102,7 +107,7 @@
                         android:id="@+id/btnPullupStationConfirm"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
-                        android:background="@drawable/imagebuttonsecond"
+                        android:background="@drawable/imagebutton_second"
                         android:contentDescription="@string/mapStationConfirm"
                         android:padding="@dimen/button_padding"
                         android:scaleType="centerInside"
@@ -147,37 +152,48 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.maddin.echtzeyt.components.PullupScrollView>
 
-    <ImageButton
+    <com.maddin.echtzeyt.components.FloatingButton
         android:id="@+id/btnMapBack"
         android:layout_width="@dimen/bigfloating_size"
         android:layout_height="@dimen/bigfloating_size"
+        android:layout_marginTop="@dimen/bigfloating_margin"
         android:layout_marginStart="@dimen/bigfloating_margin"
         android:layout_marginLeft="@dimen/bigfloating_margin"
-        android:layout_marginTop="@dimen/bigfloating_margin"
-        android:background="@drawable/floatingbutton"
+        android:background="@drawable/floatingbutton_second"
+        android:clickable="true"
         android:contentDescription="@string/mapBack"
+        android:focusable="true"
         android:padding="@dimen/bigfloating_padding"
-        android:scaleType="centerInside"
-        android:elevation="@dimen/button_elevation"
-        app:srcCompat="@drawable/ic_back"
+        android:scaleType="fitCenter"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="UnusedAttribute" />
+        app:layout_constraintTop_toBottomOf="@id/fillerCutout"
+        app:radiusInner="@dimen/bigfloating_radius"
+        app:shadowColors="@array/shadow_colors"
+        app:shadowSize="@dimen/shadow_size"
+        app:shadowStops="@array/shadow_stops"
+        app:srcCompat="@drawable/ic_back"
+        tools:layout_editor_absoluteY="71dp" />
 
-    <ImageButton
+    <com.maddin.echtzeyt.components.FloatingButton
         android:id="@+id/btnMapLocate"
         android:layout_width="@dimen/bigfloating_size"
         android:layout_height="@dimen/bigfloating_size"
         android:layout_marginTop="@dimen/bigfloating_margin"
         android:layout_marginEnd="@dimen/bigfloating_margin"
         android:layout_marginRight="@dimen/bigfloating_margin"
-        android:background="@drawable/floatingbutton"
-        android:elevation="@dimen/button_elevation"
+        android:background="@drawable/floatingbutton_second"
+        android:clickable="true"
+        android:contentDescription="@string/btnLocateDescription"
+        android:focusable="true"
         android:padding="@dimen/bigfloating_padding"
-        android:scaleType="centerInside"
+        android:scaleType="fitCenter"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fillerCutout"
+        app:radiusInner="@dimen/bigfloating_radius"
+        app:shadowColors="@array/shadow_colors"
+        app:shadowSize="@dimen/shadow_size"
+        app:shadowStops="@array/shadow_stops"
         app:srcCompat="@drawable/ic_locate"
-        tools:ignore="UnusedAttribute" />
+        tools:layout_editor_absoluteY="71dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

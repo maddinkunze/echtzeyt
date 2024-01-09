@@ -9,7 +9,7 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 
-class StopMarker : Marker {
+open class StopMarker : Marker {
     constructor(mapView: MapView, station: LocatableStation) : super(mapView) {
         mStation = station
         mMap = mapView

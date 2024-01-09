@@ -50,8 +50,6 @@ class PullupScrollView(context: Context, private val attrs: AttributeSet?, priva
     override fun onFinishInflate() {
         super.onFinishInflate()
 
-        println("MADDIN101: Finished inflating")
-
         var oldChild: View? = null
         if (childCount > 0) { oldChild = getChildAt(0) }
         removeAllViews()

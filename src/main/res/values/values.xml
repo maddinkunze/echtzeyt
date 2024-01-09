@@ -28,8 +28,10 @@
 
     <dimen name="stationmarker_width">100dp</dimen> <!-- maximum width, it will be scaled down by the classes in StopMarker.kt -->
     <dimen name="stationmarker_height">116dp</dimen> <!-- sm_width + sm_arrow_size (usually), alternatively sm_width * (sm_bg_vector_height/ sm_bg_vector_width); maximum height, it will be scaled down by the classes in StopMarker.kt -->
+    <dimen name="stationmarker_radius">20dp</dimen> <!-- guesswork; just needed for reference, has no impact on how the stationmarker looks -->
     <dimen name="stationmarker_arrow_size">16dp</dimen>
     <dimen name="stationmarker_icon_padding">15dp</dimen>
+    <dimen name="stationmarker_shadow_size">@dimen/stationmarker_arrow_size</dimen>
     <drawable name="stationmarker_icon">@drawable/ic_bus</drawable>
 
     <dimen name="positionmarker_size">80dp</dimen>
@@ -69,6 +71,7 @@
     <dimen name="widget_text_size">12sp</dimen>
 
     <dimen name="shadow_size">12dp</dimen>
+    <dimen name="shadow_size_small">8dp</dimen>
 
     <dimen name="padding_negative_safe">-10000dp</dimen>
 </resources>

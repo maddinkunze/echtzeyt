@@ -26,16 +26,16 @@
     <color name="successWidget">#A8FF82</color>
 
     <color name="transparent">@android:color/transparent</color>
-    <!--array name="shadow_colors">
+    <array name="shadow_colors">
         <item>#12000000</item>
         <item>#04000000</item>
         <item>#00000000</item>
-    </array-->
-    <array name="shadow_colors">
+    </array>
+    <!--array name="shadow_colors">
         <item>#FF0000</item>
         <item>#FFFF00</item>
         <item>@color/transparent</item>
-    </array>
+    </array-->
     <array name="shadow_stops">
         <item>0</item>
         <item>0.3</item>

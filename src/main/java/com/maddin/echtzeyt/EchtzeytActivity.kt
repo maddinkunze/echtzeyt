@@ -8,7 +8,6 @@ import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.net.Uri
 import android.os.*
 import android.text.Html
@@ -18,10 +17,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import com.maddin.echtzeyt.components.FloatingInfoButton
 import com.maddin.echtzeyt.components.InstantAutoCompleteTextView
 import com.maddin.echtzeyt.randomcode.ActivityResultSerializable
 import com.maddin.echtzeyt.randomcode.ClassifiedException
@@ -59,6 +58,7 @@ private var mPreferencesName = ""
 val EXAMPLE_API = com.maddin.transportapi.impl.EmptyAPI()
 // val EXAMPLE_API = com.maddin.transportapi.impl.ExampleAPI() // uncomment this to test the app with mock data
 
+@Suppress("FunctionName")
 fun PREFERENCES_NAME(context: Context) : String {
     if (mPreferencesName.isEmpty()) { mPreferencesName = context.packageName }
     return mPreferencesName
@@ -79,10 +79,10 @@ abstract class EchtzeytActivity : AppCompatActivity() {
     // Menu variables
     private var menuOpened = false
     private val menuItems by lazy { intArrayOf(
-        R.id.layoutButtonSettings,
-        R.id.layoutButtonDonate,
-        R.id.layoutButtonMessage,
-        R.id.layoutButtonAnnouncement
+        R.id.btnSettings,
+        R.id.btnDonate,
+        R.id.btnMessage,
+        R.id.btnAnnouncement
     ).map { findViewById<View>(it) } }
     private val menuVisible by lazy { booleanArrayOf(
         true, // always show the settings icon
@@ -90,6 +90,9 @@ abstract class EchtzeytActivity : AppCompatActivity() {
         resources.getString(R.string.contactEmail).isNotBlank(), // show the contact/feedback button if an e-mail is provided
         false // always hide the notification button at first
     ) }
+    protected val menuOpeningDuration = 160L
+    protected val menuOpeningDelayStep = menuOpeningDuration / 2
+    private var menuNextOpenAllowed = 0L
 
     // Bookmark variables
     private var bookmarksOpened = false
@@ -204,10 +207,10 @@ abstract class EchtzeytActivity : AppCompatActivity() {
         val btnLike = findViewById<ImageButton>(R.id.btnLike)
         val btnBookmarks = findViewById<ImageButton>(R.id.btnBookmarks)
         val btnMenu = findViewById<ImageButton>(R.id.btnMenu)
-        val btnSettings = findViewById<ImageButton>(R.id.btnSettings)
-        val btnDonate = findViewById<ImageButton>(R.id.btnDonate)
-        val btnMessage = findViewById<ImageButton>(R.id.btnMessage)
-        val btnNotification = findViewById<ImageButton>(R.id.btnAnnouncement)
+        val btnSettings = findViewById<FloatingInfoButton>(R.id.btnSettings).button
+        val btnDonate = findViewById<FloatingInfoButton>(R.id.btnDonate).button
+        val btnMessage = findViewById<FloatingInfoButton>(R.id.btnMessage).button
+        val btnNotification = findViewById<FloatingInfoButton>(R.id.btnAnnouncement).button
         val btnNotificationClose = findViewById<ImageButton>(R.id.notificationButtonClose)
 
         // Set adapter (dropdown) for the station search -> autocomplete
@@ -466,11 +469,11 @@ abstract class EchtzeytActivity : AppCompatActivity() {
             1 -> { menuVisible[3] = true }  // Notification
             0 -> {                          // No error but also no notification
                 menuVisible[3] = false
-                Handler(Looper.getMainLooper()).post { findViewById<View>(R.id.layoutButtonAnnouncement).visibility = View.GONE }
+                Handler(Looper.getMainLooper()).post { findViewById<View>(R.id.btnAnnouncement).visibility = View.GONE }
             }
            -1 -> {                          // Error
                menuVisible[3] = false
-               Handler(Looper.getMainLooper()).post { findViewById<View>(R.id.layoutButtonAnnouncement).visibility = View.GONE }
+               Handler(Looper.getMainLooper()).post { findViewById<View>(R.id.btnAnnouncement).visibility = View.GONE }
                delayNextCheck = 10 * 1000 // Something went wrong, check again in 10 seconds
            }
         }
@@ -588,29 +591,31 @@ abstract class EchtzeytActivity : AppCompatActivity() {
     }
 
     private fun toggleMenu(forceClose: Boolean = false) {
-        val duration = 200L
-        var delay = 0L; val delayStep = duration / 2
+        var delay = 0L; val now = System.currentTimeMillis()
 
         if (menuOpened || forceClose) { // If open or forceClose -> close menu
             for (menuItem in menuItems.reversed()) {
-                val oa = ObjectAnimator.ofFloat(menuItem, "alpha", 0f).setDuration(duration)
+                val oa = ObjectAnimator.ofFloat(menuItem, "alpha", 0f).setDuration(menuOpeningDuration)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) { oa.setAutoCancel(true) }
+                oa.addUpdateListener { (menuItem.parent as View).invalidate() }
                 oa.startDelay = delay; oa.start()
                 menuItem.postDelayed({
                     if (menuOpened) { return@postDelayed } // if the menu got opened again don't hide the item
-                    menuItem.visibility = View.GONE }, duration+delay)
-                delay += delayStep
+                    menuItem.visibility = View.GONE }, menuOpeningDuration+delay)
+                delay += menuOpeningDelayStep
             }
             menuOpened = false
-        } else { // If menu is closed and not forceClose -> open menu
+            menuNextOpenAllowed = now + delay - menuOpeningDelayStep + menuOpeningDuration
+        } else if (now >= menuNextOpenAllowed) { // If menu is closed and not forceClose -> open menu
             for (i in menuItems.indices) {
                 if (!menuVisible[i]) { continue }
                 val menuItem = menuItems[i]
                 menuItem.visibility = View.VISIBLE
-                val oa = ObjectAnimator.ofFloat(menuItem, "alpha", 1f).setDuration(duration)
+                val oa = ObjectAnimator.ofFloat(menuItem, "alpha", 1f).setDuration(menuOpeningDuration)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) { oa.setAutoCancel(true) }
+                oa.addUpdateListener { (menuItem.parent as View).invalidate() }
                 oa.startDelay = delay; oa.start()
-                delay += delayStep
+                delay += menuOpeningDelayStep
             }
             menuOpened = true
         }

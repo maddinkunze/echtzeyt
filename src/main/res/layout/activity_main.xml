@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/background"
     android:theme="@style/Theme.Echtzeyt"
-    tools:context=".EchtzeytActivity">
+    tools:context=".EchtzeytActivity" >
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -402,8 +402,7 @@
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/btnMenu"
         app:layout_constraintEnd_toEndOf="@id/btnMenu"
-        app:layout_constraintStart_toStartOf="@id/btnBookmarks"
-        tools:visibility="visible">
+        app:layout_constraintStart_toStartOf="@id/btnBookmarks">
 
         <ImageButton
             android:id="@+id/notificationButtonClose"
@@ -488,180 +487,80 @@
         app:shadowStops="@array/shadow_stops"
         app:srcCompat="@drawable/ic_menu" />
 
-    <LinearLayout
-        android:id="@+id/layoutButtonSettings"
+    <com.maddin.echtzeyt.components.FloatingInfoButton
+        android:id="@+id/btnSettings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/smallfloating_margin_side"
         android:layout_marginRight="@dimen/smallfloating_margin_side"
         android:layout_marginBottom="@dimen/smallfloating_margin_bottom"
-        android:background="@drawable/floatingcontainer"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/btnMenu"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:visibility="visible">
+        app:icon="@drawable/ic_settings"
+        app:radiusInner="@dimen/bigfloating_radius"
+        app:shadowColors="@array/shadow_colors"
+        app:shadowSize="@dimen/shadow_size_small"
+        app:shadowStops="@array/shadow_stops"
+        app:shadowBelow="@id/btnMenu"
+        app:text="@string/btnSettingsDescription"
+        tools:visibility="visible" />
 
-        <TextView
-            android:id="@+id/lblSettings"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/smallfloating_margin_text"
-            android:layout_marginRight="@dimen/smallfloating_margin_text"
-            android:layout_weight="1"
-            android:labelFor="@id/btnSettings"
-            android:paddingLeft="@dimen/smallfloating_padding_text_x"
-            android:paddingTop="@dimen/smallfloating_padding_text_y"
-            android:paddingRight="@dimen/smallfloating_padding_text_x"
-            android:paddingBottom="@dimen/smallfloating_padding_text_y"
-            android:text="@string/btnSettingsDescription"
-            android:textColor="@color/foreground"
-            tools:ignore="TextContrastCheck" />
-
-        <ImageButton
-            android:id="@+id/btnSettings"
-            android:layout_width="@dimen/smallfloating_size"
-            android:layout_height="@dimen/smallfloating_size"
-            android:background="@drawable/floatingbutton"
-            android:clickable="true"
-            android:contentDescription="@string/btnSettingsDescription"
-            android:focusable="true"
-            android:padding="@dimen/smallfloating_padding"
-            android:scaleType="fitCenter"
-            app:srcCompat="@drawable/ic_settings" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layoutButtonDonate"
+    <com.maddin.echtzeyt.components.FloatingInfoButton
+        android:id="@+id/btnDonate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/smallfloating_margin_side"
         android:layout_marginRight="@dimen/smallfloating_margin_side"
         android:layout_marginBottom="@dimen/smallfloating_margin_bottom"
-        android:background="@drawable/floatingcontainer"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/layoutButtonSettings"
+        app:layout_constraintBottom_toTopOf="@+id/btnSettings"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:visibility="visible">
+        app:icon="@drawable/ic_donate"
+        app:radiusInner="@dimen/bigfloating_radius"
+        app:shadowColors="@array/shadow_colors"
+        app:shadowSize="@dimen/shadow_size_small"
+        app:shadowStops="@array/shadow_stops"
+        app:shadowBelow="@id/btnMenu"
+        app:text="@string/btnDonateDescription"
+        tools:visibility="visible" />
 
-        <TextView
-            android:id="@+id/lblDonate"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/smallfloating_margin_text"
-            android:layout_marginRight="@dimen/smallfloating_margin_text"
-            android:layout_weight="1"
-            android:labelFor="@id/btnDonate"
-            android:paddingLeft="@dimen/smallfloating_padding_text_x"
-            android:paddingTop="@dimen/smallfloating_padding_text_y"
-            android:paddingRight="@dimen/smallfloating_padding_text_x"
-            android:paddingBottom="@dimen/smallfloating_padding_text_y"
-            android:text="@string/btnDonateDescription"
-            android:textColor="@color/foreground"
-            tools:ignore="TextContrastCheck" />
-
-        <ImageButton
-            android:id="@+id/btnDonate"
-            android:layout_width="@dimen/smallfloating_size"
-            android:layout_height="@dimen/smallfloating_size"
-            android:background="@drawable/floatingbutton"
-            android:clickable="true"
-            android:contentDescription="@string/btnDonateDescription"
-            android:focusable="true"
-            android:padding="@dimen/smallfloating_padding"
-            android:scaleType="fitCenter"
-            app:srcCompat="@drawable/ic_donate" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layoutButtonMessage"
+    <com.maddin.echtzeyt.components.FloatingInfoButton
+        android:id="@+id/btnMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/smallfloating_margin_side"
         android:layout_marginRight="@dimen/smallfloating_margin_side"
         android:layout_marginBottom="@dimen/smallfloating_margin_bottom"
-        android:background="@drawable/floatingcontainer"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/layoutButtonDonate"
+        app:layout_constraintBottom_toTopOf="@+id/btnDonate"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:visibility="visible">
+        app:icon="@drawable/ic_message"
+        app:radiusInner="@dimen/bigfloating_radius"
+        app:shadowColors="@array/shadow_colors"
+        app:shadowSize="@dimen/shadow_size_small"
+        app:shadowStops="@array/shadow_stops"
+        app:shadowBelow="@id/btnMenu"
+        app:text="@string/btnMessageDescription"
+        tools:visibility="visible" />
 
-        <TextView
-            android:id="@+id/lblMessage"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/smallfloating_margin_text"
-            android:layout_marginRight="@dimen/smallfloating_margin_text"
-            android:layout_weight="1"
-            android:labelFor="@id/btnMessage"
-            android:paddingLeft="@dimen/smallfloating_padding_text_x"
-            android:paddingTop="@dimen/smallfloating_padding_text_y"
-            android:paddingRight="@dimen/smallfloating_padding_text_x"
-            android:paddingBottom="@dimen/smallfloating_padding_text_y"
-            android:text="@string/btnMessageDescription"
-            android:textColor="@color/foreground"
-            tools:ignore="TextContrastCheck" />
-
-        <ImageButton
-            android:id="@+id/btnMessage"
-            android:layout_width="@dimen/smallfloating_size"
-            android:layout_height="@dimen/smallfloating_size"
-            android:background="@drawable/floatingbutton"
-            android:clickable="true"
-            android:contentDescription="@string/btnMessageDescription"
-            android:focusable="true"
-            android:padding="@dimen/smallfloating_padding"
-            android:scaleType="fitCenter"
-            app:srcCompat="@drawable/ic_message" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layoutButtonAnnouncement"
+    <com.maddin.echtzeyt.components.FloatingInfoButton
+        android:id="@+id/btnAnnouncement"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/smallfloating_margin_side"
         android:layout_marginRight="@dimen/smallfloating_margin_side"
         android:layout_marginBottom="@dimen/smallfloating_margin_bottom"
-        android:background="@drawable/floatingcontainer"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/layoutButtonMessage"
+        app:layout_constraintBottom_toTopOf="@+id/btnMessage"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:visibility="visible">
-
-        <TextView
-            android:id="@+id/lblAnnouncement"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/smallfloating_margin_text"
-            android:layout_marginRight="@dimen/smallfloating_margin_text"
-            android:layout_weight="1"
-            android:labelFor="@id/btnAnnouncement"
-            android:paddingLeft="@dimen/smallfloating_padding_text_x"
-            android:paddingTop="@dimen/smallfloating_padding_text_y"
-            android:paddingRight="@dimen/smallfloating_padding_text_x"
-            android:paddingBottom="@dimen/smallfloating_padding_text_y"
-            android:text="@string/btnAnnouncementDescription"
-            android:textColor="@color/foreground"
-            tools:ignore="TextContrastCheck" />
-
-        <ImageButton
-            android:id="@+id/btnAnnouncement"
-            android:layout_width="@dimen/smallfloating_size"
-            android:layout_height="@dimen/smallfloating_size"
-            android:background="@drawable/floatingbutton"
-            android:clickable="true"
-            android:contentDescription="@string/btnAnnouncementDescription"
-            android:focusable="true"
-            android:padding="@dimen/smallfloating_padding"
-            android:scaleType="fitCenter"
-            app:srcCompat="@drawable/ic_announcement" />
-    </LinearLayout>
+        app:icon="@drawable/ic_announcement"
+        app:radiusInner="@dimen/bigfloating_radius"
+        app:shadowColors="@array/shadow_colors"
+        app:shadowSize="@dimen/shadow_size_small"
+        app:shadowStops="@array/shadow_stops"
+        app:shadowBelow="@id/btnMenu"
+        app:text="@string/btnAnnouncementDescription"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -29,6 +29,8 @@
     <attr name="shadowColors" format="reference" />
     <attr name="shadowStops" format="reference" />
     <attr name="radiusInner" format="dimension" />
+    <attr name="shadowBelow" format="reference" />
+    <attr name="shadowAboveIndex" format="integer" />
 
     <declare-styleable name="DropShadow">
         <attr name="shadowSize" />
@@ -42,7 +44,18 @@
         <attr name="shadowColors" />
         <attr name="shadowStops" />
         <attr name="radiusInner" />
-        <attr name="shadowBelow" format="reference" />
-        <attr name="shadowAboveIndex" format="integer" />
+        <attr name="shadowBelow" />
+        <attr name="shadowAboveIndex" />
+    </declare-styleable>
+
+    <declare-styleable name="FloatingInfoButton">
+        <attr name="text" format="string" />
+        <attr name="icon" format="reference" />
+        <attr name="shadowSize" />
+        <attr name="shadowColors" />
+        <attr name="shadowStops" />
+        <attr name="radiusInner" />
+        <attr name="shadowBelow" />
+        <attr name="shadowAboveIndex" />
     </declare-styleable>
 </resources>

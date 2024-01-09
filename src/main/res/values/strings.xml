@@ -2,6 +2,7 @@
     <string name="appName" translatable="false">Echtzeyt</string>
     <string name="appVersion" translatable="false" />
     <string name="appNameSettings">Settings</string>
+    <string name="appNameMap">Map</string>
     <string name="widgetName" translatable="false">Echtzeyt Widget</string>
     <string name="widgetNameSettings">Configure</string>
     <string name="widgetDescription">Realtime information in a small widget</string>
@@ -31,6 +32,7 @@
     <string name="widgetStop">Stop widget</string>
     <string name="btnSearchDescription">Show</string>
     <string name="btnSearchOnMapDescription">Search on map</string>
+    <string name="btnLocateDescription">Locate me on the map</string>
     <string name="btnLikeDescription">Add this station to bookmarks</string>
     <string name="edtSearchTip">Enter station name…</string>
     <string name="stringEmpty" translatable="false"> </string>

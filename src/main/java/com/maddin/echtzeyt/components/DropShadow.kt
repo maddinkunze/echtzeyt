@@ -14,9 +14,12 @@ import android.graphics.PorterDuffXfermode
 import android.graphics.RadialGradient
 import android.graphics.Shader
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.View
+import androidx.annotation.ArrayRes
 import androidx.annotation.StyleableRes
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.res.getFloatOrThrow
 import androidx.core.graphics.applyCanvas
 import androidx.core.graphics.withClip
 import androidx.core.view.marginBottom
@@ -26,9 +29,11 @@ import androidx.core.view.marginTop
 import com.maddin.echtzeyt.R
 
 
+typealias Gradient = Map<Float, Int>
+
 private val paintRemove by lazy { val p = Paint(); p.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR); p }
 
-fun createShadowBitmap(widthOrig: Int, heightOrig: Int, radiusOrig: Int, shadowSize: Int, stops: Map<Float, Int>) : Bitmap? {
+fun createShadowBitmap(widthOrig: Int, heightOrig: Int, radiusOrig: Int, shadowSize: Int, stops: Gradient) : Bitmap? {
     val widthNew = widthOrig + 2 * shadowSize
     val heightNew = heightOrig + 2 * shadowSize
     if (widthNew <= 0 || heightNew <= 0) { return null }
@@ -99,14 +104,35 @@ fun TypedArray.getFloatArray(@StyleableRes index: Int, resources: Resources) : F
     return FloatArray(arr.length()) { i -> arr.getFloat(i, 0f) }.apply { arr.recycle() }
 }
 
-fun TypedArray.getShadowColors(@StyleableRes colorsRes: Int, @StyleableRes stopsRes: Int, resources: Resources) : Map<Float, Int>? {
-    val colors = getColorArray(colorsRes, resources) ?: return null
+private fun zipStopsAndColors(colors: IntArray, stops: FloatArray?) : Gradient {
     var stopsF = { i: Int -> i.toFloat() / (colors.size-1) }
-    val stops = getFloatArray(stopsRes, resources)
     if (stops != null && stops.size == colors.size) {
         stopsF = { i: Int -> stops[i] }
     }
     return buildMap(colors.size) { colors.forEachIndexed { i, c -> put(stopsF(i), c) } }
+}
+
+fun TypedArray.getShadowColors(@StyleableRes colorsRes: Int, @StyleableRes stopsRes: Int, resources: Resources) : Gradient? {
+    val colors = getColorArray(colorsRes, resources) ?: return null
+    val stops = getFloatArray(stopsRes, resources)
+    return zipStopsAndColors(colors, stops)
+}
+
+fun Resources.getColorArray(@ArrayRes index: Int) : IntArray {
+    return getIntArray(index)
+}
+
+fun Resources.getFloatArray(@ArrayRes index: Int) : FloatArray {
+    val arrT = obtainTypedArray(index)
+    val arrF = FloatArray(arrT.length()) { i -> arrT.getFloatOrThrow(i) }
+    arrT.recycle()
+    return arrF
+}
+
+fun Resources.getShadowColors(@ArrayRes colorsRes: Int, @ArrayRes stopsRes: Int) : Gradient {
+    val colors = getColorArray(colorsRes)
+    val stops = if (stopsRes == 0) { null } else { getFloatArray(stopsRes) }
+    return zipStopsAndColors(colors, stops)
 }
 
 @Suppress("unused")
@@ -281,11 +307,11 @@ class DropShadow(context: Context, private val attrs: AttributeSet?, private val
         return mRadiusOriginal
     }
 
-    fun setColorStops(stops: Map<Float, Int>) {
+    fun setColorStops(stops: Gradient) {
         mColorStops = stops
     }
 
-    fun getColorStops() : Map<Float, Int> {
+    fun getColorStops() : Gradient {
         return mColorStops
     }
 
@@ -297,5 +323,9 @@ class DropShadow(context: Context, private val attrs: AttributeSet?, private val
 
         if (bm == null) { return }
         bm.recycle()
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        return false
     }
 }

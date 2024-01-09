@@ -2,6 +2,7 @@ package com.maddin.echtzeyt.components
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -16,6 +17,7 @@ class FloatingButton(context: Context, private val attrs: AttributeSet?, private
     constructor(context: Context) : this(context, null)
 
     private val mShadow by lazy { DropShadow(context, attrs, defStyleAttr) }
+    private var mShadowAttached = false
 
     private var mShadowSize = 0
     private var mRadiusInner = 0
@@ -27,31 +29,44 @@ class FloatingButton(context: Context, private val attrs: AttributeSet?, private
     init {
         applyRandomViewId(this)
 
-        val styledAttr = context.theme.obtainStyledAttributes(attrs, R.styleable.FloatingButton, defStyleAttr, 0)
+        val styledAttr =
+            context.theme.obtainStyledAttributes(attrs, R.styleable.FloatingButton, defStyleAttr, 0)
         try {
-            mShadowSize = styledAttr.getDimensionPixelSize(R.styleable.FloatingButton_shadowSize, mShadowSize)
-            mRadiusInner = styledAttr.getDimensionPixelSize(R.styleable.FloatingButton_radiusInner, mRadiusInner)
-            mColorStops = styledAttr.getShadowColors(R.styleable.FloatingButton_shadowColors, R.styleable.FloatingButton_shadowStops, resources) ?: mColorStops
+            mShadowSize =
+                styledAttr.getDimensionPixelSize(R.styleable.FloatingButton_shadowSize, mShadowSize)
+            mRadiusInner = styledAttr.getDimensionPixelSize(
+                R.styleable.FloatingButton_radiusInner,
+                mRadiusInner
+            )
+            mColorStops = styledAttr.getShadowColors(
+                R.styleable.FloatingButton_shadowColors,
+                R.styleable.FloatingButton_shadowStops,
+                resources
+            ) ?: mColorStops
 
-            mShadowBelow = styledAttr.getResourceId(R.styleable.FloatingButton_shadowBelow, mShadowBelow)
-            mShadowAboveIndex = styledAttr.getInteger(R.styleable.FloatingButton_shadowAboveIndex, mShadowAboveIndex)
+            mShadowBelow =
+                styledAttr.getResourceId(R.styleable.FloatingButton_shadowBelow, mShadowBelow)
+            mShadowAboveIndex = styledAttr.getInteger(
+                R.styleable.FloatingButton_shadowAboveIndex,
+                mShadowAboveIndex
+            )
         } finally {
             styledAttr.recycle()
         }
     }
 
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
         addShadow()
     }
 
     private fun addShadow() {
+        if (mShadowAttached) { return }
         if (mShadowSize <= 0) { return }
 
         val layout = parent as ViewGroup
         if (layout.children.contains(mShadow)) { return }
 
-        println("MADDIN101: addshadow step3")
         applyRandomViewId(mShadow)
         mShadow.setShadowSize(mShadowSize)
         mShadow.setInnerRadius(mRadiusInner)
@@ -60,7 +75,7 @@ class FloatingButton(context: Context, private val attrs: AttributeSet?, private
         var belowView = layout.children.find { it.id == mShadowBelow }
         if (belowView == null) { belowView = this }
         var index = layout.children.indexOf(belowView)
-        index = (index-1+mShadowAboveIndex).coerceAtLeast(0).coerceAtMost(layout.children.count())
+        index = (index+mShadowAboveIndex).coerceAtLeast(0).coerceAtMost(layout.children.count())
 
         layout.addView(mShadow, index)
 
@@ -73,5 +88,19 @@ class FloatingButton(context: Context, private val attrs: AttributeSet?, private
         constraints.connect(mShadow.id, ConstraintSet.RIGHT, id, ConstraintSet.RIGHT)
         constraints.connect(mShadow.id, ConstraintSet.BOTTOM, id, ConstraintSet.BOTTOM)
         constraints.applyTo(layout)
+
+        mShadowAttached = true
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        val r = super.onTouchEvent(event)
+        //println("MADDIN101: pevent ${event?.rawX} ${event?.rawY} $r")
+        //requestLayout()
+        return r
+    }
+
+    override fun performClick(): Boolean {
+        println("MADDIN101: click")
+        return super.performClick()
     }
 }

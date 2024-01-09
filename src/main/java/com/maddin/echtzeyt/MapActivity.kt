@@ -2,10 +2,14 @@ package com.maddin.echtzeyt
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.ColorFilter
+import android.graphics.drawable.BitmapDrawable
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -17,8 +21,12 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.PersistableBundle
 import android.provider.Settings
+import android.util.AttributeSet
 import android.util.TypedValue
+import android.view.View
+import android.view.WindowManager
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -28,10 +36,17 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.applyCanvas
 import androidx.core.location.LocationManagerCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import com.maddin.echtzeyt.components.FloatingButton
 import com.maddin.echtzeyt.components.PositionMarker
 import com.maddin.echtzeyt.components.PullupScrollView
 import com.maddin.echtzeyt.components.StopMarker
+import com.maddin.echtzeyt.components.createShadowBitmap
+import com.maddin.echtzeyt.components.getShadowColors
 import com.maddin.echtzeyt.randomcode.ActivityResultSerializable
 import com.maddin.echtzeyt.randomcode.DynamicDrawable
 import com.maddin.echtzeyt.randomcode.getSerializableExtraCompat
@@ -77,6 +92,20 @@ open class MapActivity : AppCompatActivity() {
     private val pullup : PullupScrollView by lazy { findViewById(R.id.scrollStationInfo) }
     protected val drawableMarker by lazy { DynamicDrawable(AppCompatResources.getDrawable(this, R.drawable.stationmark)!!) }
     protected val drawableMarkerSelected by lazy { DynamicDrawable(AppCompatResources.getDrawable(this, R.drawable.stationmark_selected)!!) }
+    protected val drawableMarkerShadow by lazy {
+        val w = resources.getDimensionPixelSize(R.dimen.stationmarker_width)
+        val ha = resources.getDimensionPixelSize(R.dimen.stationmarker_arrow_size)
+        val h = resources.getDimensionPixelSize(R.dimen.stationmarker_height) - ha
+        val r = resources.getDimensionPixelSize(R.dimen.stationmarker_radius)
+        val ss = resources.getDimensionPixelSize(R.dimen.stationmarker_shadow_size)
+        val shadowBitmap = createShadowBitmap(w, h, r, ss, resources.getShadowColors(R.array.shadow_colors, R.array.shadow_stops)) ?: return@lazy null
+        // currently, the shadow will be aligned on the bottom, and therefore it will may clipped at the bottom
+        // if someone wants a shadow that is larger than sm_arrow_size, it may look weird
+        // TODO: to fix this, the anchor could be recalculated if the drawable exceeds the "lower limit"
+        val shadowBitmapS = Bitmap.createBitmap(shadowBitmap.width, shadowBitmap.height+ha-ss, Bitmap.Config.ARGB_8888)
+        shadowBitmapS.applyCanvas { drawBitmap(shadowBitmap, 0f, 0f, null) }
+        DynamicDrawable(BitmapDrawable(resources, shadowBitmapS))
+    }
 
     protected val zoomMin by lazy { resources.getFloatValue(R.dimen.map_zoom_min).toDouble() }
     protected val zoomMax by lazy { resources.getFloatValue(R.dimen.map_zoom_max).toDouble() }
@@ -176,6 +205,7 @@ open class MapActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         initOSM()
+        initWindow()
 
         //inflate and create the map
         setContentView(R.layout.activity_map)
@@ -198,6 +228,27 @@ open class MapActivity : AppCompatActivity() {
         osmconfig.userAgentValue = "echtzeyt/${application.packageName}"
     }
 
+    @Suppress("DEPRECATION")
+    private fun initWindow() {
+        if (Build.VERSION.SDK_INT in 19..20) {
+            setWindowFlag(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, true)
+        }
+        if (Build.VERSION.SDK_INT >= 19) {
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        }
+        if (Build.VERSION.SDK_INT >= 21) {
+            setWindowFlag(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, false)
+            window.statusBarColor = Color.TRANSPARENT
+        }
+    }
+
+    @Suppress("SameParameterValue")
+    private fun setWindowFlag(bits: Int, on: Boolean) {
+        val params = window.attributes
+        params.flags = if (on) { params.flags or bits } else { params.flags and bits.inv() }
+        window.attributes = params
+    }
+
     private fun initVariables() {
         updateMarkerZoomConstants()
 
@@ -211,6 +262,10 @@ open class MapActivity : AppCompatActivity() {
         drawableMarkerSelected.anchorH = Marker.ANCHOR_CENTER
         drawableMarkerSelected.anchorV = Marker.ANCHOR_BOTTOM
         drawableMarkerSelected.scale = 1.0
+
+        drawableMarkerShadow?.anchorH = Marker.ANCHOR_CENTER
+        drawableMarkerShadow?.anchorV = Marker.ANCHOR_BOTTOM
+        drawableMarkerShadow?.scale = 1.0
 
         locationMarker.icon = locationMarkerDrawable
         locationMarkerDrawable.anchorH = Marker.ANCHOR_CENTER
@@ -273,6 +328,24 @@ open class MapActivity : AppCompatActivity() {
         findViewById<ImageButton>(R.id.btnPullupStationConfirm).setOnClickListener { finishResult() }
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        updateWindowInsets()
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (!hasFocus) { return }
+        updateWindowInsets()
+    }
+
+    private fun updateWindowInsets() {
+        val safeTop = ViewCompat.getRootWindowInsets(window.decorView)?.displayCutout?.safeInsetTop ?: 0
+        println("MADDIN101: inset $safeTop")
+        if (safeTop <= 0) { return }
+        findViewById<View>(R.id.fillerCutout).updateLayoutParams{ height = safeTop }
+    }
+
     @SuppressLint("MissingPermission")
     private fun initResourceIntensiveHandlers() {
         locationClient.requestLocationUpdates(locationProvider, 500L, 5.0f, locationHandler)
@@ -329,6 +402,7 @@ open class MapActivity : AppCompatActivity() {
 
         drawableMarker.scale = scale
         drawableMarkerSelected.scale = scale
+        drawableMarkerShadow?.scale = scale
         locationMarkerDrawable.scale = scale
         locationMarkerDrawableDirected.scale = scale
 
@@ -381,12 +455,20 @@ open class MapActivity : AppCompatActivity() {
             map.overlays.removeAll { overlay -> overlay is StopMarker }
             for (station in stations) {
                 if (station !is LocatableStation) { continue }
+
                 val marker = StopMarker(map, station)
                 marker.icon = drawableMarker
                 marker.setIcon(drawableMarkerSelected, StopMarker.FLAG_SELECTED)
                 marker.setOnMarkerClickListener { _, _ -> selectStation(station); true }
                 stationSelected?.let { marker.selectAndDeselectOthers(it) }
                 map.overlays.add(marker)
+
+                if (stations.size > 50) { continue }
+                if (drawableMarkerShadow == null) { continue }
+                val shadowMarker = StopMarker(map, station)
+                shadowMarker.icon = drawableMarkerShadow
+                shadowMarker.setOnMarkerClickListener { _, _ -> true }
+                map.overlays.add(0, shadowMarker)
             }
 
             map.invalidate()
@@ -469,7 +551,7 @@ open class MapActivity : AppCompatActivity() {
 
         if (goto) {
             if (map.boundingBox.contains(position)) {
-                map.controller.animateTo(position)
+                map.controller.animateTo(position, zoomDefault, 700L)
             } else {
                 Toast.makeText(this, "Location outside permitted area", Toast.LENGTH_SHORT).show()
             }

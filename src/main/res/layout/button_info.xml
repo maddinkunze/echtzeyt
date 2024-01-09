@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/floatingcontainer"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/flib_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/smallfloating_margin_text"
+            android:layout_marginRight="@dimen/smallfloating_margin_text"
+            android:layout_weight="1"
+            android:labelFor="@id/flib_button"
+            android:paddingLeft="@dimen/smallfloating_padding_text_x"
+            android:paddingTop="@dimen/smallfloating_padding_text_y"
+            android:paddingRight="@dimen/smallfloating_padding_text_x"
+            android:paddingBottom="@dimen/smallfloating_padding_text_y"
+            android:textColor="@color/foreground"
+            tools:ignore="TextContrastCheck" />
+
+        <ImageButton
+            android:id="@+id/flib_button"
+            android:layout_width="@dimen/smallfloating_size"
+            android:layout_height="@dimen/smallfloating_size"
+            android:background="@drawable/floatingbutton"
+            android:clickable="true"
+            android:contentDescription="@string/btnSettingsDescription"
+            android:focusable="true"
+            android:padding="@dimen/smallfloating_padding"
+            android:scaleType="fitCenter" />
+</LinearLayout>

@@ -27,6 +27,7 @@
     <string name="btnSearchDescription">Anzeigen</string>
     <string name="edtSearchTip">Station eingeben…</string>
     <string name="btnSearchOnMapDescription">Auf Karte suchen</string>
+    <string name="btnLocateDescription">Geh auf der Karte zu meiner aktuellen Position</string>
     <string name="btnSettingsDescription">Einstellungen</string>
     <string name="settingsSaveContent">Letzte Station speichern</string>
     <string name="settingsDarkMode">Dunkler Modus</string>
@@ -47,6 +48,7 @@
     <string name="updateEmpty">Hier gibt es nichts zu sehen!</string>
     <string name="btnMenuDescription">Menü öffnen</string>
     <string name="appNameSettings">Einstellungen</string>
+    <string name="appNameMap">Karte</string>
     <string name="btnDonateDescription">Unterstütze mich</string>
     <string name="btnMessageDescription">Feedback</string>
     <string name="btnAnnouncementDescription">Benachrichtigung</string>
