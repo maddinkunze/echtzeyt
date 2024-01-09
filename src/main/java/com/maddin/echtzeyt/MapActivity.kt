@@ -1,19 +1,43 @@
 package com.maddin.echtzeyt
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.graphics.ColorFilter
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
+import android.util.TypedValue
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.DimenRes
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
-import com.maddin.echtzeyt.components.DynamicDrawable
+import androidx.core.content.ContextCompat
+import androidx.core.location.LocationManagerCompat
+import com.maddin.echtzeyt.components.PositionMarker
 import com.maddin.echtzeyt.components.PullupScrollView
 import com.maddin.echtzeyt.components.StopMarker
-import com.maddin.transportapi.DefaultCoordinate
+import com.maddin.echtzeyt.randomcode.ActivityResultSerializable
+import com.maddin.echtzeyt.randomcode.DynamicDrawable
+import com.maddin.echtzeyt.randomcode.getSerializableExtraCompat
 import com.maddin.transportapi.LocatableStation
 import com.maddin.transportapi.LocationAreaRect
+import com.maddin.transportapi.LocationLatLon
 import com.maddin.transportapi.LocationStationAPI
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapListener
@@ -31,6 +55,14 @@ import kotlin.math.absoluteValue
 import kotlin.math.pow
 
 
+fun Resources.getFloatValue(@DimenRes floatRes: Int):Float{
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) { return getFloat(floatRes) }
+
+    val out = TypedValue()
+    getValue(floatRes, out, true)
+    return out.float
+}
+
 @Suppress("MemberVisibilityCanBePrivate")
 open class MapActivity : AppCompatActivity() {
     private var nextLocateUpdate = -1L
@@ -38,15 +70,19 @@ open class MapActivity : AppCompatActivity() {
     private lateinit var currentLocationArea : BoundingBox
     private var transportLocateStationAPI : LocationStationAPI = com.maddin.transportapi.impl.germany.VMS("Chemnitz") // TODO: generalize
 
+    //private val preferences by lazy { getSharedPreferences(PREFERENCES_NAME(this), MODE_PRIVATE) }
+
     private val map by lazy { findViewById<MapView>(R.id.mapView) }
     private val txtStation by lazy { findViewById<TextView>(R.id.txtStationName) }
     private val pullup : PullupScrollView by lazy { findViewById(R.id.scrollStationInfo) }
-    protected lateinit var drawableMarker : DynamicDrawable
+    protected val drawableMarker by lazy { DynamicDrawable(AppCompatResources.getDrawable(this, R.drawable.stationmark)!!) }
+    protected val drawableMarkerSelected by lazy { DynamicDrawable(AppCompatResources.getDrawable(this, R.drawable.stationmark_selected)!!) }
 
-    protected val zoomMin = 12.0
-    protected val zoomMax = 19.5
-    protected val zoomStart = 17.0
-    protected val zoomDefault = zoomStart
+    protected val zoomMin by lazy { resources.getFloatValue(R.dimen.map_zoom_min).toDouble() }
+    protected val zoomMax by lazy { resources.getFloatValue(R.dimen.map_zoom_max).toDouble() }
+    protected val zoomStart by lazy { getStartZoom() }
+    protected val zoomDefault by lazy { resources.getFloatValue(R.dimen.map_zoom_start).toDouble() }
+    protected val zoomStation by lazy { resources.getFloatValue(R.dimen.map_zoom_station).toDouble() }
     private var zoomLastUpdateMarkers = Double.POSITIVE_INFINITY
     protected var zoomDeltaNoticeable = 0.01
     protected val zoomTile = 0.95f
@@ -54,26 +90,86 @@ open class MapActivity : AppCompatActivity() {
     protected val scaleMin = 0.25
     protected val scaleMax = 0.9
     protected val scaleZoomFactor = 1.0
-    private var scaleLastUpdateMarkers = zoomStart
+    private var scaleLastUpdateMarkers = Double.POSITIVE_INFINITY
     protected val scaleDeltaNoticeable = 0.007
 
     private var mScaleFactorY = 0.0
     private var mScaleOffsetY = 0.0
 
-    protected val latStart by lazy { resources.getFloat(R.dimen.map_lat_start).toDouble() }
-    protected val latMin by lazy { resources.getFloat(R.dimen.map_lat_min).toDouble() }
-    protected val latMax by lazy { resources.getFloat(R.dimen.map_lat_max).toDouble() }
-    protected val lonStart by lazy { resources.getFloat(R.dimen.map_lon_start).toDouble() }
-    protected val lonMin by lazy { resources.getFloat(R.dimen.map_lon_min).toDouble() }
-    protected val lonMax by lazy { resources.getFloat(R.dimen.map_lon_max).toDouble() }
+    protected val latStart by lazy { getStartLatitude() }
+    protected val latMin by lazy { resources.getFloatValue(R.dimen.map_lat_min).toDouble() }
+    protected val latMax by lazy { resources.getFloatValue(R.dimen.map_lat_max).toDouble() }
+    protected val lonStart by lazy { getStartLongitude() }
+    protected val lonMin by lazy { resources.getFloatValue(R.dimen.map_lon_min).toDouble() }
+    protected val lonMax by lazy { resources.getFloatValue(R.dimen.map_lon_max).toDouble() }
     protected val overscrollX by lazy { 0 }//resources.displayMetrics.widthPixels.coerceAtLeast(resources.getDimensionPixelOffset(R.dimen.stationmarker_size)) }
     protected val overscrollY by lazy { 0 }//resources.displayMetrics.heightPixels.coerceAtLeast(resources.getDimensionPixelOffset(R.dimen.stationmarker_size)) }
 
     protected val colorFilterLight: ColorFilter by lazy { com.maddin.echtzeyt.randomcode.FILTER_OSM_LIGHT }
     protected val colorFilterDark: ColorFilter by lazy { com.maddin.echtzeyt.randomcode.FILTER_OSM_DARK }
 
-    init {
-        updateMarkerZoomConstants()
+    protected var stationSelected: LocatableStation? = null
+
+    private val locationPermissionRequest = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { updateLocation(force=true, goto=true) }
+    private val locationClient by lazy { ContextCompat.getSystemService(this, LocationManager::class.java)!! } // TODO: make null safety checks
+    private val locationProvider = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { LocationManager.FUSED_PROVIDER } else { LocationManager.GPS_PROVIDER }
+    private val locationMarkerDrawable by lazy { DynamicDrawable(AppCompatResources.getDrawable(this, R.drawable.locationmark)!!) }
+    private val locationMarkerDrawableDirected by lazy { DynamicDrawable(AppCompatResources.getDrawable(this, R.drawable.locationmark_directed)!!) }
+    private val locationMarker by lazy { PositionMarker(map) }
+    private val locationHandler by lazy { LocationListener { onLocationReceived(it, false) } }
+
+    private val sensorManager by lazy { ContextCompat.getSystemService(this, SensorManager::class.java) }
+    private val sensorSampling = SensorManager.SENSOR_DELAY_NORMAL
+    private val sensorAcc by lazy { sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) }
+    private val sensorMag by lazy { sensorManager?.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) }
+    // thanks to https://stackoverflow.com/questions/8315913/how-to-get-direction-in-android-such-as-north-west for this code
+    private val orientationHandler: SensorEventListener by lazy {
+        object : SensorEventListener {
+            private var mGravity: FloatArray? = null
+            private var mGeomagnetic: FloatArray? = null
+            private var mAzimutDegMovAvg = Double.NaN
+            private val mAzimutDegMovAvgFactor = 0.9
+            private var mLastAzimutDeg = Double.POSITIVE_INFINITY
+            private val mDeltaAzimutDegNoticeable = 1.0
+
+            @Suppress("LocalVariableName")
+            override fun onSensorChanged(event: SensorEvent) {
+                if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) mGravity = event.values
+                if (event.sensor.type == Sensor.TYPE_MAGNETIC_FIELD) mGeomagnetic = event.values
+                if (mGravity == null || mGeomagnetic == null) {
+                    return
+                }
+
+                val R = FloatArray(9)
+                val I = FloatArray(9)
+                if (!SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic)) {
+                    return
+                }
+
+                // orientation contains azimut, pitch and roll
+                val orientation = FloatArray(3)
+                SensorManager.getOrientation(R, orientation)
+                val azimutInRad = orientation[0]
+                val azimutInDeg = azimutInRad * (180 / Math.PI)
+
+                if (mAzimutDegMovAvg.isNaN()) {
+                    mAzimutDegMovAvg = azimutInDeg
+                }
+                mAzimutDegMovAvg *= mAzimutDegMovAvgFactor
+                mAzimutDegMovAvg += (1 - mAzimutDegMovAvgFactor) * azimutInDeg
+
+                locationMarker.rotation = -mAzimutDegMovAvg.toFloat()
+
+                // only force a redraw of the map, when the change would be noticeable
+                if ((mAzimutDegMovAvg - mLastAzimutDeg).absoluteValue < mDeltaAzimutDegNoticeable) {
+                    return
+                }
+                mLastAzimutDeg = mAzimutDegMovAvg
+                map.invalidate()
+            }
+
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,9 +181,15 @@ open class MapActivity : AppCompatActivity() {
         setContentView(R.layout.activity_map)
 
         initVariables()
+        initSettings()
         initHandlers()
         initThreads()
         initMap()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        initResourceIntensiveHandlers()
     }
 
     private fun initOSM() {
@@ -97,13 +199,34 @@ open class MapActivity : AppCompatActivity() {
     }
 
     private fun initVariables() {
+        updateMarkerZoomConstants()
+
         // this is sketchy, we are using the same drawable for all markers
         // it significantly improves performance but i am not sure if this is supposed to work or just works by accident
         // TODO: check if this is supposed to work
-        drawableMarker = DynamicDrawable(AppCompatResources.getDrawable(this, R.drawable.stationmark)!!)
         drawableMarker.anchorH = Marker.ANCHOR_CENTER
         drawableMarker.anchorV = Marker.ANCHOR_BOTTOM
         drawableMarker.scale = 1.0
+
+        drawableMarkerSelected.anchorH = Marker.ANCHOR_CENTER
+        drawableMarkerSelected.anchorV = Marker.ANCHOR_BOTTOM
+        drawableMarkerSelected.scale = 1.0
+
+        locationMarker.icon = locationMarkerDrawable
+        locationMarkerDrawable.anchorH = Marker.ANCHOR_CENTER
+        locationMarkerDrawable.anchorV = Marker.ANCHOR_CENTER
+        locationMarkerDrawable.scale = 1.0
+
+        locationMarkerDrawableDirected.anchorH = Marker.ANCHOR_CENTER
+        locationMarkerDrawableDirected.anchorV = Marker.ANCHOR_CENTER
+        locationMarkerDrawableDirected.scale = 1.0
+
+        val stationStart = intent.getSerializableExtraCompat<LocatableStation>(ActivityResultSerializable.INPUT_DATA)
+        if (stationStart != null) { selectStation(stationStart) }
+    }
+
+    private fun initSettings() {
+
     }
 
     private fun initMap() {
@@ -125,13 +248,17 @@ open class MapActivity : AppCompatActivity() {
         map.setScrollableAreaLimitLongitude(mLonMin, mLonMax, overscrollX)
         map.setScrollableAreaLimitLatitude(mLatMax, mLatMin, overscrollY)
         map.zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
-        map.overlayManager.tilesOverlay.setColorFilter(colorFilterLight)
+        val nightMode = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+        map.overlayManager.tilesOverlay.setColorFilter(if (nightMode) { colorFilterDark } else { colorFilterLight })
+
+        map.overlays.add(locationMarker)
 
         //map.isTilesScaledToDpi = true // TODO: check if this looks good on other devices
         map.tilesScaleFactor = zoomTile
 
         map.requestLayout()
     }
+
 
     private fun initHandlers() {
         map.addMapListener(object : MapListener {
@@ -140,7 +267,30 @@ open class MapActivity : AppCompatActivity() {
         })
         map.addOnFirstLayoutListener { _, _, _, _, _ -> updateLocationSearch() }
 
+        findViewById<ImageButton>(R.id.btnMapBack).setOnClickListener { finish() }
+        findViewById<ImageButton>(R.id.btnMapLocate).setOnClickListener { gotoCurrentLocation() }
         findViewById<ImageButton>(R.id.btnClosePullup).setOnClickListener { pullup.hidePullup() }
+        findViewById<ImageButton>(R.id.btnPullupStationConfirm).setOnClickListener { finishResult() }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun initResourceIntensiveHandlers() {
+        locationClient.requestLocationUpdates(locationProvider, 500L, 5.0f, locationHandler)
+
+        if (sensorAcc != null && sensorMag != null) {
+            sensorManager?.registerListener(orientationHandler, sensorAcc, sensorSampling)
+            sensorManager?.registerListener(orientationHandler, sensorMag, sensorSampling)
+            locationMarker.icon = locationMarkerDrawableDirected
+        } else {
+            locationMarker.icon = locationMarkerDrawable
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun removeResourceIntensiveHandlers() {
+        locationClient.removeUpdates(locationHandler)
+        if (sensorAcc != null) { sensorManager?.unregisterListener(orientationHandler, sensorAcc) }
+        if (sensorMag != null) { sensorManager?.unregisterListener(orientationHandler, sensorMag) }
     }
 
     private fun initThreads() {
@@ -158,6 +308,16 @@ open class MapActivity : AppCompatActivity() {
         }
     }
 
+    override fun onStop() {
+        removeResourceIntensiveHandlers()
+        super.onStop()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateLocation(force=false, goto=false)
+    }
+
     private fun updateMarkerZoom() {
         val zoomLevel = map.zoomLevelDouble
         if ((zoomLevel - zoomLastUpdateMarkers).absoluteValue < zoomDeltaNoticeable) { return }
@@ -166,7 +326,13 @@ open class MapActivity : AppCompatActivity() {
         val scale = scaleMin + (getMarkerZoomValue(zoomLevel) - mScaleOffsetY) * mScaleFactorY
         if ((1-scale/scaleLastUpdateMarkers).absoluteValue < scaleDeltaNoticeable) { return }
         scaleLastUpdateMarkers = scale
+
         drawableMarker.scale = scale
+        drawableMarkerSelected.scale = scale
+        locationMarkerDrawable.scale = scale
+        locationMarkerDrawableDirected.scale = scale
+
+        updateMarkerAlphas()
     }
 
     private fun getMarkerZoomValue(x: Double) : Double {
@@ -202,7 +368,7 @@ open class MapActivity : AppCompatActivity() {
         val lastNextLocateUpdate = nextLocateUpdate
 
         val areaCenter = currentLocationArea.centerWithDateLine
-        val center = DefaultCoordinate(areaCenter.latitude, areaCenter.longitude)
+        val center = LocationLatLon(areaCenter.latitude, areaCenter.longitude)
         val width = 2 * currentLocationArea.longitudeSpanWithDateLine
         val height = 2 * currentLocationArea.latitudeSpan
         val area = LocationAreaRect(center, width, height)
@@ -212,12 +378,14 @@ open class MapActivity : AppCompatActivity() {
         lastLocateUpdate = timeNow
 
         Handler(Looper.getMainLooper()).post {
-            map.overlays.clear()
+            map.overlays.removeAll { overlay -> overlay is StopMarker }
             for (station in stations) {
                 if (station !is LocatableStation) { continue }
                 val marker = StopMarker(map, station)
                 marker.icon = drawableMarker
+                marker.setIcon(drawableMarkerSelected, StopMarker.FLAG_SELECTED)
                 marker.setOnMarkerClickListener { _, _ -> selectStation(station); true }
+                stationSelected?.let { marker.selectAndDeselectOthers(it) }
                 map.overlays.add(marker)
             }
 
@@ -228,7 +396,106 @@ open class MapActivity : AppCompatActivity() {
     }
 
     fun selectStation(station: LocatableStation) {
+        stationSelected = station
         txtStation.text = station.name
         if (!pullup.isVisible()) { pullup.showPullup() }
+
+        for (marker in map.overlays) {
+            if (marker !is StopMarker) { continue }
+            marker.selectAndDeselectOthers(station)
+        }
+        map.invalidate()
+    }
+
+    private fun getStartLatitude() : Double {
+        return stationSelected?.location?.lat ?: resources.getFloatValue(R.dimen.map_lat_start).toDouble()
+    }
+
+    private fun getStartLongitude() : Double {
+        return stationSelected?.location?.lon ?: resources.getFloatValue(R.dimen.map_lon_start).toDouble()
+    }
+
+    private fun getStartZoom() : Double {
+        var zoom = zoomDefault
+        if (stationSelected != null) { zoom = zoomStation }
+        return zoom
+    }
+
+    private fun finishResult() {
+        val result = Intent()
+        result.putExtra(ActivityResultSerializable.OUTPUT_DATA, stationSelected)
+        setResult(RESULT_OK, result)
+        finish()
+    }
+
+    private fun askForLocationPermissions() {
+        locationPermissionRequest.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+    }
+
+    private fun gotoCurrentLocation() {
+        val locCoarse = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val locFine = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        if (locCoarse || locFine) { updateLocation(force=true, goto=true); return }
+        askForLocationPermissions()
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun updateLocation(force: Boolean, goto: Boolean) {
+        if (!LocationManagerCompat.isLocationEnabled(locationClient)) {
+            onLocationReceived(null, false)
+            if (force) { askForLocationTurnedOn() }
+            return
+        }
+
+        if (force) {
+            LocationManagerCompat.getCurrentLocation(locationClient, locationProvider, null, ContextCompat.getMainExecutor(this)) { onLocationReceived(it, goto) }
+            return
+        }
+
+        onLocationReceived(locationClient.getLastKnownLocation(locationProvider), goto)
+    }
+
+    private fun onLocationReceived(location: Location?, goto: Boolean) {
+        if (location == null) {
+            locationMarker.setVisible(false)
+            return
+        }
+
+        val position = GeoPoint(location.latitude, location.longitude)
+        locationMarker.position = position
+        locationMarker.setVisible(true)
+        updateMarkerAlphas()
+        map.invalidate()
+
+        if (goto) {
+            if (map.boundingBox.contains(position)) {
+                map.controller.animateTo(position)
+            } else {
+                Toast.makeText(this, "Location outside permitted area", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun askForLocationTurnedOn() {
+        // thanks to https://stackoverflow.com/questions/43138788/ask-user-to-turn-on-location for parts of this code
+        AlertDialog.Builder(this, R.style.AlertDialogTheme)
+            .setTitle(R.string.mapLocationEnableTitle)
+            .setMessage(R.string.mapLocationEnableText)
+            .setPositiveButton(R.string.mapLocationEnableDone) { _, _ -> updateLocation(force=false, goto=true) }
+            .setNeutralButton(R.string.mapLocationEnableSettings) { _, _ -> startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) }
+            .setNegativeButton(R.string.mapLocationEnableCancel) { dialog, _ -> dialog.cancel() }
+            .show()
+    }
+
+    private fun updateMarkerAlphas() {
+        // this will be called when the map may be different, to make sure that markers will get transparent
+        // if the location marker is behind them -> stop markers will still be in front but slightly transparent
+        /*for (marker in map.overlays) {
+            if (marker !is StopMarker) { continue }
+            marker.alpha = 1f
+            if (!marker.bounds.contains(locationMarker.bounds.centerLatitude, locationMarker.bounds.centerLongitude)) { continue }
+            marker.alpha = 0.3f
+        }*/
+        // TODO: implement this
     }
 }

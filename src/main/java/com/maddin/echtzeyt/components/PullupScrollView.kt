@@ -1,27 +1,28 @@
 package com.maddin.echtzeyt.components
 
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import androidx.core.view.updatePadding
 import com.maddin.echtzeyt.R
 import kotlin.math.absoluteValue
 
-@Suppress("MemberVisibilityCanBePrivate")
+
 class PullupScrollView(context: Context, private val attrs: AttributeSet?, private val defStyleAttr: Int) : ScrollView(context, attrs, defStyleAttr) {
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context) : this(context, null)
 
-    private lateinit var mContentView: View
     private var mFocus = false
     private var mCanReceiveFocus = true
     private var mDeltaTopPosNoticable = 2
-    private lateinit var mChildLayout: LinearLayout
+    private val mChildLayout by lazy { LinearLayout(context) }
 
     var minimumVisibleHeight = 0
     var durationFadeIn = 200
@@ -29,19 +30,38 @@ class PullupScrollView(context: Context, private val attrs: AttributeSet?, priva
     var durationFadeInRelative = 0f
     var durationFadeOutRelative = 0f
 
-    private val animations = mutableListOf<ObjectAnimator>()
-
     init {
+        /*LayoutInflater.from(context).inflate(R.layout.viewgroup_pullupscrollview, this, true);
+        topLayout = findViewById(R.id.pullupScrollView)
+        containerLayout = findViewById(R.id.pullupContainerView)*/
+
         getAttributes()
     }
+
+    private val mContentView by lazy { mChildLayout.getChildAt(0) }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         super.onLayout(changed, l, t, r, b)
         if (!changed) { return }
 
-        mChildLayout = getChildAt(0) as LinearLayout
-        mContentView = mChildLayout.getChildAt(0)
         updateVisiblePortion(minimumVisibleHeight)
+    }
+
+    override fun onFinishInflate() {
+        super.onFinishInflate()
+
+        println("MADDIN101: Finished inflating")
+
+        var oldChild: View? = null
+        if (childCount > 0) { oldChild = getChildAt(0) }
+        removeAllViews()
+        super.addView(mChildLayout)
+        mChildLayout.clipToPadding = false
+        mChildLayout.clipChildren = false
+        if (oldChild != null) { mChildLayout.addView(oldChild) }
+
+        // when in preview mode: get the display height and move the contents to the bottom once
+        if (isInEditMode) { mChildLayout.updatePadding(top=resources.displayMetrics.heightPixels-minimumVisibleHeight) }
     }
 
     private fun updateVisiblePortion(visible: Int) {
@@ -166,5 +186,37 @@ class PullupScrollView(context: Context, private val attrs: AttributeSet?, priva
 
     fun isVisible() : Boolean {
         return (visibility == VISIBLE) && mCanReceiveFocus
+    }
+
+    override fun addView(child: View?) {
+        if (child == null || childCount < 1) {
+            super.addView(child)
+        } else {
+            mChildLayout.addView(child)
+        }
+    }
+
+    override fun addView(child: View?, index: Int) {
+        if (child == null || childCount < 1) {
+            super.addView(child, index)
+        } else {
+            mChildLayout.addView(child, index)
+        }
+    }
+
+    override fun addView(child: View, index: Int, params: ViewGroup.LayoutParams?) {
+        if (childCount < 1) {
+            super.addView(child, index, params)
+        } else {
+            mChildLayout.addView(child, index, params)
+        }
+    }
+
+    // the component preview in android studio complains if no speakable description is provided
+    // so if we are in edit mode, we return some non-empty garbage for android studio to chew on
+    @SuppressLint("GetContentDescriptionOverride")
+    override fun getContentDescription(): CharSequence {
+        if (isInEditMode) { return "." }
+        return super.getContentDescription()
     }
 }

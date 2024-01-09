@@ -10,7 +10,7 @@
                 android:strokeLineJoin="round"
                 android:strokeWidth="30"
                 android:fillColor="@color/backgroundStationmarker"
-                android:strokeColor="@color/backgroundStationmarker"/>
+                android:strokeColor="@color/foregroundStationmarker"/>
         </vector>
     </item>
     <item android:bottom="@dimen/stationmarker_arrow_size">

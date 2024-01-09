@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+<layer-list xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape>
             <solid android:color="@color/backgroundPullup" />
-            <corners android:topLeftRadius="20dp" android:topRightRadius="20dp" />
+            <corners android:topLeftRadius="@dimen/pullup_radius" android:topRightRadius="20dp" />
         </shape>
     </item>
     <item android:gravity="center_horizontal|top" android:top="8dp">

@@ -26,6 +26,7 @@
     <string name="widgetStop">Stoppe Widget</string>
     <string name="btnSearchDescription">Anzeigen</string>
     <string name="edtSearchTip">Station eingeben…</string>
+    <string name="btnSearchOnMapDescription">Auf Karte suchen</string>
     <string name="btnSettingsDescription">Einstellungen</string>
     <string name="settingsSaveContent">Letzte Station speichern</string>
     <string name="settingsDarkMode">Dunkler Modus</string>
@@ -66,6 +67,13 @@
     <string name="sendLogsText">Es scheint so als wäre dir gerade etwas ungewöhnliches passiert. Möchtest du die letzten aufgezeichneten Fehler zusammen mit deinem Feedback senden?</string>
     <string name="sendLogsYes">Ja, sende Fehlerbericht</string>
     <string name="sendLogsNo">Nein</string>
+    <string name="mapStationConfirm">Ausgewählte Station benutzen</string>
+    <string name="mapBack">Zurück</string>
+    <string name="mapLocationEnableTitle">Aktiviere deinen Standort</string>
+    <string name="mapLocationEnableText">Dein Standort ist nicht aktiviert. Um anzuzeigen, wo du dich gerade befindest, wird dieser benötigt. Bitte aktiviere deinen Standort über den Schnellzugriff oder in den Einstellungen.</string>
+    <string name="mapLocationEnableSettings">Zu den Einstellungen</string>
+    <string name="mapLocationEnableDone">Fertig</string>
+    <string name="mapLocationEnableCancel">Abbrechen</string>
     <string name="_libraryEchtzeytBasedOn">basiert auf\u0020</string>
     <string name="widgetNameSettings">Einstellungen</string>
 </resources>

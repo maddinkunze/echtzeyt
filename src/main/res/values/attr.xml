@@ -23,4 +23,26 @@
         <attr name="fadeInDurationRelative" format="float" />
         <attr name="fadeOutDurationRelative" format="float" />
     </declare-styleable>
+
+
+    <attr name="shadowSize" format="dimension" />
+    <attr name="shadowColors" format="reference" />
+    <attr name="shadowStops" format="reference" />
+    <attr name="radiusInner" format="dimension" />
+
+    <declare-styleable name="DropShadow">
+        <attr name="shadowSize" />
+        <attr name="shadowColors" />
+        <attr name="shadowStops" />
+        <attr name="radiusInner" />
+    </declare-styleable>
+
+    <declare-styleable name="FloatingButton">
+        <attr name="shadowSize" />
+        <attr name="shadowColors" />
+        <attr name="shadowStops" />
+        <attr name="radiusInner" />
+        <attr name="shadowBelow" format="reference" />
+        <attr name="shadowAboveIndex" format="integer" />
+    </declare-styleable>
 </resources>

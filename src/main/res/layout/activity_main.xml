@@ -48,30 +48,30 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar">
 
-            <com.maddin.echtzeyt.components.InstantAutoCompleteTextView
-                android:id="@+id/edtSearch"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/button_size"
-                android:layout_weight="1"
-                android:background="@color/background"
-                android:fontFamily="@font/roboto"
-                android:hint="@string/edtSearchTip"
-                android:inputType="textNoSuggestions"
-                android:maxLines="1"
-                android:padding="0dp"
-                android:paddingStart="5dp"
-                android:paddingLeft="5dp"
-                android:paddingTop="0dp"
-                android:paddingEnd="0dp"
-                android:paddingRight="0dp"
-                android:paddingBottom="0dp"
-                android:singleLine="true"
-                android:textColor="@color/foreground"
-                android:textColorHint="@color/foregroundHint"
-                android:textCursorDrawable="@null"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                tools:ignore="TextContrastCheck,TouchTargetSizeCheck,VisualLintTextFieldSize" />
+        <com.maddin.echtzeyt.components.InstantAutoCompleteTextView
+            android:id="@+id/edtSearch"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/button_size"
+            android:layout_weight="1"
+            android:background="@color/background"
+            android:fontFamily="@font/roboto"
+            android:hint="@string/edtSearchTip"
+            android:inputType="textNoSuggestions"
+            android:maxLines="1"
+            android:padding="0dp"
+            android:paddingStart="5dp"
+            android:paddingLeft="5dp"
+            android:paddingTop="0dp"
+            android:paddingEnd="0dp"
+            android:paddingRight="0dp"
+            android:paddingBottom="0dp"
+            android:singleLine="true"
+            android:textColor="@color/foreground"
+            android:textColorHint="@color/foregroundHint"
+            android:textCursorDrawable="@null"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            tools:ignore="TextContrastCheck,TouchTargetSizeCheck,VisualLintTextFieldSize" />
 
         <ImageButton
             android:id="@+id/btnLike"
@@ -93,7 +93,7 @@
             android:layout_marginStart="@dimen/button_margin"
             android:layout_marginLeft="@dimen/button_margin"
             android:background="@drawable/imagebutton"
-            android:contentDescription="@string/btnLikeDescription"
+            android:contentDescription="@string/btnSearchOnMapDescription"
             android:padding="@dimen/button_padding"
             android:scaleType="fitCenter"
             app:srcCompat="@drawable/ic_map"
@@ -372,7 +372,7 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ImageButton
+    <com.maddin.echtzeyt.components.FloatingButton
         android:id="@+id/btnBookmarks"
         android:layout_width="@dimen/bigfloating_size"
         android:layout_height="@dimen/bigfloating_size"
@@ -387,6 +387,10 @@
         android:scaleType="fitCenter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:radiusInner="@dimen/bigfloating_radius"
+        app:shadowColors="@array/shadow_colors"
+        app:shadowSize="@dimen/shadow_size"
+        app:shadowStops="@array/shadow_stops"
         app:srcCompat="@drawable/ic_bookmark" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -458,11 +462,12 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/notificationTitle" />
+            app:layout_constraintTop_toBottomOf="@+id/notificationTitle"
+            tools:ignore="VisualLintLongText" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ImageButton
+    <com.maddin.echtzeyt.components.FloatingButton
         android:id="@+id/btnMenu"
         android:layout_width="@dimen/bigfloating_size"
         android:layout_height="@dimen/bigfloating_size"
@@ -477,6 +482,10 @@
         android:scaleType="fitCenter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:radiusInner="@dimen/bigfloating_radius"
+        app:shadowColors="@array/shadow_colors"
+        app:shadowSize="@dimen/shadow_size"
+        app:shadowStops="@array/shadow_stops"
         app:srcCompat="@drawable/ic_menu" />
 
     <LinearLayout

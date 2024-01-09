@@ -213,16 +213,16 @@ fun getColorMappingMatrixFilter(mappings: Array<Pair<ColorRGB, ColorRGB>>) : Col
 
 val FILTER_OSM_DARK by lazy {
     val white = ColorRGB(255, 255, 254)
-    val gray = ColorRGB(-10, -10, -10)
+    val gray = ColorRGB(-8, -8, -8)
 
-    val yellow = ColorRGB(255, 255, 0)
-    val darkyellow = ColorRGB(150, 150, 0)
+    val yellow = ColorRGB(170, 210, 220)
+    val darkyellow = ColorRGB(40, 60, 70)
 
-    val green = ColorRGB(0, 255, 0)
-    val darkgreen = ColorRGB(50, 120, 20)
+    val green = ColorRGB(200, 250, 200)
+    val darkgreen = ColorRGB(40, 60, 35)
 
     val darkgray = ColorRGB(12, 12, 12)
-    val lightgray = ColorRGB(200, 200, 200)
+    val lightgray = ColorRGB(270, 270, 270)
 
 
     getColorMappingMatrixFilter(arrayOf(
@@ -255,6 +255,6 @@ val FILTER_OSM_LIGHT by lazy {
     ))
 }
 
-fun setFilter(map: MapView, filter: ColorFilter) {
+fun setMapColorFilter(map: MapView, filter: ColorFilter) {
     map.overlayManager.tilesOverlay.setColorFilter(filter)
 }

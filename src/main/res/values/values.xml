@@ -6,6 +6,7 @@
     <dimen name="button_radius">4dp</dimen>
     <dimen name="button_margin">10dp</dimen>
     <dimen name="button_padding">8dp</dimen>
+    <dimen name="button_elevation">50dp</dimen>
     <dimen name="toolbar_height">46dp</dimen>
     <dimen name="toolbar_radius">20dp</dimen>
     <dimen name="layout_padding">16dp</dimen>
@@ -25,17 +26,20 @@
     <dimen name="smallfloating_gradient_width">60dp</dimen>
     <dimen name="smallfloating_gradient_end">88dp</dimen> <!-- sf_gradient_right + sf_gradient_width, where does the gradient end -->
 
-    <dimen name="stationmarker_size">100dp</dimen> <!-- maximum size, it will be scaled down by the classes in StopMarker.kt -->
-    <dimen name="stationmarker_icon_size">70dp</dimen>
-    <dimen name="stationmarker_radius">20dp</dimen>
-    <dimen name="stationmarker_arrow_height">14dp</dimen>
-    <dimen name="stationmarker_arrow_size">20dp</dimen> <!-- TODO: how calculated? -->
-    <dimen name="stationmarker_arrow_offset">4dp</dimen> <!-- TODO: how calculated? -->
+    <dimen name="stationmarker_width">100dp</dimen> <!-- maximum width, it will be scaled down by the classes in StopMarker.kt -->
+    <dimen name="stationmarker_height">116dp</dimen> <!-- sm_width + sm_arrow_size (usually), alternatively sm_width * (sm_bg_vector_height/ sm_bg_vector_width); maximum height, it will be scaled down by the classes in StopMarker.kt -->
+    <dimen name="stationmarker_arrow_size">16dp</dimen>
+    <dimen name="stationmarker_icon_padding">15dp</dimen>
     <drawable name="stationmarker_icon">@drawable/ic_bus</drawable>
 
+    <dimen name="positionmarker_size">80dp</dimen>
+
     <dimen name="pullup_close_margin">-4dp</dimen> <!-- distance between the close button and the ok button on a pullup menu -->
+    <dimen name="pullup_radius">@dimen/bigfloating_radius</dimen>
+    <dimen name="pullup_elevation">@dimen/button_elevation</dimen>
 
     <item name="map_zoom_start" type="dimen" format="float">17</item>
+    <item name="map_zoom_station" type="dimen" format="float">18</item>
     <item name="map_zoom_min" type="dimen" format="float">12</item>
     <item name="map_zoom_max" type="dimen" format="float">19.5</item>
     <item name="map_lat_start" type="dimen" format="float">0</item>
@@ -63,6 +67,8 @@
     <dimen name="widget_toolbar_text_height">20sp</dimen> <!-- just to avoid the text clipping, better solution may be needed -->
     <dimen name="widget_button_radius">4dp</dimen>
     <dimen name="widget_text_size">12sp</dimen>
+
+    <dimen name="shadow_size">12dp</dimen>
 
     <dimen name="padding_negative_safe">-10000dp</dimen>
 </resources>

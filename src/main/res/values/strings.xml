@@ -30,6 +30,7 @@
     <string name="widgetReload">Reload/Update widget</string>
     <string name="widgetStop">Stop widget</string>
     <string name="btnSearchDescription">Show</string>
+    <string name="btnSearchOnMapDescription">Search on map</string>
     <string name="btnLikeDescription">Add this station to bookmarks</string>
     <string name="edtSearchTip">Enter station name…</string>
     <string name="stringEmpty" translatable="false"> </string>
@@ -74,6 +75,13 @@
     <string name="sendLogsText">It seems you may experienced something unusual. Do you want to report it by including the latest errors in your feedback email?</string>
     <string name="sendLogsYes">Yes, send error logs</string>
     <string name="sendLogsNo">No</string>
+    <string name="mapStationConfirm">Use selected station</string>
+    <string name="mapBack">Go back</string>
+    <string name="mapLocationEnableTitle">Enable your Location</string>
+    <string name="mapLocationEnableText">You don\'t have your location enabled. To show where you are currently located, the location is needed. Please enable your location using your status bar or by going into your settings.</string>
+    <string name="mapLocationEnableSettings">Go to Settings</string>
+    <string name="mapLocationEnableDone">Done</string>
+    <string name="mapLocationEnableCancel">Cancel</string>
     <string name="_libraryEchtzeytBasedOn">based on\u0020</string>
     <string name="_libraryEchtzeytName" translatable="false">Echtzeyt</string>
     <string name="_libraryEchtzeytVersion" translatable="false" />

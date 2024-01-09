@@ -9,6 +9,7 @@
         android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/background"
         android:clickable="true"
         android:contentDescription="@string/about"
         android:focusable="true"
@@ -21,6 +22,7 @@
         android:id="@+id/scrollStationInfo"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:clipChildren="false"
         android:contentDescription="@string/appName"
         android:fadeScrollbars="true"
         android:overScrollMode="never"
@@ -36,18 +38,39 @@
         app:layout_constraintTop_toTopOf="parent"
         app:minimumVisibleHeight="80dp">
 
-        <LinearLayout
+        <!--LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clipToPadding="false"
-            android:orientation="vertical">
+            android:orientation="vertical"-->
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipChildren="false">
+
+            <com.maddin.echtzeyt.components.DropShadow
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginBottom="@dimen/shadow_size"
+                app:layout_constraintBottom_toBottomOf="@+id/layoutPullup"
+                app:layout_constraintEnd_toEndOf="@+id/layoutPullup"
+                app:layout_constraintStart_toStartOf="@+id/layoutPullup"
+                app:layout_constraintTop_toTopOf="@+id/layoutPullup"
+                app:radiusInner="@dimen/pullup_radius"
+                app:shadowColors="@array/shadow_colors"
+                app:shadowSize="@dimen/shadow_size"
+                app:shadowStops="@array/shadow_stops" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/layoutStationInfo"
+                android:id="@+id/layoutPullup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/pullup"
-                android:minHeight="400dp">
+                android:minHeight="80dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -76,14 +99,15 @@
                         android:textStyle="bold" />
 
                     <ImageButton
-                        android:id="@+id/btnPullupStationSelect"
+                        android:id="@+id/btnPullupStationConfirm"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:background="@drawable/imagebuttonsecond"
+                        android:contentDescription="@string/mapStationConfirm"
                         android:padding="@dimen/button_padding"
                         android:scaleType="centerInside"
                         app:srcCompat="@drawable/ic_check"
-                        tools:ignore="TouchTargetSizeCheck" />
+                        tools:ignore="TouchTargetSizeCheck,RedundantDescriptionCheck" />
                 </LinearLayout>
 
                 <ImageView
@@ -120,7 +144,40 @@
                     app:tint="@color/backgroundPullup"
                     tools:ignore="TouchTargetSizeCheck" />
             </androidx.constraintlayout.widget.ConstraintLayout>
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </com.maddin.echtzeyt.components.PullupScrollView>
+
+    <ImageButton
+        android:id="@+id/btnMapBack"
+        android:layout_width="@dimen/bigfloating_size"
+        android:layout_height="@dimen/bigfloating_size"
+        android:layout_marginStart="@dimen/bigfloating_margin"
+        android:layout_marginLeft="@dimen/bigfloating_margin"
+        android:layout_marginTop="@dimen/bigfloating_margin"
+        android:background="@drawable/floatingbutton"
+        android:contentDescription="@string/mapBack"
+        android:padding="@dimen/bigfloating_padding"
+        android:scaleType="centerInside"
+        android:elevation="@dimen/button_elevation"
+        app:srcCompat="@drawable/ic_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="UnusedAttribute" />
+
+    <ImageButton
+        android:id="@+id/btnMapLocate"
+        android:layout_width="@dimen/bigfloating_size"
+        android:layout_height="@dimen/bigfloating_size"
+        android:layout_marginTop="@dimen/bigfloating_margin"
+        android:layout_marginEnd="@dimen/bigfloating_margin"
+        android:layout_marginRight="@dimen/bigfloating_margin"
+        android:background="@drawable/floatingbutton"
+        android:elevation="@dimen/button_elevation"
+        android:padding="@dimen/bigfloating_padding"
+        android:scaleType="centerInside"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_locate"
+        tools:ignore="UnusedAttribute" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

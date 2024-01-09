@@ -8,7 +8,7 @@ import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
+import android.graphics.Color
 import android.net.Uri
 import android.os.*
 import android.text.Html
@@ -18,11 +18,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.maddin.echtzeyt.components.InstantAutoCompleteTextView
+import com.maddin.echtzeyt.randomcode.ActivityResultSerializable
 import com.maddin.echtzeyt.randomcode.ClassifiedException
+import com.maddin.transportapi.LocatableStation
 import com.maddin.transportapi.RealtimeConnection
 import com.maddin.transportapi.Station
 import org.json.JSONObject
@@ -52,11 +55,17 @@ fun setAppLocale(context: Context, language: String) {
     resources.updateConfiguration(config, resources.displayMetrics)
 }
 
-var PREFERENCES_NAME = ""
+private var mPreferencesName = ""
 val EXAMPLE_API = com.maddin.transportapi.impl.EmptyAPI()
 // val EXAMPLE_API = com.maddin.transportapi.impl.ExampleAPI() // uncomment this to test the app with mock data
 
-open class EchtzeytActivity : AppCompatActivity() {
+fun PREFERENCES_NAME(context: Context) : String {
+    if (mPreferencesName.isEmpty()) { mPreferencesName = context.packageName }
+    return mPreferencesName
+}
+
+abstract class EchtzeytActivity : AppCompatActivity() {
+    // Internal variables about when the next search/update/... should happen
     private var isInForeground = false
     private var nextCheckForeground = 0L
     private var shouldUpdateSearch = false
@@ -64,27 +73,44 @@ open class EchtzeytActivity : AppCompatActivity() {
     private var nextUpdateNotifications = 0L
     private var currentStationSearch = ""
 
+    // Elements/Views
+    private val edtSearch by lazy { findViewById<InstantAutoCompleteTextView>(R.id.edtSearch) }
+
+    // Menu variables
     private var menuOpened = false
-    protected val menuIds by lazy { intArrayOf(
+    private val menuItems by lazy { intArrayOf(
         R.id.layoutButtonSettings,
         R.id.layoutButtonDonate,
         R.id.layoutButtonMessage,
         R.id.layoutButtonAnnouncement
+    ).map { findViewById<View>(it) } }
+    private val menuVisible by lazy { booleanArrayOf(
+        true, // always show the settings icon
+        resources.getString(R.string.urlSupportMe).isNotBlank(), // show the support button if a link is provided
+        resources.getString(R.string.contactEmail).isNotBlank(), // show the contact/feedback button if an e-mail is provided
+        false // always hide the notification button at first
     ) }
-    private lateinit var menuVisible: BooleanArray
-    private var menuItems: MutableList<View> = mutableListOf()
+
+    // Bookmark variables
     private var bookmarksOpened = false
 
-    private lateinit var preferences: SharedPreferences
+    private val preferences by lazy { getSharedPreferences(PREFERENCES_NAME(this), MODE_PRIVATE) }
     private var currentStationName = ""
     private var currentStation: Station? = null
     private var savedStations: MutableSet<String> = mutableSetOf()
-    private lateinit var adapterSearch: ArrayAdapter<String>
-    private lateinit var transportStationAPI: com.maddin.transportapi.StationAPI
-    private lateinit var transportRealtimeAPI: com.maddin.transportapi.RealtimeAPI
+    private val adapterSearch by lazy { ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item) }
+    protected abstract val transportStationAPI: com.maddin.transportapi.StationAPI
+    protected abstract val transportRealtimeAPI: com.maddin.transportapi.RealtimeAPI
 
-    protected var widgetClasses = mutableListOf<Class<*>>()
+    // Everything related to updating widgets when the app is opened
+    private var classesWidgets = mutableListOf<Class<*>>()
 
+    // Everything related to other activities (such as the settings or a station selection map)
+    protected abstract val activitySettings: Class<out SettingsActivity>
+    protected open val activityMap: Class<out MapActivity>? = null
+    private val activityMapLauncher by lazy { registerForActivityResult(ActivityResultSerializable<LocatableStation>(activityMap!!)) { commitToStation(it) } }
+
+    // Notifications and exceptions
     private var currentNotification: JSONObject? = null
     private var lastClosedNotification = ""
     private var exceptions: MutableList<ClassifiedException> = mutableListOf()
@@ -120,7 +146,7 @@ open class EchtzeytActivity : AppCompatActivity() {
     }
 
     private fun updateWidgets() {
-        for (widgetClass in widgetClasses) {
+        for (widgetClass in classesWidgets) {
             val intent = Intent(this, widgetClass)
             intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
             val widgetIds = AppWidgetManager.getInstance(application).getAppWidgetIds(ComponentName(application, widgetClass))
@@ -130,34 +156,22 @@ open class EchtzeytActivity : AppCompatActivity() {
 
     }
 
-    private fun initVariables() {
-        for (menuId in menuIds) {
-            val menuItem = findViewById<View>(menuId)
-            menuItem.alpha = 0f
-            menuItems.add(menuItem)
-        }
-        menuVisible = booleanArrayOf(
-            true, // always show the settings icon
-            resources.getString(R.string.urlSupportMe).isNotBlank(),
-            resources.getString(R.string.contactEmail).isNotBlank(),
-            false // always hide the notification button at first
-        )
+    protected fun addWidgetClass(cls: Class<*>) {
+        classesWidgets.add(cls)
+    }
 
-        // Set mock/empty api as default
-        if (!this::transportStationAPI.isInitialized) {
-            this.transportStationAPI = EXAMPLE_API
+    private fun initVariables() {
+        for (menuItem in menuItems) {
+            menuItem.alpha = 0f
         }
-        if (!this::transportRealtimeAPI.isInitialized) {
-            this.transportRealtimeAPI = EXAMPLE_API
-        }
+
+        // the launcher has to be registered before the activity has been started
+        // by explicitly stating activityMapLauncher, we force lazy to initialize activityMapLauncher
+        if (activityMap != null) { activityMapLauncher }
 
         isInForeground = true
-
-        PREFERENCES_NAME = packageName
     }
     private fun initSettings() {
-        preferences = getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE)
-
         // Save last station?
         if (!preferences.contains("saveStation")) { preferences.edit().putBoolean("saveStation", true).apply() }
         if (preferences.getBoolean("saveStation", true)) { currentStationName = preferences.getString("station", "")!! }
@@ -185,7 +199,6 @@ open class EchtzeytActivity : AppCompatActivity() {
         lastClosedNotification = preferences.getString("lastClosedNotification", lastClosedNotification).toString()
     }
     private fun initHandlers() {
-        val edtSearch = findViewById<InstantAutoCompleteTextView>(R.id.edtSearch)
         val btnSearch = findViewById<ImageButton>(R.id.btnSearch)
         val btnMap = findViewById<ImageButton>(R.id.btnMap)
         val btnLike = findViewById<ImageButton>(R.id.btnLike)
@@ -198,7 +211,6 @@ open class EchtzeytActivity : AppCompatActivity() {
         val btnNotificationClose = findViewById<ImageButton>(R.id.notificationButtonClose)
 
         // Set adapter (dropdown) for the station search -> autocomplete
-        adapterSearch = ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item)
         edtSearch.setAdapter(adapterSearch)
         edtSearch.threshold = 0  // Show dropdown after the first character entered
         edtSearch.setDropDownBackgroundResource(R.drawable.dropdown)  // Change background resource of the dropdown to match the rest
@@ -219,7 +231,7 @@ open class EchtzeytActivity : AppCompatActivity() {
         btnSearch.setOnClickListener { clearFocus(); commitToStation() }
 
         // Open map (for selecting a station) when the map button is clicked
-        btnMap.setOnClickListener { startActivity(Intent().setComponent(ComponentName(this, "$packageName.MapActivity"))) }
+        btnMap.setOnClickListener { openStationMap() }
 
         // Toggle like when clicking the star/like button
         btnLike.setOnClickListener { toggleLike() }
@@ -231,7 +243,7 @@ open class EchtzeytActivity : AppCompatActivity() {
         btnMenu.setOnClickListener { toggleMenu() }
 
         // Open settings when clicking the settings button
-        btnSettings.setOnClickListener { toggleMenu(true); startActivity(Intent().setComponent(ComponentName(this, "$packageName.SettingsActivity"))) }
+        btnSettings.setOnClickListener { toggleMenu(true); openSettings() }
 
         // Open the support/donation link when clicking the donation button
         btnDonate.setOnClickListener { toggleMenu(true); startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(resources.getString(R.string.urlSupportMe)))) }
@@ -290,12 +302,6 @@ open class EchtzeytActivity : AppCompatActivity() {
 
         commitToStation()
         updateBookmarks()
-    }
-
-    protected fun <API> setTransportAPI(transportAPI: API) where API : com.maddin.transportapi.StationAPI, API : com.maddin.transportapi.RealtimeAPI {
-        // Set all transport apis to the one specified
-        transportStationAPI = transportAPI
-        transportRealtimeAPI = transportAPI
     }
 
     /*
@@ -681,6 +687,13 @@ open class EchtzeytActivity : AppCompatActivity() {
         toggleBookmarks(true)
         updateConnections()
     }
+
+    private fun commitToStation(station: Station?) {
+        if (station == null) { return }
+        currentStation = station
+        commitToStation(station.name)
+    }
+
     private fun scheduleNextConnectionsUpdate(next: Long, force: Boolean = false) {
         if ((next > nextUpdateConnections) && !force) { return }
         nextUpdateConnections = next
@@ -710,5 +723,18 @@ open class EchtzeytActivity : AppCompatActivity() {
             return "No internet connection"
         }
         return ""
+    }
+
+    protected fun openSettings() {
+        startActivity(Intent().setClass(this, activitySettings))
+    }
+
+    protected fun openStationMap() {
+        if (activityMap == null) { return }
+
+        var station: LocatableStation? = null
+        if (currentStation is LocatableStation) { station = currentStation as LocatableStation }
+
+        activityMapLauncher.launch(station)
     }
 }

@@ -1,5 +1,5 @@
-<vector android:height="@dimen/stationmarker_icon_size" android:viewportHeight="24"
-    android:viewportWidth="24" android:width="@dimen/stationmarker_icon_size" xmlns:android="http://schemas.android.com/apk/res/android">
+<vector android:height="40dp" android:viewportHeight="24"
+    android:viewportWidth="24" android:width="40dp" xmlns:android="http://schemas.android.com/apk/res/android">
     <path android:fillColor="@color/transparent"
         android:pathData="M8,14V15M16,14V15M5,11H19M6,18V19.5C6,19.776 6.224,20 6.5,20V20C6.776,20 7,19.776 7,19.5V18M17,18V19.5C17,19.776 17.224,20 17.5,20V20C17.776,20 18,19.776 18,19.5V18M19,6V6C19,4.343 17.657,3 16,3H8C6.343,3 5,4.343 5,6V6M19,6V16C19,17.105 18.105,18 17,18H7C5.895,18 5,17.105 5,16V6M19,6H5"
         android:strokeColor="@color/foregroundStationmarker" android:strokeLineCap="round"

@@ -1,0 +1,25 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="@dimen/positionmarker_size"
+    android:height="@dimen/positionmarker_size"
+    android:viewportWidth="500"
+    android:viewportHeight="500">
+  <path
+      android:pathData="M250,0A250,250 0,0 0,250 500A250,250 0,0 0,250 0Z">
+    <aapt:attr name="android:fillColor">
+      <gradient 
+          android:centerX="250"
+          android:centerY="250"
+          android:gradientRadius="250"
+          android:type="radial">
+        <item android:offset="0" android:color="@color/foregroundPositionmarker"/>
+        <item android:offset="1" android:color="@color/transparent"/>
+      </gradient>
+    </aapt:attr>
+  </path>
+  <path
+      android:pathData="M170,250a80,80 0,1 0,160 0a80,80 0,1 0,-160 0z"
+      android:strokeWidth="50"
+      android:fillColor="@color/backgroundPositionmarker"
+      android:strokeColor="@color/foregroundPositionmarker"/>
+</vector>

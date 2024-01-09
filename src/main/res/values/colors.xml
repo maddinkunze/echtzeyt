@@ -9,19 +9,36 @@
     <color name="backgroundButtonClose">#DD2020</color>
     <color name="backgroundSunken">#BBBBBB</color>
     <color name="backgroundWidgetToolbar">@color/foreground</color>
-    <color name="backgroundPullup">@color/backgroundTint</color>
+    <color name="backgroundPullup">#F4F4F4</color>
     <color name="backgroundNotification">#FDEBDC</color>
-    <color name="backgroundStationmarker">@color/backgroundTint</color>
+    <color name="backgroundStationmarker">#FFFFFF</color>
+    <color name="backgroundPositionmarker">@color/backgroundStationmarker</color>
     <color name="foreground">#8800AE</color>
     <color name="foregroundHint">#8B3D0355</color>
     <color name="foregroundText">#606060</color>
     <color name="foregroundWidget">@color/backgroundTint</color>
     <color name="foregroundNotification">#1A1A1A</color>
     <color name="foregroundStationmarker">@color/foreground</color>
+    <color name="foregroundPositionmarker">@color/foregroundStationmarker</color>
     <color name="error">#915A5A</color>
     <color name="errorWidget">#FF8974</color>
     <color name="success">#628E62</color>
     <color name="successWidget">#A8FF82</color>
 
     <color name="transparent">@android:color/transparent</color>
+    <!--array name="shadow_colors">
+        <item>#12000000</item>
+        <item>#04000000</item>
+        <item>#00000000</item>
+    </array-->
+    <array name="shadow_colors">
+        <item>#FF0000</item>
+        <item>#FFFF00</item>
+        <item>@color/transparent</item>
+    </array>
+    <array name="shadow_stops">
+        <item>0</item>
+        <item>0.3</item>
+        <item>1</item>
+    </array>
 </resources>
