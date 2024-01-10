@@ -148,7 +148,6 @@ class PullupScrollView(context: Context, private val attrs: AttributeSet?, priva
         alphaAnimator.start()
         translationAnimator.start()
 
-        println("MADDIN101: show pullup")
         mCanReceiveFocus = true
 
         return duration

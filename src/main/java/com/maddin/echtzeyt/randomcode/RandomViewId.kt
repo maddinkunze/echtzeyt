@@ -25,3 +25,7 @@ fun applyRandomViewId(view: View) {
     if (view.id > 0) { return }
     view.id = generateViewId()
 }
+
+fun View.applyRandomId() {
+    applyRandomViewId(this)
+}

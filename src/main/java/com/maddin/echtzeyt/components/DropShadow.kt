@@ -16,17 +16,21 @@ import android.graphics.Shader
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.ArrayRes
 import androidx.annotation.StyleableRes
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.res.getFloatOrThrow
 import androidx.core.graphics.applyCanvas
 import androidx.core.graphics.withClip
+import androidx.core.view.children
 import androidx.core.view.marginBottom
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
 import androidx.core.view.marginTop
 import com.maddin.echtzeyt.R
+import com.maddin.echtzeyt.randomcode.applyRandomId
 
 
 typealias Gradient = Map<Float, Int>
@@ -327,5 +331,77 @@ class DropShadow(context: Context, private val attrs: AttributeSet?, private val
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         return false
+    }
+}
+
+
+// Default Implementation for extending Views to have a DropShadow
+
+interface ViewAsInterface {
+    val _this: View
+}
+
+// all of those attributes should be protected, but kotlin currently does not (fully) support protected members on interfaces
+interface DropShadowView : ViewAsInterface {
+    val mShadow: DropShadow
+    var mShadowAttached: Boolean
+
+    var mShadowSize: Int
+    var mRadiusInner: Int
+    var mColorStops: Map<Float, Int>?
+
+    var mShadowBelow: Int
+    var mShadowAboveIndex: Int
+
+    fun readAttributes(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) {
+        val styledAttr = context.theme.obtainStyledAttributes(attrs, R.styleable.DropShadowView, defStyleAttr, defStyleRes)
+        try {
+            mShadowSize = styledAttr.getDimensionPixelSize(R.styleable.DropShadowView_shadowSize, mShadowSize)
+            mRadiusInner = styledAttr.getDimensionPixelSize(R.styleable.DropShadowView_radiusInner, mRadiusInner)
+            mColorStops = styledAttr.getShadowColors(R.styleable.DropShadowView_shadowColors, R.styleable.DropShadowView_shadowStops, _this.resources) ?: mColorStops
+
+            mShadowBelow = styledAttr.getResourceId(R.styleable.DropShadowView_shadowBelow, mShadowBelow)
+            mShadowAboveIndex = styledAttr.getInteger(R.styleable.DropShadowView_shadowAboveIndex, mShadowAboveIndex)
+        } finally {
+            styledAttr.recycle()
+        }
+    }
+
+    // should be called in (overridden) onLayout in the view this is implemented on
+    fun addShadow() {
+        if (mShadowAttached) { return }
+        if (mShadowSize <= 0) { return }
+
+        val layout = _this.parent as ViewGroup
+        if (layout.children.contains(mShadow)) { return }
+
+        mShadow.applyRandomId()
+        mShadow.setShadowSize(mShadowSize)
+        mShadow.setInnerRadius(mRadiusInner)
+        mColorStops?.let { mShadow.setColorStops(it) }
+
+        var belowView = layout.children.find { it.id == mShadowBelow }
+        if (belowView == null) { belowView = _this }
+        var index = layout.children.indexOf(belowView)
+        index = (index+mShadowAboveIndex).coerceAtLeast(0).coerceAtMost(layout.children.count())
+
+        layout.addView(mShadow, index)
+
+        if (layout !is ConstraintLayout) { return }
+
+        val constraints = ConstraintSet()
+        constraints.clone(layout)
+        constraints.connect(mShadow.id, ConstraintSet.LEFT, _this.id, ConstraintSet.LEFT)
+        constraints.connect(mShadow.id, ConstraintSet.TOP, _this.id, ConstraintSet.TOP)
+        constraints.connect(mShadow.id, ConstraintSet.RIGHT, _this.id, ConstraintSet.RIGHT)
+        constraints.connect(mShadow.id, ConstraintSet.BOTTOM, _this.id, ConstraintSet.BOTTOM)
+        constraints.applyTo(layout)
+
+        mShadowAttached = true
+    }
+
+    // should be called in (overridden) onSetAlpha in the view this is implemented on
+    fun setShadowAlpha(alpha: Int) {
+        mShadow.alpha = alpha / 255f
     }
 }

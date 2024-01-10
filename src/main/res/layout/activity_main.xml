@@ -393,6 +393,19 @@
         app:shadowStops="@array/shadow_stops"
         app:srcCompat="@drawable/ic_bookmark" />
 
+    <!--com.maddin.echtzeyt.components.DropShadow
+        android:id="@+id/notificationShadow"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/notificationWindow"
+        app:layout_constraintEnd_toEndOf="@+id/notificationWindow"
+        app:layout_constraintStart_toStartOf="@+id/notificationWindow"
+        app:layout_constraintTop_toTopOf="@+id/notificationWindow"
+        app:radiusInner="@dimen/bigfloating_radius"
+        app:shadowSize="@dimen/shadow_size_small"
+        app:shadowColors="@array/shadow_colors"
+        app:shadowStops="@array/shadow_stops" /-->
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/notificationWindow"
         android:layout_width="0dp"
@@ -402,7 +415,8 @@
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/btnMenu"
         app:layout_constraintEnd_toEndOf="@id/btnMenu"
-        app:layout_constraintStart_toStartOf="@id/btnBookmarks">
+        app:layout_constraintStart_toStartOf="@id/btnBookmarks"
+        tools:visibility="visible">
 
         <ImageButton
             android:id="@+id/notificationButtonClose"
@@ -495,16 +509,15 @@
         android:layout_marginRight="@dimen/smallfloating_margin_side"
         android:layout_marginBottom="@dimen/smallfloating_margin_bottom"
         android:visibility="gone"
+        app:icon="@drawable/ic_settings"
         app:layout_constraintBottom_toTopOf="@+id/btnMenu"
         app:layout_constraintEnd_toEndOf="parent"
-        app:icon="@drawable/ic_settings"
         app:radiusInner="@dimen/bigfloating_radius"
+        app:shadowBelow="@id/btnMenu"
         app:shadowColors="@array/shadow_colors"
         app:shadowSize="@dimen/shadow_size_small"
         app:shadowStops="@array/shadow_stops"
-        app:shadowBelow="@id/btnMenu"
-        app:text="@string/btnSettingsDescription"
-        tools:visibility="visible" />
+        app:text="@string/btnSettingsDescription" />
 
     <com.maddin.echtzeyt.components.FloatingInfoButton
         android:id="@+id/btnDonate"
@@ -514,16 +527,15 @@
         android:layout_marginRight="@dimen/smallfloating_margin_side"
         android:layout_marginBottom="@dimen/smallfloating_margin_bottom"
         android:visibility="gone"
+        app:icon="@drawable/ic_donate"
         app:layout_constraintBottom_toTopOf="@+id/btnSettings"
         app:layout_constraintEnd_toEndOf="parent"
-        app:icon="@drawable/ic_donate"
         app:radiusInner="@dimen/bigfloating_radius"
+        app:shadowBelow="@id/btnMenu"
         app:shadowColors="@array/shadow_colors"
         app:shadowSize="@dimen/shadow_size_small"
         app:shadowStops="@array/shadow_stops"
-        app:shadowBelow="@id/btnMenu"
-        app:text="@string/btnDonateDescription"
-        tools:visibility="visible" />
+        app:text="@string/btnDonateDescription" />
 
     <com.maddin.echtzeyt.components.FloatingInfoButton
         android:id="@+id/btnMessage"
@@ -533,16 +545,15 @@
         android:layout_marginRight="@dimen/smallfloating_margin_side"
         android:layout_marginBottom="@dimen/smallfloating_margin_bottom"
         android:visibility="gone"
+        app:icon="@drawable/ic_message"
         app:layout_constraintBottom_toTopOf="@+id/btnDonate"
         app:layout_constraintEnd_toEndOf="parent"
-        app:icon="@drawable/ic_message"
         app:radiusInner="@dimen/bigfloating_radius"
+        app:shadowBelow="@id/btnMenu"
         app:shadowColors="@array/shadow_colors"
         app:shadowSize="@dimen/shadow_size_small"
         app:shadowStops="@array/shadow_stops"
-        app:shadowBelow="@id/btnMenu"
-        app:text="@string/btnMessageDescription"
-        tools:visibility="visible" />
+        app:text="@string/btnMessageDescription" />
 
     <com.maddin.echtzeyt.components.FloatingInfoButton
         android:id="@+id/btnAnnouncement"
@@ -552,15 +563,14 @@
         android:layout_marginRight="@dimen/smallfloating_margin_side"
         android:layout_marginBottom="@dimen/smallfloating_margin_bottom"
         android:visibility="gone"
+        app:icon="@drawable/ic_announcement"
         app:layout_constraintBottom_toTopOf="@+id/btnMessage"
         app:layout_constraintEnd_toEndOf="parent"
-        app:icon="@drawable/ic_announcement"
         app:radiusInner="@dimen/bigfloating_radius"
+        app:shadowBelow="@id/btnMenu"
         app:shadowColors="@array/shadow_colors"
         app:shadowSize="@dimen/shadow_size_small"
         app:shadowStops="@array/shadow_stops"
-        app:shadowBelow="@id/btnMenu"
-        app:text="@string/btnAnnouncementDescription"
-        tools:visibility="visible" />
+        app:text="@string/btnAnnouncementDescription" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

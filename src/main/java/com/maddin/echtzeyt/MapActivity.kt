@@ -2,7 +2,6 @@ package com.maddin.echtzeyt
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
@@ -19,11 +18,10 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
+import android.os.ConditionVariable
 import android.os.Handler
 import android.os.Looper
-import android.os.PersistableBundle
 import android.provider.Settings
-import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
 import android.view.WindowManager
@@ -39,7 +37,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.applyCanvas
 import androidx.core.location.LocationManagerCompat
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.updateLayoutParams
 import com.maddin.echtzeyt.components.FloatingButton
 import com.maddin.echtzeyt.components.PositionMarker
@@ -68,6 +66,7 @@ import java.io.File
 import kotlin.concurrent.thread
 import kotlin.math.absoluteValue
 import kotlin.math.pow
+import kotlin.math.roundToInt
 
 
 fun Resources.getFloatValue(@DimenRes floatRes: Int):Float{
@@ -90,6 +89,10 @@ open class MapActivity : AppCompatActivity() {
     private val map by lazy { findViewById<MapView>(R.id.mapView) }
     private val txtStation by lazy { findViewById<TextView>(R.id.txtStationName) }
     private val pullup : PullupScrollView by lazy { findViewById(R.id.scrollStationInfo) }
+    private val btnBack by lazy { findViewById<FloatingButton>(R.id.btnMapBack) }
+    private val btnLocate by lazy { findViewById<FloatingButton>(R.id.btnMapLocate) }
+    private val btnHideMarkers by lazy { findViewById<FloatingButton>(R.id.btnMapHideMarkers) }
+
     protected val drawableMarker by lazy { DynamicDrawable(AppCompatResources.getDrawable(this, R.drawable.stationmark)!!) }
     protected val drawableMarkerSelected by lazy { DynamicDrawable(AppCompatResources.getDrawable(this, R.drawable.stationmark_selected)!!) }
     protected val drawableMarkerShadow by lazy {
@@ -106,6 +109,8 @@ open class MapActivity : AppCompatActivity() {
         shadowBitmapS.applyCanvas { drawBitmap(shadowBitmap, 0f, 0f, null) }
         DynamicDrawable(BitmapDrawable(resources, shadowBitmapS))
     }
+    protected val shadowsUntil = 50
+    protected var showMarkers = true
 
     protected val zoomMin by lazy { resources.getFloatValue(R.dimen.map_zoom_min).toDouble() }
     protected val zoomMax by lazy { resources.getFloatValue(R.dimen.map_zoom_max).toDouble() }
@@ -240,6 +245,11 @@ open class MapActivity : AppCompatActivity() {
             setWindowFlag(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, false)
             window.statusBarColor = Color.TRANSPARENT
         }
+
+        if (!isInNightMode()) {
+            val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+            windowInsetsController.isAppearanceLightStatusBars = true
+        }
     }
 
     @Suppress("SameParameterValue")
@@ -303,8 +313,7 @@ open class MapActivity : AppCompatActivity() {
         map.setScrollableAreaLimitLongitude(mLonMin, mLonMax, overscrollX)
         map.setScrollableAreaLimitLatitude(mLatMax, mLatMin, overscrollY)
         map.zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
-        val nightMode = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
-        map.overlayManager.tilesOverlay.setColorFilter(if (nightMode) { colorFilterDark } else { colorFilterLight })
+        map.overlayManager.tilesOverlay.setColorFilter(if (isInNightMode()) { colorFilterDark } else { colorFilterLight })
 
         map.overlays.add(locationMarker)
 
@@ -322,9 +331,10 @@ open class MapActivity : AppCompatActivity() {
         })
         map.addOnFirstLayoutListener { _, _, _, _, _ -> updateLocationSearch() }
 
-        findViewById<ImageButton>(R.id.btnMapBack).setOnClickListener { finish() }
-        findViewById<ImageButton>(R.id.btnMapLocate).setOnClickListener { gotoCurrentLocation() }
-        findViewById<ImageButton>(R.id.btnClosePullup).setOnClickListener { pullup.hidePullup() }
+        btnBack.setOnClickListener { finish() }
+        btnLocate.setOnClickListener { gotoCurrentLocation() }
+        btnHideMarkers.setOnClickListener { toggleMarkerVisibility() }
+        findViewById<ImageButton>(R.id.btnClosePullup).setOnClickListener { closePullup() }
         findViewById<ImageButton>(R.id.btnPullupStationConfirm).setOnClickListener { finishResult() }
     }
 
@@ -340,9 +350,14 @@ open class MapActivity : AppCompatActivity() {
     }
 
     private fun updateWindowInsets() {
-        val safeTop = ViewCompat.getRootWindowInsets(window.decorView)?.displayCutout?.safeInsetTop ?: 0
-        println("MADDIN101: inset $safeTop")
+        var safeTop = ViewCompat.getRootWindowInsets(window.decorView)?.displayCutout?.safeInsetTop ?: 0
         if (safeTop <= 0) { return }
+
+        val rFactor = resources.getFloatValue(R.dimen.map_buttons_top_up_factor)
+        val rMax = resources.getDimensionPixelSize(R.dimen.map_buttons_top_up_max)
+        safeTop -= (rFactor * safeTop).roundToInt().coerceAtMost(rMax)
+        if (safeTop <= 0) { return }
+
         findViewById<View>(R.id.fillerCutout).updateLayoutParams{ height = safeTop }
     }
 
@@ -370,8 +385,8 @@ open class MapActivity : AppCompatActivity() {
         thread(start=true, isDaemon=false) {
             while (true) {
                 val timeNow = System.currentTimeMillis()
-                val shouldUpdate = (nextLocateUpdate < 0) || (timeNow < nextLocateUpdate)
-                if (shouldUpdate) {
+                val skipUpdate = (nextLocateUpdate < 0) || (timeNow < nextLocateUpdate) || !showMarkers
+                if (skipUpdate) {
                     Thread.sleep(200)
                     continue
                 }
@@ -427,8 +442,8 @@ open class MapActivity : AppCompatActivity() {
 
     private fun updateLocationSearch(after: Long) {
         updateLocationArea()
-        val delay = (after-10).coerceAtMost(0)
-        Handler(Looper.getMainLooper()).postDelayed({ updateLocationArea() }, delay)
+        /*val delay = (after-10).coerceAtMost(0)
+        Handler(Looper.getMainLooper()).postDelayed({ updateLocationArea() }, delay)*/
         nextLocateUpdate = System.currentTimeMillis() + after
     }
 
@@ -441,6 +456,13 @@ open class MapActivity : AppCompatActivity() {
 
         val lastNextLocateUpdate = nextLocateUpdate
 
+        val condition = ConditionVariable()
+        Handler(Looper.getMainLooper()).post {
+            updateLocationArea()
+            condition.open()
+        }
+        condition.block()
+
         val areaCenter = currentLocationArea.centerWithDateLine
         val center = LocationLatLon(areaCenter.latitude, areaCenter.longitude)
         val width = 2 * currentLocationArea.longitudeSpanWithDateLine
@@ -452,7 +474,7 @@ open class MapActivity : AppCompatActivity() {
         lastLocateUpdate = timeNow
 
         Handler(Looper.getMainLooper()).post {
-            map.overlays.removeAll { overlay -> overlay is StopMarker }
+            removeAllStopMarkers()
             for (station in stations) {
                 if (station !is LocatableStation) { continue }
 
@@ -460,14 +482,16 @@ open class MapActivity : AppCompatActivity() {
                 marker.icon = drawableMarker
                 marker.setIcon(drawableMarkerSelected, StopMarker.FLAG_SELECTED)
                 marker.setOnMarkerClickListener { _, _ -> selectStation(station); true }
+                marker.setVisible(showMarkers)
                 stationSelected?.let { marker.selectAndDeselectOthers(it) }
                 map.overlays.add(marker)
 
-                if (stations.size > 50) { continue }
+                if (stations.size > shadowsUntil) { continue }
                 if (drawableMarkerShadow == null) { continue }
                 val shadowMarker = StopMarker(map, station)
                 shadowMarker.icon = drawableMarkerShadow
                 shadowMarker.setOnMarkerClickListener { _, _ -> true }
+                shadowMarker.setVisible(showMarkers)
                 map.overlays.add(0, shadowMarker)
             }
 
@@ -570,7 +594,7 @@ open class MapActivity : AppCompatActivity() {
     }
 
     private fun updateMarkerAlphas() {
-        // this will be called when the map may be different, to make sure that markers will get transparent
+        // this will be called when the map may have changed, to make sure that markers will get transparent
         // if the location marker is behind them -> stop markers will still be in front but slightly transparent
         /*for (marker in map.overlays) {
             if (marker !is StopMarker) { continue }
@@ -579,5 +603,43 @@ open class MapActivity : AppCompatActivity() {
             marker.alpha = 0.3f
         }*/
         // TODO: implement this
+    }
+
+    private fun isInNightMode() : Boolean {
+        return (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+    }
+
+    private fun closePullup() {
+        pullup.hidePullup()
+        stationSelected = null
+        map.overlays.forEach {
+            if (it !is StopMarker) { return@forEach }
+            it.deselect()
+        }
+        map.invalidate()
+    }
+
+    private fun removeAllStopMarkers() {
+        map.overlays.removeAll { it is StopMarker }
+    }
+
+    private fun updateStopMarkersVisibility(visible: Boolean) {
+        for (overlay in map.overlays) {
+            if (overlay !is StopMarker) { continue }
+            overlay.setVisible(visible)
+        }
+    }
+
+    private fun updateStopMarkersVisibility() {
+        updateStopMarkersVisibility(showMarkers)
+    }
+
+    private fun toggleMarkerVisibility() {
+        showMarkers = !showMarkers
+
+        updateStopMarkersVisibility()
+        map.invalidate()
+
+        btnHideMarkers.setImageResource(if (showMarkers) R.drawable.ic_stationmark_visible else R.drawable.ic_stationmark_hidden)
     }
 }

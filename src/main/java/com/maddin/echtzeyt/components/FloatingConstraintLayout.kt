@@ -2,14 +2,10 @@ package com.maddin.echtzeyt.components
 
 import android.content.Context
 import android.util.AttributeSet
-import androidx.appcompat.widget.AppCompatImageButton
-import androidx.core.view.updatePadding
-import com.maddin.echtzeyt.R
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.maddin.echtzeyt.randomcode.applyRandomId
-import kotlin.math.roundToInt
 
-
-class FloatingButton(context: Context, private val attrs: AttributeSet?, private val defStyleAttr: Int) : AppCompatImageButton(context, attrs, defStyleAttr), DropShadowView {
+class FloatingConstraintLayout(context: Context, private val attrs: AttributeSet?, private val defStyleAttr: Int) : ConstraintLayout(context, attrs, defStyleAttr), DropShadowView {
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context) : this(context, null)
 
@@ -29,17 +25,6 @@ class FloatingButton(context: Context, private val attrs: AttributeSet?, private
     init {
         applyRandomId()
         readAttributes(context, attrs, defStyleAttr, 0)
-
-        var offsetIconY = 0f
-
-        val styledAttr = context.theme.obtainStyledAttributes(attrs, R.styleable.FloatingButton, defStyleAttr, 0)
-        offsetIconY = styledAttr.getFloat(R.styleable.FloatingButton_offsetIconY, offsetIconY)
-        styledAttr.recycle()
-
-        val pRef = offsetIconY * drawable.intrinsicHeight // if (offsetIconY < 0) paddingTop else paddingBottom
-        val pT = (paddingTop + pRef).roundToInt()
-        val pB = (paddingBottom - pRef).roundToInt()
-        if (pT != paddingTop && pB != paddingBottom) { updatePadding(top=pT, bottom=pB) }
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {

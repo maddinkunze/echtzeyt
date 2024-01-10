@@ -56,11 +56,12 @@ open class StopMarker : Marker {
     }
 
     private fun setIconAccordingToState() {
-        if (mSelected && mIconSelected != null) {
-            super.setIcon(mIconSelected)
-            return
+        val iconC = when {
+            (mSelected && (mIconSelected != null)) -> mIconSelected
+            else -> mIconDefault
         }
-        super.setIcon(mIconDefault)
+        if (icon == iconC) { return }
+        super.setIcon(iconC)
     }
 
     fun setIcon(icon: Drawable?, flags: Int) {

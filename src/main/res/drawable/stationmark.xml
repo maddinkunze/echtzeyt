@@ -1,4 +1,5 @@
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
     <item>
         <vector
             android:width="@dimen/stationmarker_width"
@@ -11,6 +12,23 @@
                 android:strokeWidth="30"
                 android:fillColor="@color/backgroundStationmarker"
                 android:strokeColor="@color/backgroundStationmarker"/>
+            <path
+                android:pathData="M330,485L250,565L170,485"
+                android:strokeLineJoin="round"
+                android:strokeLineCap="round"
+                android:strokeWidth="30"
+                android:strokeAlpha="0.1">
+                <aapt:attr name="android:strokeColor">
+                    <gradient
+                        android:centerX="250"
+                        android:centerY="565"
+                        android:gradientRadius="100"
+                        android:type="radial">
+                        <item android:offset="0" android:color="@color/foregroundStationmarker"/>
+                        <item android:offset="1" android:color="@color/transparent"/>
+                    </gradient>
+                </aapt:attr>
+            </path>
         </vector>
     </item>
     <item android:bottom="@dimen/stationmarker_arrow_size">

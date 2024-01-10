@@ -50,6 +50,8 @@
     <item name="map_lon_start" type="dimen" format="float">0</item>
     <item name="map_lon_min" type="dimen" format="float">-180</item>
     <item name="map_lon_max" type="dimen" format="float">180</item>
+    <item name="map_buttons_top_up_factor" type="dimen" format="float">0.35</item>
+    <dimen name="map_buttons_top_up_max">18dp</dimen> <!-- smaller than bigfloating_margin -->
 
     <dimen name="settings_switch_margin">15dp</dimen>
     <dimen name="settings_switch_padding">10dp</dimen>

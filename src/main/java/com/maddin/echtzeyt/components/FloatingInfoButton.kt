@@ -11,27 +11,32 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
 import com.maddin.echtzeyt.R
+import com.maddin.echtzeyt.randomcode.applyRandomId
 import com.maddin.echtzeyt.randomcode.applyRandomViewId
 
-class FloatingInfoButton(context: Context, private val attrs: AttributeSet?, private val defStyleAttr: Int) : LinearLayout(context, attrs, defStyleAttr) {
+class FloatingInfoButton(context: Context, private val attrs: AttributeSet?, private val defStyleAttr: Int) : LinearLayout(context, attrs, defStyleAttr), DropShadowView {
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context) : this(context, null)
 
-    private val mShadow by lazy { DropShadow(context, attrs, defStyleAttr) }
-    private var mShadowAttached = false
+    // implementing member variables for DropShadowView
+    override val _this = this
 
-    private var mShadowSize = 0
-    private var mRadiusInner = 0
-    private var mColorStops: Map<Float, Int>? = null
+    override val mShadow by lazy { DropShadow(context, attrs, defStyleAttr) }
+    override var mShadowAttached = false
 
-    private var mShadowBelow = 0
-    private var mShadowAboveIndex = 0
+    override var mShadowSize = 0
+    override var mRadiusInner = 0
+    override var mColorStops: Map<Float, Int>? = null
 
-    val text by lazy { findViewById<TextView>(R.id.flib_label) }
-    val button by lazy { findViewById<ImageButton>(R.id.flib_button) }
+    override var mShadowBelow = 0
+    override var mShadowAboveIndex = 0
+
+    val text: TextView by lazy { findViewById(R.id.flib_label) }
+    val button: ImageButton by lazy { findViewById(R.id.flib_button) }
 
     init {
-        applyRandomViewId(this)
+        applyRandomId()
+        readAttributes(context, attrs, defStyleAttr, 0)
 
         LayoutInflater.from(context).inflate(R.layout.button_info, this, true)
 
@@ -39,14 +44,7 @@ class FloatingInfoButton(context: Context, private val attrs: AttributeSet?, pri
         try {
             text.text = styledAttr.getText(R.styleable.FloatingInfoButton_text) ?: "Info Button"
             val resId = styledAttr.getResourceId(R.styleable.FloatingInfoButton_icon, 0)
-            if (resId > 0) { button.setImageResource(resId) }
-
-            mShadowSize = styledAttr.getDimensionPixelSize(R.styleable.FloatingInfoButton_shadowSize, mShadowSize)
-            mRadiusInner = styledAttr.getDimensionPixelSize(R.styleable.FloatingInfoButton_radiusInner, mRadiusInner)
-            mColorStops = styledAttr.getShadowColors(R.styleable.FloatingInfoButton_shadowColors, R.styleable.FloatingInfoButton_shadowStops, resources) ?: mColorStops
-
-            mShadowBelow = styledAttr.getResourceId(R.styleable.FloatingInfoButton_shadowBelow, mShadowBelow)
-            mShadowAboveIndex = styledAttr.getInteger(R.styleable.FloatingInfoButton_shadowAboveIndex, mShadowAboveIndex)
+            if (resId != 0) { button.setImageResource(resId) }
         } finally {
             styledAttr.recycle()
         }
@@ -57,40 +55,8 @@ class FloatingInfoButton(context: Context, private val attrs: AttributeSet?, pri
         addShadow()
     }
 
-    private fun addShadow() {
-        if (mShadowAttached) { return }
-        if (mShadowSize <= 0) { return }
-
-        val layout = parent as ViewGroup
-        if (layout.children.contains(mShadow)) { return }
-
-        applyRandomViewId(mShadow)
-        mShadow.setShadowSize(mShadowSize)
-        mShadow.setInnerRadius(mRadiusInner)
-        mColorStops?.let { mShadow.setColorStops(it) }
-
-        var belowView = layout.children.find { it.id == mShadowBelow }
-        if (belowView == null) { belowView = this }
-        var index = layout.children.indexOf(belowView)
-        index = (index+mShadowAboveIndex).coerceAtLeast(0).coerceAtMost(layout.children.count())
-
-        layout.addView(mShadow, index)
-
-        if (layout !is ConstraintLayout) { return }
-
-        val constraints = ConstraintSet()
-        constraints.clone(layout)
-        constraints.connect(mShadow.id, ConstraintSet.LEFT, id, ConstraintSet.LEFT)
-        constraints.connect(mShadow.id, ConstraintSet.TOP, id, ConstraintSet.TOP)
-        constraints.connect(mShadow.id, ConstraintSet.RIGHT, id, ConstraintSet.RIGHT)
-        constraints.connect(mShadow.id, ConstraintSet.BOTTOM, id, ConstraintSet.BOTTOM)
-        constraints.applyTo(layout)
-
-        mShadowAttached = true
-    }
-
     override fun onSetAlpha(alpha: Int): Boolean {
-        mShadow.alpha = alpha / 255f
+        setShadowAlpha(alpha)
         return super.onSetAlpha(alpha)
     }
 }
