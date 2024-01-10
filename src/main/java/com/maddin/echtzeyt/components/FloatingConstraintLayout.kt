@@ -2,6 +2,7 @@ package com.maddin.echtzeyt.components
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.maddin.echtzeyt.randomcode.applyRandomId
 
@@ -35,5 +36,10 @@ class FloatingConstraintLayout(context: Context, private val attrs: AttributeSet
     override fun onSetAlpha(alpha: Int): Boolean {
         setShadowAlpha(alpha)
         return super.onSetAlpha(alpha)
+    }
+
+    override fun onVisibilityChanged(changedView: View, visibility: Int) {
+        super.onVisibilityChanged(changedView, visibility)
+        setShadowVisibility(visibility)
     }
 }

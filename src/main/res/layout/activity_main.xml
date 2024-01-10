@@ -283,130 +283,7 @@
         app:layout_constraintStart_toStartOf="parent"
         tools:ignore="TextContrastCheck" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layoutBookmarks"
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/bigfloating_margin"
-        android:layout_marginLeft="@dimen/bigfloating_margin"
-        android:layout_marginBottom="@dimen/bigfloating_margin"
-        android:alpha="0"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <Space
-            android:id="@+id/bookmarksSpace1"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/bigfloating_size"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <View
-            android:id="@+id/bookmarksFillerMain"
-            android:layout_width="@dimen/bigfloating_size"
-            android:layout_height="@dimen/bigfloating_radius"
-            android:background="@color/backgroundTint"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/bookmarksSpace1" />
-
-        <View
-            android:id="@+id/bookmarksFiller2"
-            android:layout_width="@dimen/bigfloating_size"
-            android:layout_height="@dimen/bigfloating_size"
-            android:background="@drawable/innerradius"
-            app:layout_constraintStart_toEndOf="@+id/bookmarksFillerMain"
-            app:layout_constraintTop_toTopOf="@+id/bookmarksSpace1" />
-
-        <LinearLayout
-            android:id="@+id/bookmarksItemsLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/bookmarks"
-            android:orientation="vertical"
-            android:paddingBottom="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/bookmarksFiller2"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_max="300dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <TextView
-                android:id="@+id/bookmarksHeading"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="5dp"
-                android:fontFamily="@font/roboto"
-                android:gravity="center"
-                android:text="@string/txtBookmarksHeading"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/bookmarksEmpty"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginRight="10dp"
-                android:alpha="0.5"
-                android:fontFamily="@font/roboto"
-                android:text="@string/txtBookmarksEmpty" />
-
-            <ScrollView
-                android:id="@+id/bookmarksItemsScroll"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:contentDescription="@string/txtBookmarksHeading"
-                android:minHeight="200dp">
-
-                <LinearLayout
-                    android:id="@+id/bookmarksItems"
-                    android:layout_width="match_parent"
-                    android:layout_height="600dp"
-                    android:orientation="vertical" />
-            </ScrollView>
-        </LinearLayout>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <com.maddin.echtzeyt.components.FloatingButton
-        android:id="@+id/btnBookmarks"
-        android:layout_width="@dimen/bigfloating_size"
-        android:layout_height="@dimen/bigfloating_size"
-        android:layout_marginStart="@dimen/bigfloating_margin"
-        android:layout_marginLeft="@dimen/bigfloating_margin"
-        android:layout_marginBottom="@dimen/bigfloating_margin"
-        android:background="@drawable/floatingbutton"
-        android:clickable="true"
-        android:contentDescription="@string/btnBookmarksDescription"
-        android:focusable="true"
-        android:padding="@dimen/bigfloating_padding"
-        android:scaleType="fitCenter"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:radiusInner="@dimen/bigfloating_radius"
-        app:shadowColors="@array/shadow_colors"
-        app:shadowSize="@dimen/shadow_size"
-        app:shadowStops="@array/shadow_stops"
-        app:srcCompat="@drawable/ic_bookmark" />
-
-    <!--com.maddin.echtzeyt.components.DropShadow
-        android:id="@+id/notificationShadow"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="@+id/notificationWindow"
-        app:layout_constraintEnd_toEndOf="@+id/notificationWindow"
-        app:layout_constraintStart_toStartOf="@+id/notificationWindow"
-        app:layout_constraintTop_toTopOf="@+id/notificationWindow"
-        app:radiusInner="@dimen/bigfloating_radius"
-        app:shadowSize="@dimen/shadow_size_small"
-        app:shadowColors="@array/shadow_colors"
-        app:shadowStops="@array/shadow_stops" /-->
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.maddin.echtzeyt.components.FloatingConstraintLayout
         android:id="@+id/notificationWindow"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -416,6 +293,10 @@
         app:layout_constraintBottom_toTopOf="@id/btnMenu"
         app:layout_constraintEnd_toEndOf="@id/btnMenu"
         app:layout_constraintStart_toStartOf="@id/btnBookmarks"
+        app:radiusInner="@dimen/pullup_radius"
+        app:shadowColors="@array/shadow_colors"
+        app:shadowSize="@dimen/shadow_size_small"
+        app:shadowStops="@array/shadow_stops"
         tools:visibility="visible">
 
         <ImageButton
@@ -478,7 +359,121 @@
             app:layout_constraintTop_toBottomOf="@+id/notificationTitle"
             tools:ignore="VisualLintLongText" />
 
+    </com.maddin.echtzeyt.components.FloatingConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutBookmarks"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/btnBookmarks"
+        app:layout_constraintStart_toStartOf="@+id/btnBookmarks"
+        tools:visibility="visible">
+
+        <Space
+            android:id="@+id/bookmarksFillerSpace"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/bigfloating_size"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <View
+            android:id="@+id/bookmarksFillerMain"
+            android:layout_width="@dimen/bigfloating_size"
+            android:layout_height="@dimen/bigfloating_radius"
+            android:background="@color/backgroundButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/bookmarksFillerSpace" />
+
+        <View
+            android:layout_width="@dimen/bigfloating_radius"
+            android:layout_height="@dimen/bigfloating_radius"
+            android:background="@drawable/innerradius"
+            app:layout_constraintStart_toEndOf="@+id/bookmarksFillerMain"
+            app:layout_constraintTop_toTopOf="@+id/bookmarksFillerMain" />
+
+        <LinearLayout
+            android:id="@+id/bookmarksItemsLayout"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bookmarks"
+            android:orientation="vertical"
+            android:paddingBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/bookmarksFillerMain"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_max="300dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="TextSizeCheck">
+
+            <TextView
+                android:id="@+id/bookmarksHeading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="5dp"
+                android:fontFamily="@font/roboto"
+                android:gravity="center"
+                android:text="@string/txtBookmarksHeading"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/bookmarksEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="5dp"
+                android:alpha="0.5"
+                android:fontFamily="@font/roboto"
+                android:text="@string/txtBookmarksEmpty"
+                tools:ignore="TextContrastCheck" />
+
+            <ScrollView
+                android:id="@+id/bookmarksItemsScroll"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:contentDescription="@string/txtBookmarksHeading"
+                android:fadingEdge="vertical"
+                android:fadingEdgeLength="10dp"
+                android:minHeight="200dp"
+                android:requiresFadingEdge="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/bookmarksItems"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </ScrollView>
+        </LinearLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.maddin.echtzeyt.components.FloatingButton
+        android:id="@+id/btnBookmarks"
+        android:layout_width="@dimen/bigfloating_size"
+        android:layout_height="@dimen/bigfloating_size"
+        android:layout_marginStart="@dimen/bigfloating_margin"
+        android:layout_marginLeft="@dimen/bigfloating_margin"
+        android:layout_marginBottom="@dimen/bigfloating_margin"
+        android:background="@drawable/floatingbutton"
+        android:clickable="true"
+        android:contentDescription="@string/btnBookmarksDescription"
+        android:focusable="true"
+        android:padding="@dimen/bigfloating_padding"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:radiusInner="@dimen/bigfloating_radius"
+        app:shadowColors="@array/shadow_colors"
+        app:shadowSize="@dimen/shadow_size"
+        app:shadowStops="@array/shadow_stops"
+        app:shadowBelow="@+id/layoutBookmarks"
+        app:srcCompat="@drawable/ic_bookmark" />
 
     <com.maddin.echtzeyt.components.FloatingButton
         android:id="@+id/btnMenu"

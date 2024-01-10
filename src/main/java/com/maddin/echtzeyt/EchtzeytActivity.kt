@@ -299,6 +299,9 @@ abstract class EchtzeytActivity : AppCompatActivity() {
         }
     }
     private fun initApp() {
+        findViewById<View>(R.id.layoutBookmarks).alpha = 0f
+        findViewById<View>(R.id.notificationWindow).alpha = 0f
+
         val edtSearch = findViewById<AutoCompleteTextView>(R.id.edtSearch)
         edtSearch.setText(currentStationName)
         if (currentStationName.isNotEmpty()) { edtSearch.clearFocus() }
@@ -663,13 +666,18 @@ abstract class EchtzeytActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     private fun updateBookmarks() {
         val items = findViewById<LinearLayout>(R.id.bookmarksItems)
+        val itemsScroll = items.parent as View
+
         items.removeAllViews()
         val txtEmpty = findViewById<TextView>(R.id.bookmarksEmpty)
         if (savedStations.isEmpty()) {
             txtEmpty.visibility = View.VISIBLE
+            itemsScroll.visibility = View.GONE
             return
         }
         txtEmpty.visibility = View.GONE
+        itemsScroll.visibility = View.VISIBLE
+
         val inflater = LayoutInflater.from(this)
         for (savedStation in savedStations) {
             val root = inflater.inflate(R.layout.button_bookmark, items, false)

@@ -3,6 +3,7 @@ package com.maddin.echtzeyt.components
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.LinearLayout
@@ -58,5 +59,10 @@ class FloatingInfoButton(context: Context, private val attrs: AttributeSet?, pri
     override fun onSetAlpha(alpha: Int): Boolean {
         setShadowAlpha(alpha)
         return super.onSetAlpha(alpha)
+    }
+
+    override fun onVisibilityChanged(changedView: View, visibility: Int) {
+        super.onVisibilityChanged(changedView, visibility)
+        setShadowVisibility(visibility)
     }
 }

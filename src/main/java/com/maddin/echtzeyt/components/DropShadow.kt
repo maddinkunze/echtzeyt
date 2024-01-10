@@ -404,4 +404,9 @@ interface DropShadowView : ViewAsInterface {
     fun setShadowAlpha(alpha: Int) {
         mShadow.alpha = alpha / 255f
     }
+
+    // should be called in (overridden) onVisibilityChanged in the view this is implemented on
+    fun setShadowVisibility(visibility: Int) {
+        mShadow.visibility = visibility
+    }
 }

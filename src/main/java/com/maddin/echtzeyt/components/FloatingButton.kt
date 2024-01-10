@@ -2,6 +2,7 @@ package com.maddin.echtzeyt.components
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.View
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.core.view.updatePadding
 import com.maddin.echtzeyt.R
@@ -50,5 +51,10 @@ class FloatingButton(context: Context, private val attrs: AttributeSet?, private
     override fun onSetAlpha(alpha: Int): Boolean {
         setShadowAlpha(alpha)
         return super.onSetAlpha(alpha)
+    }
+
+    override fun onVisibilityChanged(changedView: View, visibility: Int) {
+        super.onVisibilityChanged(changedView, visibility)
+        setShadowVisibility(visibility)
     }
 }
