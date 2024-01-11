@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable
 import com.maddin.transportapi.LocatableStation
 import com.maddin.transportapi.Station
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.util.PointL
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 
@@ -31,6 +32,8 @@ open class StopMarker : Marker {
 
     private var mIconDefault: Drawable? = mIcon
     private var mIconSelected: Drawable? = null
+
+    private val mScreenPos = PointL()
 
     init {
         isDraggable = false
@@ -77,5 +80,15 @@ open class StopMarker : Marker {
 
     override fun setIcon(icon: Drawable?) {
         setIcon(icon, 0)
+    }
+
+    override fun drawAt(pCanvas: Canvas?, pX: Int, pY: Int, pOrientation: Float) {
+        super.drawAt(pCanvas, pX, pY, pOrientation)
+        mScreenPos.x = pX.toLong()
+        mScreenPos.y = pY.toLong()
+    }
+
+    fun contains(point: PointL) : Boolean {
+        return false
     }
 }

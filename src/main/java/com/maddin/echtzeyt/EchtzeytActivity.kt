@@ -11,8 +11,10 @@ import android.content.Intent
 import android.net.Uri
 import android.os.*
 import android.text.Html
+import android.text.Spannable
 import android.text.Spanned
 import android.text.SpannedString
+import android.text.style.StrikethroughSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -102,7 +104,7 @@ abstract class EchtzeytActivity : AppCompatActivity() {
     private var currentStation: Station? = null
     private var savedStations: MutableSet<String> = mutableSetOf()
     private val adapterSearch by lazy { ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item) }
-    protected abstract val transportStationAPI: com.maddin.transportapi.StationAPI
+    protected abstract val transportSearchStationAPI: com.maddin.transportapi.SearchStationAPI
     protected abstract val transportRealtimeAPI: com.maddin.transportapi.RealtimeAPI
 
     // Everything related to updating widgets when the app is opened
@@ -330,7 +332,7 @@ abstract class EchtzeytActivity : AppCompatActivity() {
         val stops: List<RealtimeConnection>
         try {
             if ((currentStation == null) || (currentStation!!.name != currentStationSearch)) {
-                val stations = transportStationAPI.searchStations(currentStationSearch)
+                val stations = transportSearchStationAPI.searchStations(currentStationSearch)
                 if (stations.isEmpty()) { return }
                 currentStation = stations[0]
             }
@@ -364,6 +366,7 @@ abstract class EchtzeytActivity : AppCompatActivity() {
         var textTimesHours = ""
         var textTimesMin = ""
         var textTimesSec = ""
+        var textNamesStriked = mutableListOf<Pair<Int, Int>>()
 
         for (stop in stops) {
             departure = stop.departsIn().coerceAtLeast(0)
@@ -371,6 +374,9 @@ abstract class EchtzeytActivity : AppCompatActivity() {
             depMin = departure.div(60).rem(60)
             depSec = departure.rem(60)
             textNumbers += "${stop.vehicle.line?.name}\n"
+            if (stop.stop.isCancelled()) {
+                textNamesStriked.add(Pair(textNames.length, stop.vehicle.direction?.name?.length?:0))
+            }
             textNames += "${stop.vehicle.direction?.name}\n"
             padMin = 0
             if (depHours > 0) {
@@ -397,7 +403,12 @@ abstract class EchtzeytActivity : AppCompatActivity() {
 
         Handler(Looper.getMainLooper()).post {
             edtNumbers.text = textNumbers
-            edtNames.text = textNames
+            //edtNames.text = textNames
+            edtNames.setText(textNames, TextView.BufferType.SPANNABLE)
+            val spanNames = edtNames.text as Spannable
+            for (s in textNamesStriked) {
+                spanNames.setSpan(StrikethroughSpan(), s.first, s.first+s.second, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
             edtTimesHour.visibility = if (maxHours > 0) { View.VISIBLE } else { View.GONE } // Hide the hours column if there are no hours to be displayed
             edtTimesHour.text = textTimesHours
             edtTimesMin.text = textTimesMin
@@ -424,7 +435,7 @@ abstract class EchtzeytActivity : AppCompatActivity() {
         try {
             var stations = emptyList<Station>()
             if (currentStationSearch.isNotEmpty()) {
-                stations = transportStationAPI.searchStations(currentStationSearch)
+                stations = transportSearchStationAPI.searchStations(currentStationSearch)
             }
 
             Handler(Looper.getMainLooper()).post {

@@ -30,7 +30,7 @@ import com.maddin.echtzeyt.components.LabeledDiscreteSeekBar
 import com.maddin.transportapi.RealtimeAPI
 import com.maddin.transportapi.RealtimeInfo
 import com.maddin.transportapi.Station
-import com.maddin.transportapi.StationAPI
+import com.maddin.transportapi.SearchStationAPI
 import java.time.LocalDateTime
 import kotlin.concurrent.thread
 
@@ -43,7 +43,7 @@ open class EchtzeytWidget : AppWidgetProvider() {
         @Volatile private var threadLastActive: Long = 0
         @Volatile private var threadCurrentId: Int = 0
         @Volatile private var threadLastDeniedReload: Long = 0
-        private var transportStationAPI: StationAPI = EXAMPLE_API
+        private var transportSearchStationAPI: SearchStationAPI = EXAMPLE_API
         private var transportRealtimeAPI: RealtimeAPI = EXAMPLE_API
         @Volatile private var widgetInformation = mutableMapOf<Int, WidgetInformation>()
         const val intentWidgetId = "com.maddin.echtzeyt.widget.INTENT_WIDGET_ID"
@@ -206,7 +206,7 @@ open class EchtzeytWidget : AppWidgetProvider() {
         if ((widgetInfo.station == null) || (widgetInfo.station!!.name != widgetInfo.stationName)) {
             var stations = emptyList<Station>()
             try {
-                stations = transportStationAPI.searchStations(widgetInfo.stationName)
+                stations = transportSearchStationAPI.searchStations(widgetInfo.stationName)
             } catch (_: Exception) {}
 
             if (stations.isEmpty()) {
@@ -379,8 +379,8 @@ open class EchtzeytWidget : AppWidgetProvider() {
         }
     }
 
-    protected fun <API> setTransportAPI(transportAPI: API) where API:StationAPI, API: RealtimeAPI {
-        transportStationAPI = transportAPI
+    protected fun <API> setTransportAPI(transportAPI: API) where API:SearchStationAPI, API: RealtimeAPI {
+        transportSearchStationAPI = transportAPI
         transportRealtimeAPI = transportAPI
     }
 }
@@ -388,7 +388,7 @@ open class EchtzeytWidget : AppWidgetProvider() {
 open class EchtzeytWidgetConfigureActivity : AppCompatActivity() {
     private var widgetId = AppWidgetManager.INVALID_APPWIDGET_ID
     private lateinit var adapterSearch: ArrayAdapter<String>
-    private var transportStationAPI: StationAPI = EXAMPLE_API
+    private var transportSearchStationAPI: SearchStationAPI = EXAMPLE_API
     private var shouldUpdateSearch = false
     private lateinit var preferences: SharedPreferences
     private var runUntilOptions = mutableMapOf<Int, String>()
@@ -502,8 +502,8 @@ open class EchtzeytWidgetConfigureActivity : AppCompatActivity() {
         sendWidgetUpdateBroadcast()
     }
 
-    protected fun setStationAPI(stationAPI: StationAPI) {
-        transportStationAPI = stationAPI
+    protected fun setStationAPI(searchStationAPI: SearchStationAPI) {
+        transportSearchStationAPI = searchStationAPI
     }
 
     private fun ntUpdateSearch() {
@@ -513,7 +513,7 @@ open class EchtzeytWidgetConfigureActivity : AppCompatActivity() {
         try {
             var stations = emptyList<Station>()
             if (stationSearch.isNotEmpty()) {
-                stations = transportStationAPI.searchStations(stationSearch)
+                stations = transportSearchStationAPI.searchStations(stationSearch)
             }
 
             Handler(Looper.getMainLooper()).post {

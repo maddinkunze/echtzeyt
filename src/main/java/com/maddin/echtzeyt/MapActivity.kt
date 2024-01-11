@@ -59,9 +59,9 @@ import org.osmdroid.events.ZoomEvent
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.util.PointL
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
 import java.io.File
 import kotlin.concurrent.thread
 import kotlin.math.absoluteValue
@@ -80,7 +80,7 @@ fun Resources.getFloatValue(@DimenRes floatRes: Int):Float{
 @Suppress("MemberVisibilityCanBePrivate")
 open class MapActivity : AppCompatActivity() {
     private var nextLocateUpdate = -1L
-    private var lastLocateUpdate = -1L
+    private val stationsFound = mutableSetOf<String>()
     private lateinit var currentLocationArea : BoundingBox
     private var transportLocateStationAPI : LocationStationAPI = com.maddin.transportapi.impl.germany.VMS("Chemnitz") // TODO: generalize
 
@@ -93,24 +93,24 @@ open class MapActivity : AppCompatActivity() {
     private val btnLocate by lazy { findViewById<FloatingButton>(R.id.btnMapLocate) }
     private val btnHideMarkers by lazy { findViewById<FloatingButton>(R.id.btnMapHideMarkers) }
 
-    protected val drawableMarker by lazy { DynamicDrawable(AppCompatResources.getDrawable(this, R.drawable.stationmark)!!) }
-    protected val drawableMarkerSelected by lazy { DynamicDrawable(AppCompatResources.getDrawable(this, R.drawable.stationmark_selected)!!) }
+    private val drawableMarker by lazy { DynamicDrawable(AppCompatResources.getDrawable(this, R.drawable.stationmark)!!) }
+    private val drawableMarkerSelected by lazy { DynamicDrawable(AppCompatResources.getDrawable(this, R.drawable.stationmark_selected)!!) }
     protected val drawableMarkerShadow by lazy {
         val w = resources.getDimensionPixelSize(R.dimen.stationmarker_width)
         val ha = resources.getDimensionPixelSize(R.dimen.stationmarker_arrow_size)
         val h = resources.getDimensionPixelSize(R.dimen.stationmarker_height) - ha
         val r = resources.getDimensionPixelSize(R.dimen.stationmarker_radius)
         val ss = resources.getDimensionPixelSize(R.dimen.stationmarker_shadow_size)
-        val shadowBitmap = createShadowBitmap(w, h, r, ss, resources.getShadowColors(R.array.shadow_colors, R.array.shadow_stops)) ?: return@lazy null
-        // currently, the shadow will be aligned on the bottom, and therefore it will may clipped at the bottom
+        val bitmapShadow = createShadowBitmap(w, h, r, ss, resources.getShadowColors(R.array.shadow_colors, R.array.shadow_stops)) ?: return@lazy null
+        val bitmapShadowS = Bitmap.createBitmap(bitmapShadow.width, bitmapShadow.height+ha-ss, Bitmap.Config.ARGB_8888)
+        bitmapShadowS.applyCanvas { drawBitmap(bitmapShadow, 0f, 0f, null) }// currently, the shadow will be aligned on the bottom, and therefore it will may clipped at the bottom
         // if someone wants a shadow that is larger than sm_arrow_size, it may look weird
         // TODO: to fix this, the anchor could be recalculated if the drawable exceeds the "lower limit"
-        val shadowBitmapS = Bitmap.createBitmap(shadowBitmap.width, shadowBitmap.height+ha-ss, Bitmap.Config.ARGB_8888)
-        shadowBitmapS.applyCanvas { drawBitmap(shadowBitmap, 0f, 0f, null) }
-        DynamicDrawable(BitmapDrawable(resources, shadowBitmapS))
+        DynamicDrawable(BitmapDrawable(resources, bitmapShadowS), optimize=true)
     }
-    protected val shadowsUntil = 50
     protected var showMarkers = true
+    protected val zoomShadowMin by lazy { 14.5 /*resources.getFloatValue(R.dimen.map_zoom_start)*/ }
+    protected val zoomShadowMax by lazy { 15.5 /*resources.getFloatValue(R.dimen.map_zoom_start)*/ }
 
     protected val zoomMin by lazy { resources.getFloatValue(R.dimen.map_zoom_min).toDouble() }
     protected val zoomMax by lazy { resources.getFloatValue(R.dimen.map_zoom_max).toDouble() }
@@ -262,29 +262,7 @@ open class MapActivity : AppCompatActivity() {
     private fun initVariables() {
         updateMarkerZoomConstants()
 
-        // this is sketchy, we are using the same drawable for all markers
-        // it significantly improves performance but i am not sure if this is supposed to work or just works by accident
-        // TODO: check if this is supposed to work
-        drawableMarker.anchorH = Marker.ANCHOR_CENTER
-        drawableMarker.anchorV = Marker.ANCHOR_BOTTOM
-        drawableMarker.scale = 1.0
-
-        drawableMarkerSelected.anchorH = Marker.ANCHOR_CENTER
-        drawableMarkerSelected.anchorV = Marker.ANCHOR_BOTTOM
-        drawableMarkerSelected.scale = 1.0
-
-        drawableMarkerShadow?.anchorH = Marker.ANCHOR_CENTER
-        drawableMarkerShadow?.anchorV = Marker.ANCHOR_BOTTOM
-        drawableMarkerShadow?.scale = 1.0
-
         locationMarker.icon = locationMarkerDrawable
-        locationMarkerDrawable.anchorH = Marker.ANCHOR_CENTER
-        locationMarkerDrawable.anchorV = Marker.ANCHOR_CENTER
-        locationMarkerDrawable.scale = 1.0
-
-        locationMarkerDrawableDirected.anchorH = Marker.ANCHOR_CENTER
-        locationMarkerDrawableDirected.anchorV = Marker.ANCHOR_CENTER
-        locationMarkerDrawableDirected.scale = 1.0
 
         val stationStart = intent.getSerializableExtraCompat<LocatableStation>(ActivityResultSerializable.INPUT_DATA)
         if (stationStart != null) { selectStation(stationStart) }
@@ -326,8 +304,8 @@ open class MapActivity : AppCompatActivity() {
 
     private fun initHandlers() {
         map.addMapListener(object : MapListener {
-            override fun onScroll(event: ScrollEvent?): Boolean { updateLocationSearch(200); return false }
-            override fun onZoom(event: ZoomEvent?): Boolean { updateLocationSearch(200); updateMarkerZoom(); return false }
+            override fun onScroll(event: ScrollEvent?): Boolean { updateLocationSearch(50); return false }
+            override fun onZoom(event: ZoomEvent?): Boolean { updateLocationSearch(50); updateMarkerZoom(); return false }
         })
         map.addOnFirstLayoutListener { _, _, _, _, _ -> updateLocationSearch() }
 
@@ -441,9 +419,6 @@ open class MapActivity : AppCompatActivity() {
     }
 
     private fun updateLocationSearch(after: Long) {
-        updateLocationArea()
-        /*val delay = (after-10).coerceAtMost(0)
-        Handler(Looper.getMainLooper()).postDelayed({ updateLocationArea() }, delay)*/
         nextLocateUpdate = System.currentTimeMillis() + after
     }
 
@@ -452,10 +427,6 @@ open class MapActivity : AppCompatActivity() {
     }
 
     private fun ntUpdateLocationSearch() {
-        val timeNow = System.currentTimeMillis()
-
-        val lastNextLocateUpdate = nextLocateUpdate
-
         val condition = ConditionVariable()
         Handler(Looper.getMainLooper()).post {
             updateLocationArea()
@@ -468,13 +439,9 @@ open class MapActivity : AppCompatActivity() {
         val width = 2 * currentLocationArea.longitudeSpanWithDateLine
         val height = 2 * currentLocationArea.latitudeSpan
         val area = LocationAreaRect(center, width, height)
-        val stations = transportLocateStationAPI.locateStations(area)
-
-        if (timeNow < lastLocateUpdate) { return }
-        lastLocateUpdate = timeNow
+        val stations = transportLocateStationAPI.locateStations(area).filter { stationsFound.add(it.id) }
 
         Handler(Looper.getMainLooper()).post {
-            removeAllStopMarkers()
             for (station in stations) {
                 if (station !is LocatableStation) { continue }
 
@@ -486,7 +453,6 @@ open class MapActivity : AppCompatActivity() {
                 stationSelected?.let { marker.selectAndDeselectOthers(it) }
                 map.overlays.add(marker)
 
-                if (stations.size > shadowsUntil) { continue }
                 if (drawableMarkerShadow == null) { continue }
                 val shadowMarker = StopMarker(map, station)
                 shadowMarker.icon = drawableMarkerShadow
@@ -497,8 +463,6 @@ open class MapActivity : AppCompatActivity() {
 
             map.invalidate()
         }
-
-        if (nextLocateUpdate == lastNextLocateUpdate) { nextLocateUpdate = -1L }
     }
 
     fun selectStation(station: LocatableStation) {
@@ -596,12 +560,29 @@ open class MapActivity : AppCompatActivity() {
     private fun updateMarkerAlphas() {
         // this will be called when the map may have changed, to make sure that markers will get transparent
         // if the location marker is behind them -> stop markers will still be in front but slightly transparent
-        /*for (marker in map.overlays) {
+        val positionP = PointL()
+        map.projection.toProjectedPixels(locationMarker.position, positionP)
+        val positionOutOfBounds =
+            (positionP.x < 0) || (positionP.y < 0) || (positionP.x > map.width) || (positionP.y > map.height)
+
+        drawableMarkerShadow?.let {
+            val zoom = map.zoomLevelDouble
+            it.setOptimizedAlpha(when {
+                !showMarkers -> 0
+                zoom > zoomShadowMax -> 255
+                zoom > zoomShadowMin -> (255 * ((zoom - zoomShadowMin) / (zoomShadowMax - zoomShadowMin))).toInt()
+                else -> 0
+            })
+        }
+
+        for (marker in map.overlays) {
             if (marker !is StopMarker) { continue }
-            marker.alpha = 1f
-            if (!marker.bounds.contains(locationMarker.bounds.centerLatitude, locationMarker.bounds.centerLongitude)) { continue }
+            marker.alpha = if (showMarkers) 1f else 0f
+            if (!showMarkers) { continue }
+            if (positionOutOfBounds) { continue }
+            if (!marker.contains(positionP)) { continue }
             marker.alpha = 0.3f
-        }*/
+        }
         // TODO: implement this
     }
 
@@ -623,21 +604,10 @@ open class MapActivity : AppCompatActivity() {
         map.overlays.removeAll { it is StopMarker }
     }
 
-    private fun updateStopMarkersVisibility(visible: Boolean) {
-        for (overlay in map.overlays) {
-            if (overlay !is StopMarker) { continue }
-            overlay.setVisible(visible)
-        }
-    }
-
-    private fun updateStopMarkersVisibility() {
-        updateStopMarkersVisibility(showMarkers)
-    }
-
     private fun toggleMarkerVisibility() {
         showMarkers = !showMarkers
 
-        updateStopMarkersVisibility()
+        updateMarkerAlphas()
         map.invalidate()
 
         btnHideMarkers.setImageResource(if (showMarkers) R.drawable.ic_stationmark_visible else R.drawable.ic_stationmark_hidden)
