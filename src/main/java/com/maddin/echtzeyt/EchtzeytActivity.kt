@@ -2,6 +2,7 @@ package com.maddin.echtzeyt
 
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.ActivityManager
 import android.appwidget.AppWidgetManager
 import android.content.ActivityNotFoundException
@@ -11,19 +12,20 @@ import android.content.Intent
 import android.net.Uri
 import android.os.*
 import android.text.Html
-import android.text.Spannable
 import android.text.Spanned
 import android.text.SpannedString
-import android.text.style.StrikethroughSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.view.children
 import com.maddin.echtzeyt.components.FloatingInfoButton
 import com.maddin.echtzeyt.components.InstantAutoCompleteTextView
+import com.maddin.echtzeyt.components.RealtimeInfo
 import com.maddin.echtzeyt.randomcode.ActivityResultSerializable
 import com.maddin.echtzeyt.randomcode.ClassifiedException
 import com.maddin.transportapi.LocatableStation
@@ -31,7 +33,6 @@ import com.maddin.transportapi.RealtimeConnection
 import com.maddin.transportapi.Station
 import org.json.JSONObject
 import java.lang.IndexOutOfBoundsException
-import java.lang.Integer.max
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
@@ -77,6 +78,20 @@ abstract class EchtzeytActivity : AppCompatActivity() {
 
     // Elements/Views
     private val edtSearch by lazy { findViewById<InstantAutoCompleteTextView>(R.id.edtSearch) }
+    private val btnSearch by lazy { findViewById<ImageButton>(R.id.btnSearch) }
+    private val btnMap by lazy { findViewById<ImageButton>(R.id.btnMap) }
+    private val btnLike by lazy { findViewById<ImageButton>(R.id.btnLike) }
+    private val btnBookmarks by lazy { findViewById<ImageButton>(R.id.btnBookmarks) }
+    private val btnMenu by lazy { findViewById<ImageButton>(R.id.btnMenu) }
+    private val btnSettings by lazy { findViewById<FloatingInfoButton>(R.id.btnSettings).button }
+    private val btnDonate by lazy { findViewById<FloatingInfoButton>(R.id.btnDonate).button }
+    private val btnMessage by lazy { findViewById<FloatingInfoButton>(R.id.btnMessage).button }
+    private val btnNotification by lazy { findViewById<FloatingInfoButton>(R.id.btnAnnouncement).button }
+    private val btnNotificationClose by lazy { findViewById<ImageButton>(R.id.notificationButtonClose) }
+    private val layoutConnections by lazy { findViewById<LinearLayout>(R.id.layoutScroll) }
+
+    // Everything related to updating the realtime information
+    var shouldUpdateLayoutConnections = false
 
     // Menu variables
     private var menuOpened = false
@@ -204,17 +219,6 @@ abstract class EchtzeytActivity : AppCompatActivity() {
         lastClosedNotification = preferences.getString("lastClosedNotification", lastClosedNotification).toString()
     }
     private fun initHandlers() {
-        val btnSearch = findViewById<ImageButton>(R.id.btnSearch)
-        val btnMap = findViewById<ImageButton>(R.id.btnMap)
-        val btnLike = findViewById<ImageButton>(R.id.btnLike)
-        val btnBookmarks = findViewById<ImageButton>(R.id.btnBookmarks)
-        val btnMenu = findViewById<ImageButton>(R.id.btnMenu)
-        val btnSettings = findViewById<FloatingInfoButton>(R.id.btnSettings).button
-        val btnDonate = findViewById<FloatingInfoButton>(R.id.btnDonate).button
-        val btnMessage = findViewById<FloatingInfoButton>(R.id.btnMessage).button
-        val btnNotification = findViewById<FloatingInfoButton>(R.id.btnAnnouncement).button
-        val btnNotificationClose = findViewById<ImageButton>(R.id.notificationButtonClose)
-
         // Set adapter (dropdown) for the station search -> autocomplete
         edtSearch.setAdapter(adapterSearch)
         edtSearch.threshold = 0  // Show dropdown after the first character entered
@@ -259,6 +263,32 @@ abstract class EchtzeytActivity : AppCompatActivity() {
         // Open/close the current notification (if there is one) when clicking the associated buttons are clicked
         btnNotification.setOnClickListener { toggleMenu(true); showNotification() }
         btnNotificationClose.setOnClickListener { closeNotification() }
+
+
+        layoutConnections.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
+            if (!shouldUpdateLayoutConnections) { return@addOnLayoutChangeListener }
+            shouldUpdateLayoutConnections = false
+            v as LinearLayout
+
+            // read everything that has to be synced up
+            var maxLineNumberWidth = 0
+            var maxMinWidth = 0
+            var maxSecWidth = 0
+            v.children.forEach {
+                if (it !is RealtimeInfo) { return@forEach }
+                maxLineNumberWidth = maxLineNumberWidth.coerceAtLeast(it.getLineNumberWidth())
+                maxMinWidth = maxMinWidth.coerceAtLeast(it.getMinutesWidth())
+                maxSecWidth = maxSecWidth.coerceAtLeast(it.getSecondsWidth())
+            }
+
+            // write everything that has to be synced up
+            v.children.forEach {
+                if (it !is RealtimeInfo) { return@forEach }
+                it.setLineNumberMinWidth(maxLineNumberWidth)
+                it.setMinutesMinWidth(maxMinWidth)
+                it.setSecondsMinWidth(maxSecWidth)
+            }
+        }
     }
     private fun initThreads() {
         // Theoretically these threads could be combined into one, however this can be laggy, especially on older hardware
@@ -320,12 +350,6 @@ abstract class EchtzeytActivity : AppCompatActivity() {
     private fun ntUpdateConnections() {
         // Select all necessary views
         val curUpdateTime = nextUpdateConnections
-        val edtSearch = findViewById<AutoCompleteTextView>(R.id.edtSearch)
-        val edtNumbers = findViewById<TextView>(R.id.txtLineNumbers)
-        val edtNames = findViewById<TextView>(R.id.txtLineNames)
-        val edtTimesHour = findViewById<TextView>(R.id.txtLineTimesHour)
-        val edtTimesMin = findViewById<TextView>(R.id.txtLineTimesMin)
-        val edtTimesSec = findViewById<TextView>(R.id.txtLineTimesSec)
         val txtLastUpdated = findViewById<TextView>(R.id.txtLastUpdated)
         currentStationSearch = edtSearch.text.toString()
 
@@ -354,65 +378,20 @@ abstract class EchtzeytActivity : AppCompatActivity() {
             return
         }
 
-        var departure: Long
-        var depHours: Long
-        var maxHours = 0
-        var depMin: Long
-        var padMin: Int
-        var depSec: Long
-
-        var textNumbers = ""
-        var textNames = ""
-        var textTimesHours = ""
-        var textTimesMin = ""
-        var textTimesSec = ""
-        var textNamesStriked = mutableListOf<Pair<Int, Int>>()
-
-        for (stop in stops) {
-            departure = stop.departsIn().coerceAtLeast(0)
-            depHours = departure.div(3600)
-            depMin = departure.div(60).rem(60)
-            depSec = departure.rem(60)
-            textNumbers += "${stop.vehicle.line?.name}\n"
-            if (stop.stop.isCancelled()) {
-                textNamesStriked.add(Pair(textNames.length, stop.vehicle.direction?.name?.length?:0))
-            }
-            textNames += "${stop.vehicle.direction?.name}\n"
-            padMin = 0
-            if (depHours > 0) {
-                maxHours = max(maxHours, depHours.toInt())
-                padMin = 2
-                textTimesHours += "${depHours}h\n"
-            } else {
-                textTimesHours += "\n"
-            }
-            textTimesMin += "${depMin.toString().padStart(padMin, '0')}m\n"
-            textTimesSec += "${depSec.toString().padStart(2, '0')}s\n"
-        }
-
-        // Add some clearance at the bottom
-        textNumbers += "\n"
-        textNames += "\n"
-        textTimesHours += "\n"
-        textTimesMin += "\n"
-        textTimesSec += "\n"
-
         if (stops.isEmpty()) {
-            textNames = resources.getString(R.string.updateEmpty)
+            //textNames = resources.getString(R.string.updateEmpty)
         }
+
+        // TODO: optimize this
+        val views = stops.mapIndexed { i, it -> RealtimeInfo(this, it, (i%2)>0) }
 
         Handler(Looper.getMainLooper()).post {
-            edtNumbers.text = textNumbers
-            //edtNames.text = textNames
-            edtNames.setText(textNames, TextView.BufferType.SPANNABLE)
-            val spanNames = edtNames.text as Spannable
-            for (s in textNamesStriked) {
-                spanNames.setSpan(StrikethroughSpan(), s.first, s.first+s.second, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            layoutConnections.removeAllViews()
+            for (view in views) {
+                layoutConnections.addView(view)
             }
-            edtTimesHour.visibility = if (maxHours > 0) { View.VISIBLE } else { View.GONE } // Hide the hours column if there are no hours to be displayed
-            edtTimesHour.text = textTimesHours
-            edtTimesMin.text = textTimesMin
-            edtTimesSec.text = textTimesSec
+            shouldUpdateLayoutConnections = true
+
             txtLastUpdated.text = "${resources.getString(R.string.updateLast)} ${SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().time)}"
             txtLastUpdated.setTextColor(resources.getColor(R.color.success))
             txtLastUpdated.alpha = 1f
