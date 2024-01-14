@@ -80,11 +80,11 @@ fun Resources.getFloatValue(@DimenRes floatRes: Int):Float{
 }
 
 @Suppress("MemberVisibilityCanBePrivate")
-abstract class MapActivity : EchtzeytForegroundActivity(), LocationListener {
+open class MapActivity : EchtzeytForegroundActivity(), LocationListener {
     private var nextLocateUpdate = -1L
     private val stationsFound = mutableSetOf<String>()
     @Volatile private lateinit var currentLocationArea : BoundingBox
-    protected abstract val transportLocateStationAPI : LocationStationAPI
+    protected val transportLocateStationAPI by lazy { ECHTZEYT_CONFIGURATION.mapsStationAPI!! }
 
     private val map by lazy { findViewById<MapView>(R.id.mapView) }
     private val txtCopyright by lazy { findViewById<TextView>(R.id.txtMapCopyright) }
@@ -854,10 +854,6 @@ abstract class MapActivity : EchtzeytForegroundActivity(), LocationListener {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (connManager != null && connManager.activeNetwork == null) { return } // dont show if there is no active network
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (connManager?.isDefaultNetworkActive != true) { return } // dont show if there is no active network
-        }
-
         if (connManager?.isActiveNetworkMetered != true) { return } // dont show the dialog when we are not on a metered connection
 
         mAskForMobileDataCount--

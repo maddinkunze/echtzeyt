@@ -4,8 +4,11 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.maddin.echtzeyt.fragments.settings.AboutSettingsFragment
 import com.maddin.echtzeyt.fragments.settings.GeneralSettingsFragment
+import com.maddin.echtzeyt.fragments.settings.MapSettingsFragment
 import com.maddin.echtzeyt.fragments.settings.RealtimeSettingsFragment
+import com.maddin.echtzeyt.fragments.settings.TripSettingsFragment
 import com.maddin.echtzeyt.randomcode.LazyMutable
 import com.maddin.transportapi.LocationStationAPI
 import com.maddin.transportapi.RealtimeAPI
@@ -26,6 +29,7 @@ open class EchtzeytConfiguration {
     var activityMap: Class<out MapActivity> by LazyMutable { MapActivity::class.java }
 
     var generalSettingsFragment: Fragment by LazyMutable { GeneralSettingsFragment() }
+    var aboutSettingsFragment: Fragment by LazyMutable { AboutSettingsFragment() }
     private lateinit var mPreferences: SharedPreferences
 
     var realtimeStationAPI: SearchStationAPI? = null
@@ -39,9 +43,13 @@ open class EchtzeytConfiguration {
     var widgetRealtimeClass by LazyMutable { if (!widgetRealtimeSupport) { return@LazyMutable null }; EchtzeytWidget::class.java }
 
     var mapsStationAPI: LocationStationAPI? = null
+    var mapsSupport = true
     var mapsSupportLocateStations = false
+    var mapsSettingsFragment: Fragment? by LazyMutable { if (!mapsSupport) { return@LazyMutable null }; MapSettingsFragment() }
 
     var tripsStationAPI: StationAPI? = null
+    var tripSupport = false
+    var tripSettingsFragment: Fragment? by LazyMutable { if (!tripSupport) { return@LazyMutable null }; TripSettingsFragment() }
 
     var isLoaded = false
         protected set

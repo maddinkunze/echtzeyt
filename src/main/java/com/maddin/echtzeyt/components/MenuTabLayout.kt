@@ -1,12 +1,22 @@
 package com.maddin.echtzeyt.components
 
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.Typeface
+import android.os.Build
+import android.text.TextUtils
 import android.util.AttributeSet
+import android.view.View
+import android.view.View.OnLayoutChangeListener
 import android.widget.TextView
+import androidx.core.animation.doOnCancel
+import androidx.core.animation.doOnEnd
+import androidx.core.view.children
 import androidx.core.view.get
 import androidx.core.view.updatePadding
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import com.maddin.echtzeyt.R
 
 val TabLayout.Tab.textView: TextView
@@ -16,8 +26,11 @@ class MenuTabLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context) : this(context, null)
 
-    private var mAlphaTextNormal = 0.7f
+    private var mAlphaTextNormal = 0.6f
     private var mAlphaTextSelected = 1f
+
+    private var mLastAnimatedTabShow: Tab? = null
+    private var mLastAnimatedTabHide: Tab? = null
 
     init {
         val styledAttr = context.theme.obtainStyledAttributes(attrs, R.styleable.MenuTabLayout, defStyleAttr, 0)
@@ -38,23 +51,62 @@ class MenuTabLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
 
     override fun addTab(tab: Tab) {
         super.addTab(tab)
-        tab.textView.alpha = mAlphaTextNormal
+        onAddTab(tab, false)
     }
 
-    private fun getTextViewFromTab(tab: Tab): TextView {
-        return tab.view[1] as TextView
+    override fun addTab(tab: Tab, position: Int, setSelected: Boolean) {
+        super.addTab(tab, position, setSelected)
+        onAddTab(tab, setSelected)
+    }
+
+    override fun addTab(tab: Tab, setSelected: Boolean) {
+        super.addTab(tab, setSelected)
+        onAddTab(tab, setSelected)
+    }
+
+    override fun addTab(tab: Tab, position: Int) {
+        super.addTab(tab, position)
+        onAddTab(tab, false)
+    }
+
+    private fun onAddTab(tab: Tab, selected: Boolean) {
+        tab.text = " ${tab.text} "
+        tab.textView.maxLines = 1
+        tab.textView.setSingleLine()
+        tab.textView.ellipsize = null
+        tab.textView.alpha = if (selected) mAlphaTextSelected else mAlphaTextNormal
+        reinforceTabTypeface(tab, selected)
+
+        tab.view.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> reinforceTabTypeface(tab) }
+    }
+
+    private fun reinforceTabTypeface(tab: Tab) {
+        if (tab.parent == null) { return }
+        reinforceTabTypeface(tab, tab.isSelected)
+    }
+
+    private fun reinforceTabTypeface(tab: Tab, selected: Boolean) {
+        val typeface = if (selected) tab.textView.typeface else null
+        val style = if (selected) Typeface.BOLD else Typeface.NORMAL
+        tab.textView.setTypeface(typeface, style)
     }
 
     override fun onTabSelected(tab: Tab?) {
         if (tab == null) { return }
-        tab.textView.setTypeface(tab.textView.typeface, Typeface.BOLD)
-        tab.textView.alpha = mAlphaTextSelected
+        if (mLastAnimatedTabShow != tab) {
+            tab.textView.animate().alpha(mAlphaTextSelected).setDuration(120).withEndAction { mLastAnimatedTabShow = null }.start()
+            mLastAnimatedTabShow = tab
+        }
+        reinforceTabTypeface(tab, true)
     }
 
     override fun onTabUnselected(tab: Tab?) {
         if (tab == null) { return }
-        tab.textView.setTypeface(null, Typeface.NORMAL)
-        tab.textView.alpha = mAlphaTextNormal
+        if (mLastAnimatedTabHide != tab) {
+            tab.textView.animate().alpha(mAlphaTextNormal).setDuration(80).withEndAction { mLastAnimatedTabHide = null }.start()
+            mLastAnimatedTabHide = tab
+        }
+        reinforceTabTypeface(tab, false)
     }
 
     override fun onTabReselected(tab: Tab?) {}

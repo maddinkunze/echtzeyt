@@ -8,6 +8,15 @@
     android:theme="@style/Theme.Echtzeyt"
     tools:context=".SettingsActivity">
 
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewpagerSettings"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/spaceToolbarSettingsRadius" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layoutToolbarSettings"
         android:layout_width="match_parent"
@@ -23,6 +32,7 @@
 
         <com.maddin.echtzeyt.components.MenuTabLayout
             android:id="@+id/tabLayoutSettingsMenu"
+            style="@style/Theme.Echtzeyt.TabLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="-12dp"
@@ -44,38 +54,9 @@
             app:tabMode="auto"
             app:tabPaddingEnd="20dp"
             app:tabPaddingStart="20dp"
-            app:tabSelectedTextAppearance="@style/Theme.Echtzeyt.TabLayout.Tab.Selected"
             app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget"
-            app:tabTextColor="?attr/colorSecondary">
-
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Allgemein" />
-
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Abfahrten" />
-
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/tabItem"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Reiseplan" />
-
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/tabItem2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Karte" />
-
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/tabItem3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Über" />
-        </com.maddin.echtzeyt.components.MenuTabLayout>
+            app:tabTextColor="?attr/colorSecondary"
+            tools:ignore="SpeakableTextPresentCheck" />
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbarSettings"
@@ -111,158 +92,13 @@
         app:shadowStops="@array/shadow_stops"
         tools:ignore="DuplicateSpeakableTextCheck" />
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewpagerSettings"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/layoutToolbarSettings" />
-
-    <com.google.android.material.switchmaterial.SwitchMaterial
-        android:id="@+id/settingsSaveContentSwitch"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/settings_switch_margin"
-        android:layout_marginLeft="@dimen/settings_switch_margin"
-        android:layout_marginTop="@dimen/settings_switch_margin"
-        android:layout_marginEnd="@dimen/settings_switch_margin"
-        android:layout_marginRight="@dimen/settings_switch_margin"
-        android:text="@string/settingsSaveContent"
-        android:textColor="@color/foreground"
-        android:textSize="@dimen/settings_label_size"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/layoutToolbarSettings"
-        app:switchPadding="@dimen/settings_switch_padding"
-        app:thumbTint="@color/foreground"
-        app:trackTint="@color/backgroundSunken"
-        app:useMaterialThemeColors="true"
-        tools:ignore="TouchTargetSizeCheck,TextContrastCheck,VisualLintButtonSize" />
-
-    <com.google.android.material.switchmaterial.SwitchMaterial
-        android:id="@+id/settingsAutoDarkSwitch"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/settings_switch_margin"
-        android:layout_marginLeft="@dimen/settings_switch_margin"
-        android:layout_marginTop="@dimen/settings_switch_margin"
-        android:layout_marginEnd="@dimen/settings_switch_margin"
-        android:layout_marginRight="@dimen/settings_switch_margin"
-        android:text="@string/settingsAutoDark"
-        android:textColor="@color/foreground"
-        android:textSize="@dimen/settings_label_size"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/settingsSaveContentSwitch"
-        app:switchPadding="@dimen/settings_switch_padding"
-        app:thumbTint="@color/foreground"
-        app:trackTint="@color/backgroundSunken"
-        app:useMaterialThemeColors="true"
-        tools:ignore="TouchTargetSizeCheck,TextContrastCheck,VisualLintButtonSize" />
-
-    <com.google.android.material.switchmaterial.SwitchMaterial
-        android:id="@+id/settingsDarkModeSwitch"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/settings_switch_margin"
-        android:layout_marginLeft="@dimen/settings_switch_margin"
-        android:layout_marginTop="@dimen/settings_switch_margin"
-        android:layout_marginEnd="@dimen/settings_switch_margin"
-        android:layout_marginRight="@dimen/settings_switch_margin"
-        android:text="@string/settingsDarkMode"
-        android:textColor="@color/foreground"
-        android:textSize="@dimen/settings_label_size"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/settingsAutoDarkSwitch"
-        app:switchPadding="@dimen/settings_switch_padding"
-        app:thumbTint="@color/foreground"
-        app:trackTint="@color/backgroundSunken"
-        app:useMaterialThemeColors="true"
-        tools:ignore="TouchTargetSizeCheck,TextContrastCheck,VisualLintButtonSize" />
-
-    <LinearLayout
-        android:id="@+id/settingsUpdateEveryLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/settings_switch_margin"
-        android:layout_marginLeft="@dimen/settings_switch_margin"
-        android:layout_marginTop="@dimen/settings_switch_margin"
-        android:layout_marginEnd="@dimen/settings_switch_margin"
-        android:layout_marginRight="@dimen/settings_switch_margin"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/settingsDarkModeSwitch">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/settingsUpdateInterval"
-            android:textColor="@color/foreground"
-            android:textSize="@dimen/settings_label_size" />
-
-        <Space
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
-
-        <com.maddin.echtzeyt.components.LabeledDiscreteSeekBar
-            android:id="@+id/settingsUpdateEverySelect"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="3"
-            app:labelColor="@color/background"
-            app:thumbPaddingBottom="3dp"
-            app:thumbPaddingLeft="8dp"
-            app:thumbPaddingRight="8dp"
-            app:thumbPaddingTop="3dp"
-            app:thumbRadius="15dp"
-            app:thumbTextSize="14sp"
-            app:thumbTint="@color/foreground"
-            app:trackHeight="6dp"
-            app:trackTint="@color/backgroundSunken" />
-    </LinearLayout>
-
-    <com.google.android.material.switchmaterial.SwitchMaterial
-        android:id="@+id/settingsMapUseMobileDataSwitch"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/settings_switch_margin"
-        android:layout_marginLeft="@dimen/settings_switch_margin"
-        android:layout_marginTop="@dimen/settings_switch_margin"
-        android:layout_marginEnd="@dimen/settings_switch_margin"
-        android:layout_marginRight="@dimen/settings_switch_margin"
-        android:text="@string/settingsMapUseMobileData"
-        android:textColor="@color/foreground"
-        android:textSize="@dimen/settings_label_size"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/settingsUpdateEveryLayout"
-        app:switchPadding="@dimen/settings_switch_padding"
-        app:thumbTint="@color/foreground"
-        app:trackTint="@color/backgroundSunken"
-        app:useMaterialThemeColors="true"
-        tools:ignore="TouchTargetSizeCheck,TextContrastCheck,VisualLintButtonSize" />
+    <Space
+        android:id="@+id/spaceToolbarSettingsRadius"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/toolbar_radius"
+        app:layout_constraintBottom_toBottomOf="@+id/layoutToolbarSettings"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <include layout="@layout/comp_build" />
-
-    <com.maddin.echtzeyt.components.FloatingInfoButton
-        android:id="@+id/btnLicenses"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/smallfloating_margin_side"
-        android:layout_marginRight="@dimen/smallfloating_margin_side"
-        android:layout_marginBottom="@dimen/smallfloating_margin_bottom"
-        app:icon="@drawable/ic_license"
-        app:layout_constraintBottom_toTopOf="@+id/btnSettingsSave"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:radiusInner="@dimen/bigfloating_radius"
-        app:shadowColors="@array/shadow_colors"
-        app:shadowSize="@dimen/shadow_size_small"
-        app:shadowStops="@array/shadow_stops"
-        app:text="@string/btnLicensesDescription" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -41,9 +41,14 @@
         <item>30 Sekunden</item>
         <item>1 Minute</item>
     </string-array>
+    <string name="menuSettingsGeneral">Allgemein</string>
+    <string name="menuSettingsRealtime">Echtzeit</string>
+    <string name="menuSettingsTrips">Verbindungen</string>
+    <string name="menuSettingsMap">Karte</string>
+    <string name="menuSettingsAbout">Über</string>
     <string name="updateNotYet">Noch nicht aktualisiert!</string>
     <string name="updateLast">"Letzte Aktualisierung: "</string>
-    <string name="settingsAutoDark">Systemthema übernehmen</string>
+    <string name="settingsAutoDark">Systemfarben übernehmen</string>
     <string name="btnLikeDescription">Station zu Lesezeichen hinzufügen</string>
     <string name="btnBookmarksDescription">Lesezeichen anzeigen</string>
     <string name="updateEmpty">Hier gibt es nichts zu sehen!</string>

@@ -105,6 +105,7 @@ abstract class EchtzeytForegroundActivity: AppCompatActivity() {
 
 }
 
+@Suppress("MemberVisibilityCanBePrivate")
 open class EchtzeytActivity : EchtzeytForegroundActivity() {
     // Internal variables about when the next search/update/... should happen
     private var shouldUpdateSearch = false
@@ -158,6 +159,9 @@ open class EchtzeytActivity : EchtzeytForegroundActivity() {
     protected val transportRealtimeAPI by lazy { ECHTZEYT_CONFIGURATION.realtimeRealtimeAPI!! }
 
     // Everything related to updating widgets when the app is opened
+    // TODO: maybe move this to the android Application class?
+    //  then widgets could be updated as soon as the application gets some sort of attention, not only when the main activity starts
+
     private val classesWidgets: List<Class<*>> by lazy { arrayOf(
         ECHTZEYT_CONFIGURATION.widgetRealtimeClass
     ).filterNotNull() }
@@ -398,7 +402,7 @@ open class EchtzeytActivity : EchtzeytForegroundActivity() {
             return
         }
 
-        // TODO: optimize this
+        // TODO: maybe optimize this by reusing already existing RealtimeInfo views
         val views = stops.mapIndexed { i, it -> RealtimeInfo(this, it, (i%2)>0) }
 
         runOnUiThread {

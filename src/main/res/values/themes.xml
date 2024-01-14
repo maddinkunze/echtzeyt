@@ -29,12 +29,14 @@
         <item name="android:textColor">@color/foreground</item>
     </style>
 
-    <style name="Theme.Echtzeyt.TabLayout.Tab" parent="TextAppearance.Design.Tab">
-        <item name="textAllCaps">false</item>
-        <item name="android:textAllCaps">false</item>
-    </style>
-
-    <style name="Theme.Echtzeyt.TabLayout.Tab.Selected" parent="Theme.Echtzeyt.TabLayout.Tab">
+    <style name="Theme.Echtzeyt.TabLayout" parent="Widget.Design.TabLayout">
         <item name="android:textStyle">bold</item>
+    </style>
+    <style name="Theme.Echtzeyt.TabLayout.Tab" parent="TextAppearance.Design.Tab">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textColor">?attr/colorSecondary</item>
     </style>
 </resources>

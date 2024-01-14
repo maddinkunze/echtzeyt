@@ -10,7 +10,7 @@
         <item>0</item>
     </integer-array>
 
-    <integer-array name="widgetConfigureRunEveryOptionValues">
+    <integer-array name="settingsUpdateIntervalOptionValues">
         <item>1000</item>
         <item>2000</item>
         <item>5000</item>
@@ -18,4 +18,6 @@
         <item>30000</item>
         <item>60000</item>
     </integer-array>
+
+    <integer-array name="widgetConfigureRunEveryOptionValues">@array/settingsUpdateIntervalOptionValues</integer-array>
 </resources>

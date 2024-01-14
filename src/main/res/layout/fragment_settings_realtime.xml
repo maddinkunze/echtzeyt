@@ -2,6 +2,72 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#00FF00">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:paddingTop="@dimen/toolbar_radius">
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/settingsSaveContentSwitch"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="@dimen/settings_switch_margin"
+        android:layout_marginLeft="@dimen/settings_switch_margin"
+        android:layout_marginTop="@dimen/settings_switch_margin"
+        android:layout_marginEnd="@dimen/settings_switch_margin"
+        android:layout_marginRight="@dimen/settings_switch_margin"
+        android:text="@string/settingsSaveContent"
+        android:textColor="@color/foreground"
+        android:textSize="@dimen/settings_label_size"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:switchPadding="@dimen/settings_switch_padding"
+        app:thumbTint="@color/foreground"
+        app:trackTint="@color/backgroundSunken"
+        app:useMaterialThemeColors="true"
+        tools:ignore="TouchTargetSizeCheck,TextContrastCheck,VisualLintButtonSize" />
+
+    <LinearLayout
+        android:id="@+id/settingsUpdateEveryLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/settings_switch_margin"
+        android:layout_marginLeft="@dimen/settings_switch_margin"
+        android:layout_marginTop="@dimen/settings_switch_margin"
+        android:layout_marginEnd="@dimen/settings_switch_margin"
+        android:layout_marginRight="@dimen/settings_switch_margin"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/settingsSaveContentSwitch">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/settingsUpdateInterval"
+            android:textColor="@color/foreground"
+            android:textSize="@dimen/settings_label_size" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <com.maddin.echtzeyt.components.LabeledDiscreteSeekBar
+            android:id="@+id/settingsUpdateEverySelect"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            app:labelColor="@color/background"
+            app:thumbPaddingBottom="3dp"
+            app:thumbPaddingLeft="8dp"
+            app:thumbPaddingRight="8dp"
+            app:thumbPaddingTop="3dp"
+            app:thumbRadius="15dp"
+            app:thumbTextSize="14sp"
+            app:thumbTint="@color/foreground"
+            app:trackHeight="6dp"
+            app:trackTint="@color/backgroundSunken" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

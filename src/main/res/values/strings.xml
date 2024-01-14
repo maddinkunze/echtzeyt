@@ -45,7 +45,7 @@
     <string name="txtBookmarksHeading">Saved stations:</string>
     <string name="txtBookmarksEmpty">No favourites yet. Use the star icon next to the search bar to add a station to your favourites. You can use your favourite stations as a quick access. Simply tap on the station you want to check out.</string>
     <string name="settingsSaveContent">Save last station</string>
-    <string name="settingsAutoDark">Stick to system theme</string>
+    <string name="settingsAutoDark">Use default color scheme</string>
     <string name="settingsDarkMode">Dark Mode</string>
     <string name="settingsUpdateInterval">Update Interval</string>
     <string-array name="settingsUpdateIntervalOptionNames">
@@ -57,6 +57,11 @@
         <item>1 minute</item>
     </string-array>
     <string name="settingsMapUseMobileData">Use mobile data to load map</string>
+    <string name="menuSettingsGeneral">General</string>
+    <string name="menuSettingsRealtime">Realtime</string>
+    <string name="menuSettingsTrips">Trips</string>
+    <string name="menuSettingsMap">Map</string>
+    <string name="menuSettingsAbout">About</string>
     <string name="updateNotYet">Not updated yet!</string>
     <string name="updateLast">Last updated:</string>
     <string name="updateEmpty">Nothing to see here!</string>
