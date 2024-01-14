@@ -8,6 +8,7 @@ import android.text.style.StrikethroughSpan
 import android.view.LayoutInflater
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.view.updatePadding
 import com.maddin.echtzeyt.R
 import com.maddin.transportapi.RealtimeConnection
 
@@ -32,8 +33,11 @@ class RealtimeInfo(context: Context, connection: RealtimeConnection, odd: Boolea
     private var shouldRespectMinSize: Boolean = false
 
     init {
+        orientation = HORIZONTAL
         LayoutInflater.from(context).inflate(R.layout.comp_realtime_info, this)
-        this.orientation = HORIZONTAL
+        val padding = context.resources.getDimensionPixelSize(R.dimen.realtimeinfo_padding)
+        updatePadding(top=padding, bottom=padding)
+
 
         if (odd) {
             setBackgroundResource(R.drawable.realtime_highlight)
@@ -42,7 +46,7 @@ class RealtimeInfo(context: Context, connection: RealtimeConnection, odd: Boolea
         txtLineNumber.text = connection.vehicle.line?.name ?: ""
         txtLineName.text = connection.vehicle.direction?.name ?: ""
 
-        val departsIn = connection.departsIn()
+        val departsIn = connection.departsIn().coerceAtLeast(0)
         val depSecs = departsIn % 60
         val depMins = (departsIn / 60) % 60
         val depHours = departsIn / 3600
@@ -56,7 +60,7 @@ class RealtimeInfo(context: Context, connection: RealtimeConnection, odd: Boolea
         txtDepMins.text = "${depMins.toString().padStart(padMin, '0')}m"
         txtDepSecs.text = "${depSecs.toString().padStart(2, '0')}s"
 
-        if (connection.stop.isCancelled()) {
+        if (connection.isStopCancelled()) {
             txtLineNumber.setStrikeThrough()
             txtLineName.setStrikeThrough()
             txtLineNumber.alpha = 0.3f

@@ -4,16 +4,11 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.view.children
 import com.maddin.echtzeyt.R
 import com.maddin.echtzeyt.randomcode.applyRandomId
-import com.maddin.echtzeyt.randomcode.applyRandomViewId
 
 class FloatingInfoButton(context: Context, private val attrs: AttributeSet?, private val defStyleAttr: Int) : LinearLayout(context, attrs, defStyleAttr), DropShadowView {
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -39,7 +34,7 @@ class FloatingInfoButton(context: Context, private val attrs: AttributeSet?, pri
         applyRandomId()
         readAttributes(context, attrs, defStyleAttr, 0)
 
-        LayoutInflater.from(context).inflate(R.layout.button_info, this, true)
+        LayoutInflater.from(context).inflate(R.layout.comp_button_info, this, true)
 
         val styledAttr = context.theme.obtainStyledAttributes(attrs, R.styleable.FloatingInfoButton, defStyleAttr, 0)
         try {

@@ -38,18 +38,20 @@ import kotlin.concurrent.thread
 private data class WidgetInformation(val widgetId: Int, val context: Context, val firstUpdate: Long, var nextUpdate: Long, val deltaUpdate: Long, val durationActive: Long, var nextAlive: Long, var stepsAlive: Int, val stationName: String, var station: Station?)
 
 
-open class EchtzeytWidget : AppWidgetProvider() {
+abstract class EchtzeytWidget : AppWidgetProvider() {
     companion object {
         @Volatile private var threadLastActive: Long = 0
         @Volatile private var threadCurrentId: Int = 0
         @Volatile private var threadLastDeniedReload: Long = 0
-        private var transportSearchStationAPI: SearchStationAPI = EXAMPLE_API
-        private var transportRealtimeAPI: RealtimeAPI = EXAMPLE_API
         @Volatile private var widgetInformation = mutableMapOf<Int, WidgetInformation>()
         const val intentWidgetId = "com.maddin.echtzeyt.widget.INTENT_WIDGET_ID"
         const val intentUpdateWidget = "com.maddin.echtzeyt.widget.UPDATE"
         const val intentStopWidget = "com.maddin.echtzeyt.widget.STOP"
     }
+
+
+    protected abstract val transportSearchStationAPI: SearchStationAPI
+    protected abstract val transportRealtimeAPI: RealtimeAPI
 
     override fun onAppWidgetOptionsChanged(context: Context?, appWidgetManager: AppWidgetManager?, widgetId: Int, newOptions: Bundle?) {
         super.onAppWidgetOptionsChanged(context, appWidgetManager, widgetId, newOptions)
@@ -378,22 +380,17 @@ open class EchtzeytWidget : AppWidgetProvider() {
             }
         }
     }
-
-    protected fun <API> setTransportAPI(transportAPI: API) where API:SearchStationAPI, API: RealtimeAPI {
-        transportSearchStationAPI = transportAPI
-        transportRealtimeAPI = transportAPI
-    }
 }
 
-open class EchtzeytWidgetConfigureActivity : AppCompatActivity() {
+abstract class EchtzeytWidgetConfigureActivity : AppCompatActivity() {
     private var widgetId = AppWidgetManager.INVALID_APPWIDGET_ID
     private lateinit var adapterSearch: ArrayAdapter<String>
-    private var transportSearchStationAPI: SearchStationAPI = EXAMPLE_API
+    protected abstract val transportSearchStationAPI: SearchStationAPI
     private var shouldUpdateSearch = false
     private lateinit var preferences: SharedPreferences
     private var runUntilOptions = mutableMapOf<Int, String>()
     private var runEveryOptions = mutableMapOf<Int, String>()
-    protected var widgetClass: Class<*> = EchtzeytWidget::class.java // TODO: change to Class<*>? and default to null since the EchtzeytWidget class will usually not be exposed directly
+    protected abstract val widgetClass: Class<*>
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -500,10 +497,6 @@ open class EchtzeytWidgetConfigureActivity : AppCompatActivity() {
             apply()
         }
         sendWidgetUpdateBroadcast()
-    }
-
-    protected fun setStationAPI(searchStationAPI: SearchStationAPI) {
-        transportSearchStationAPI = searchStationAPI
     }
 
     private fun ntUpdateSearch() {

@@ -2,13 +2,13 @@ package com.maddin.echtzeyt
 
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.ActivityManager
 import android.appwidget.AppWidgetManager
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.*
 import android.text.Html
@@ -18,7 +18,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
-import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -58,8 +57,9 @@ fun setAppLocale(context: Context, language: String) {
 }
 
 private var mPreferencesName = ""
-val EXAMPLE_API = com.maddin.transportapi.impl.EmptyAPI()
+// val EXAMPLE_API = com.maddin.transportapi.impl.EmptyAPI() // this api should not be used anywhere
 // val EXAMPLE_API = com.maddin.transportapi.impl.ExampleAPI() // uncomment this to test the app with mock data
+const val LOG_TAG_ECHTZEYT = "Echtzeyt.LOG"
 
 @Suppress("FunctionName")
 fun PREFERENCES_NAME(context: Context) : String {
@@ -67,10 +67,51 @@ fun PREFERENCES_NAME(context: Context) : String {
     return mPreferencesName
 }
 
-abstract class EchtzeytActivity : AppCompatActivity() {
-    // Internal variables about when the next search/update/... should happen
-    private var isInForeground = false
+abstract class EchtzeytForegroundActivity: AppCompatActivity() {
     private var nextCheckForeground = 0L
+    protected var isInForeground = false
+    protected val preferences: SharedPreferences by lazy { getSharedPreferences(PREFERENCES_NAME(this), MODE_PRIVATE) }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        isInForeground = true
+    }
+
+    override fun onResume() {
+        super.onResume()
+        isInForeground = true
+    }
+
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        isInForeground = true
+    }
+
+    override fun onStop() {
+        super.onStop()
+        isInForeground = false
+    }
+
+    protected fun ntCheckIfInForeground() {
+        val timeNow = System.currentTimeMillis()
+        if (timeNow < nextCheckForeground) { return }
+
+        val appProcessInfo = ActivityManager.RunningAppProcessInfo()
+        ActivityManager.getMyMemoryState(appProcessInfo)
+        isInForeground = (appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) || (appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE)
+
+        val delayNextUpdate = preferences.getInt("updateEvery", 5000)
+        nextCheckForeground = timeNow + 2 * delayNextUpdate.coerceAtLeast(5_000)
+    }
+
+    protected fun isInNightMode() : Boolean {
+        return (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+    }
+
+}
+
+abstract class EchtzeytActivity : EchtzeytForegroundActivity() {
+    // Internal variables about when the next search/update/... should happen
     private var shouldUpdateSearch = false
     private var nextUpdateConnections = 0L
     private var nextUpdateNotifications = 0L
@@ -114,7 +155,6 @@ abstract class EchtzeytActivity : AppCompatActivity() {
     // Bookmark variables
     private var bookmarksOpened = false
 
-    private val preferences by lazy { getSharedPreferences(PREFERENCES_NAME(this), MODE_PRIVATE) }
     private var currentStationName = ""
     private var currentStation: Station? = null
     private var savedStations: MutableSet<String> = mutableSetOf()
@@ -150,19 +190,8 @@ abstract class EchtzeytActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        isInForeground = true
         nextUpdateConnections = 0
         updateWidgets()
-    }
-
-    override fun onUserInteraction() {
-        super.onUserInteraction()
-        isInForeground = true
-    }
-
-    override fun onStop() {
-        super.onStop()
-        isInForeground = false
     }
 
     private fun updateWidgets() {
@@ -188,8 +217,6 @@ abstract class EchtzeytActivity : AppCompatActivity() {
         // the launcher has to be registered before the activity has been started
         // by explicitly stating activityMapLauncher, we force lazy to initialize activityMapLauncher
         if (activityMap != null) { activityMapLauncher }
-
-        isInForeground = true
     }
     private fun initSettings() {
         // Save last station?
@@ -294,7 +321,7 @@ abstract class EchtzeytActivity : AppCompatActivity() {
         // Theoretically these threads could be combined into one, however this can be laggy, especially on older hardware
 
         // Search thread
-        thread(start = true, isDaemon = true) {
+        thread(start=true, isDaemon=true) {
             while (true) {
                 if (shouldUpdateSearch) { ntUpdateSearch() }
                 Thread.sleep(20)
@@ -302,7 +329,7 @@ abstract class EchtzeytActivity : AppCompatActivity() {
         }
 
         // Connections thread
-        thread(start = true, isDaemon = true) {
+        thread(start=true, isDaemon=true) {
             while (true) {
                 ntCheckIfInForeground()
                 if (!isInForeground) {
@@ -317,7 +344,7 @@ abstract class EchtzeytActivity : AppCompatActivity() {
         }
 
         // Notifications thread
-        thread(start = true, isDaemon = true) {
+        thread(start=true, isDaemon=true) {
             while (true) {
                 ntCheckIfInForeground()
                 if (!isInForeground) {
@@ -362,7 +389,7 @@ abstract class EchtzeytActivity : AppCompatActivity() {
             }
             stops = transportRealtimeAPI.getRealtimeInformation(currentStation!!).connections
         } catch (e: Exception) {
-            Handler(Looper.getMainLooper()).post {
+            runOnUiThread {
                 txtLastUpdated.setTextColor(resources.getColor(R.color.error))
                 txtLastUpdated.alpha = 1f
                 val oa = ObjectAnimator.ofFloat(txtLastUpdated, "alpha", 0.4f).setDuration(300)
@@ -373,19 +400,15 @@ abstract class EchtzeytActivity : AppCompatActivity() {
             val classification = classifyExceptionDefault(e)
             exceptions.add(ClassifiedException(e, classification))
 
-            // Error -> next connection update in 2 seconds
+            // Error -> next connection update in 1 second
             updateConnectionsIn(1000, curUpdateTime == nextUpdateConnections)
             return
-        }
-
-        if (stops.isEmpty()) {
-            //textNames = resources.getString(R.string.updateEmpty)
         }
 
         // TODO: optimize this
         val views = stops.mapIndexed { i, it -> RealtimeInfo(this, it, (i%2)>0) }
 
-        Handler(Looper.getMainLooper()).post {
+        runOnUiThread {
             layoutConnections.removeAllViews()
             for (view in views) {
                 layoutConnections.addView(view)
@@ -417,17 +440,17 @@ abstract class EchtzeytActivity : AppCompatActivity() {
                 stations = transportSearchStationAPI.searchStations(currentStationSearch)
             }
 
-            Handler(Looper.getMainLooper()).post {
+            runOnUiThread {
                 adapterSearch.clear()
                 if (stations.isEmpty()) {
                     adapterSearch.notifyDataSetChanged()
                     edtSearch.dismissDropDown()
-                    return@post
+                    return@runOnUiThread
                 }
 
                 for (station in stations) {
                     val stationName = station.name
-                    if (stationName == currentStationSearch) { clearFocus(); return@post }
+                    if (stationName == currentStationSearch) { clearFocus(); return@runOnUiThread }
                     adapterSearch.add(stationName)
                 }
 
@@ -444,29 +467,17 @@ abstract class EchtzeytActivity : AppCompatActivity() {
         shouldUpdateSearch = false
     }
 
-    private fun ntCheckIfInForeground() {
-        val timeNow = System.currentTimeMillis()
-        if (timeNow < nextCheckForeground) { return }
-
-        val appProcessInfo = ActivityManager.RunningAppProcessInfo()
-        ActivityManager.getMyMemoryState(appProcessInfo)
-        isInForeground = (appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) || (appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE)
-
-        val delayNextUpdate = preferences.getInt("updateEvery", 5000)
-        nextCheckForeground = timeNow + 2 * delayNextUpdate.coerceAtLeast(5_000)
-    }
-
     private fun ntUpdateNotifications() {
         var delayNextCheck = 10 * 60 * 1000
         when (ntUpdateNotificationText()) {
             1 -> { menuVisible[3] = true }  // Notification
             0 -> {                          // No error but also no notification
                 menuVisible[3] = false
-                Handler(Looper.getMainLooper()).post { findViewById<View>(R.id.btnAnnouncement).visibility = View.GONE }
+                runOnUiThread { findViewById<View>(R.id.btnAnnouncement).visibility = View.GONE }
             }
            -1 -> {                          // Error
                menuVisible[3] = false
-               Handler(Looper.getMainLooper()).post { findViewById<View>(R.id.btnAnnouncement).visibility = View.GONE }
+               runOnUiThread { findViewById<View>(R.id.btnAnnouncement).visibility = View.GONE }
                delayNextCheck = 10 * 1000 // Something went wrong, check again in 10 seconds
            }
         }
@@ -507,7 +518,7 @@ abstract class EchtzeytActivity : AppCompatActivity() {
                 else Html.fromHtml(nHtml)
         }
 
-        val showNotificationUnit = {
+        runOnUiThread {
             findViewById<TextView>(R.id.notificationTitleText).text = nTitle
             findViewById<TextView>(R.id.notificationText).text = nTextFormatted
 
@@ -519,13 +530,6 @@ abstract class EchtzeytActivity : AppCompatActivity() {
             oa.start()
         }
 
-        val mainLooper = Looper.getMainLooper()
-        if (Looper.myLooper() == mainLooper) {
-            showNotificationUnit()
-        } else {
-            Handler(mainLooper).post(showNotificationUnit)
-        }
-
         return 1
     }
     private fun showNotification() {
@@ -535,7 +539,7 @@ abstract class EchtzeytActivity : AppCompatActivity() {
     }
     private fun closeNotification() {
         val notificationWindow = findViewById<View>(R.id.notificationWindow)
-        Handler(Looper.getMainLooper()).post {
+        runOnUiThread {
             val oa = ObjectAnimator.ofFloat(notificationWindow, View.ALPHA, 0f).setDuration(100)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) { oa.setAutoCancel(true) }
             oa.start()
@@ -574,10 +578,10 @@ abstract class EchtzeytActivity : AppCompatActivity() {
         }
 
         // If errors occurred, ask the user whether or not he wants to report it
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(this, R.style.AlertDialogTheme)
             .setTitle(R.string.sendLogsTitle)
             .setMessage(R.string.sendLogsText)
-            .setIcon(android.R.drawable.ic_dialog_info)
+            .setIcon(R.drawable.ic_error)
             .setPositiveButton(R.string.sendLogsYes) { _, _ -> sendFeedback(true) }
             .setNegativeButton(R.string.sendLogsNo) { _, _ -> sendFeedback(false) }
             .show()
@@ -670,7 +674,7 @@ abstract class EchtzeytActivity : AppCompatActivity() {
 
         val inflater = LayoutInflater.from(this)
         for (savedStation in savedStations) {
-            val root = inflater.inflate(R.layout.button_bookmark, items, false)
+            val root = inflater.inflate(R.layout.comp_button_bookmark, items, false)
             val itemButton = root.findViewById<Button>(R.id.btnBookmarkItem)
             itemButton.text = " • $savedStation"
             itemButton.setOnClickListener { commitToStation(savedStation) }

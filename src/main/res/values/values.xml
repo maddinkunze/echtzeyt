@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="text_size">18sp</dimen>
-    <dimen name="text_padding">2sp</dimen>
     <dimen name="button_size">44dp</dimen>
     <dimen name="button_radius">4dp</dimen>
     <dimen name="button_margin">10dp</dimen>
     <dimen name="button_padding">8dp</dimen>
     <dimen name="button_elevation">50dp</dimen>
+
     <dimen name="toolbar_height">46dp</dimen>
     <dimen name="toolbar_radius">20dp</dimen>
+
     <dimen name="layout_padding">16dp</dimen>
+
     <dimen name="bigfloating_size">56dp</dimen>
     <dimen name="bigfloating_radius">20dp</dimen>
     <dimen name="bigfloating_margin">25dp</dimen>
     <dimen name="bigfloating_padding">12dp</dimen>
+
     <dimen name="smallfloating_size">48dp</dimen>
     <dimen name="smallfloating_padding">9dp</dimen>
     <dimen name="smallfloating_padding_text_x">10dp</dimen>
@@ -25,6 +27,9 @@
     <dimen name="smallfloating_gradient_right">28dp</dimen> <!-- sf_size - bf_radius, where does the gradient start -> before the second corner of the imagebutton starts -->
     <dimen name="smallfloating_gradient_width">60dp</dimen>
     <dimen name="smallfloating_gradient_end">88dp</dimen> <!-- sf_gradient_right + sf_gradient_width, where does the gradient end -->
+
+    <dimen name="realtimeinfo_textsize">18sp</dimen>
+    <dimen name="realtimeinfo_padding">1.2dp</dimen>
 
     <dimen name="stationmarker_width">100dp</dimen> <!-- maximum width, it will be scaled down by the classes in StopMarker.kt -->
     <dimen name="stationmarker_height">116dp</dimen> <!-- sm_width + sm_arrow_size (usually), alternatively sm_width * (sm_bg_vector_height/ sm_bg_vector_width); maximum height, it will be scaled down by the classes in StopMarker.kt -->
@@ -52,6 +57,14 @@
     <item name="map_lon_max" type="dimen" format="float">180</item>
     <item name="map_buttons_top_up_factor" type="dimen" format="float">0.35</item>
     <dimen name="map_buttons_top_up_max">18dp</dimen> <!-- smaller than bigfloating_margin -->
+
+    <dimen name="map_copyright_text_size">13sp</dimen>
+    <dimen name="map_copyright_padding_x">11dp</dimen>
+    <dimen name="map_copyright_padding_y">4dp</dimen>
+    <dimen name="map_copyright_margin">10dp</dimen>
+    <dimen name="map_copyright_radius">10dp</dimen>
+
+    <dimen name="licenses_item_margin">15dp</dimen>
 
     <dimen name="settings_switch_margin">15dp</dimen>
     <dimen name="settings_switch_padding">10dp</dimen>

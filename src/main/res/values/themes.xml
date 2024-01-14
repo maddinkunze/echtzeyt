@@ -16,6 +16,8 @@
         <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
         <item name="buttonBarNeutralButtonStyle">@style/NeutralButtonStyle</item>
         <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
+        <item name="android:textColor">@color/foreground</item>
+        <item name="android:textColorPrimary">@color/foregroundText</item>
     </style>
     <style name="PositiveButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
         <item name="android:textColor">@color/foreground</item>

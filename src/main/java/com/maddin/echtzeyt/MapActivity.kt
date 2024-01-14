@@ -16,12 +16,13 @@ import android.hardware.SensorManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Bundle
 import android.os.ConditionVariable
-import android.os.Handler
-import android.os.Looper
 import android.provider.Settings
+import android.text.method.LinkMovementMethod
+import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.view.WindowManager
@@ -31,9 +32,9 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DimenRes
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import androidx.core.graphics.applyCanvas
 import androidx.core.location.LocationManagerCompat
 import androidx.core.view.ViewCompat
@@ -52,6 +53,7 @@ import com.maddin.transportapi.LocatableStation
 import com.maddin.transportapi.LocationAreaRect
 import com.maddin.transportapi.LocationLatLon
 import com.maddin.transportapi.LocationStationAPI
+import com.maddin.transportapi.Station
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
@@ -59,10 +61,10 @@ import org.osmdroid.events.ZoomEvent
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
-import org.osmdroid.util.PointL
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import java.io.File
+import java.lang.IllegalArgumentException
 import kotlin.concurrent.thread
 import kotlin.math.absoluteValue
 import kotlin.math.pow
@@ -78,18 +80,17 @@ fun Resources.getFloatValue(@DimenRes floatRes: Int):Float{
 }
 
 @Suppress("MemberVisibilityCanBePrivate")
-open class MapActivity : AppCompatActivity() {
+abstract class MapActivity : EchtzeytForegroundActivity(), LocationListener {
     private var nextLocateUpdate = -1L
     private val stationsFound = mutableSetOf<String>()
-    private lateinit var currentLocationArea : BoundingBox
-    private var transportLocateStationAPI : LocationStationAPI = com.maddin.transportapi.impl.germany.VMS("Chemnitz") // TODO: generalize
-
-    //private val preferences by lazy { getSharedPreferences(PREFERENCES_NAME(this), MODE_PRIVATE) }
+    @Volatile private lateinit var currentLocationArea : BoundingBox
+    protected abstract val transportLocateStationAPI : LocationStationAPI
 
     private val map by lazy { findViewById<MapView>(R.id.mapView) }
+    private val txtCopyright by lazy { findViewById<TextView>(R.id.txtMapCopyright) }
     private val txtStation by lazy { findViewById<TextView>(R.id.txtStationName) }
     private val pullup : PullupScrollView by lazy { findViewById(R.id.scrollStationInfo) }
-    private val btnBack by lazy { findViewById<FloatingButton>(R.id.btnMapBack) }
+    private val btnBack by lazy { findViewById<FloatingButton>(R.id.btnLicensesBack) }
     private val btnLocate by lazy { findViewById<FloatingButton>(R.id.btnMapLocate) }
     private val btnHideMarkers by lazy { findViewById<FloatingButton>(R.id.btnMapHideMarkers) }
 
@@ -109,6 +110,8 @@ open class MapActivity : AppCompatActivity() {
         DynamicDrawable(BitmapDrawable(resources, bitmapShadowS), optimize=true)
     }
     protected var showMarkers = true
+    protected val zoomMarkerMin by lazy { 13 }
+    protected val zoomMarkerMax by lazy { 14.5 }
     protected val zoomShadowMin by lazy { 14.5 /*resources.getFloatValue(R.dimen.map_zoom_start)*/ }
     protected val zoomShadowMax by lazy { 15.5 /*resources.getFloatValue(R.dimen.map_zoom_start)*/ }
 
@@ -118,7 +121,9 @@ open class MapActivity : AppCompatActivity() {
     protected val zoomDefault by lazy { resources.getFloatValue(R.dimen.map_zoom_start).toDouble() }
     protected val zoomStation by lazy { resources.getFloatValue(R.dimen.map_zoom_station).toDouble() }
     private var zoomLastUpdateMarkers = Double.POSITIVE_INFINITY
-    protected var zoomDeltaNoticeable = 0.01
+    private var zoomLastUpdateMarkerVisibility = Double.POSITIVE_INFINITY
+    protected val zoomDeltaNoticeable = 0.01
+    protected val zoomDeltaVisibilityNoticeable = 0.25
     protected val zoomTile = 0.95f
 
     protected val scaleMin = 0.25
@@ -129,6 +134,8 @@ open class MapActivity : AppCompatActivity() {
 
     private var mScaleFactorY = 0.0
     private var mScaleOffsetY = 0.0
+
+    private var nextUpdateMarkerVisibility = -1L
 
     protected val latStart by lazy { getStartLatitude() }
     protected val latMin by lazy { resources.getFloatValue(R.dimen.map_lat_min).toDouble() }
@@ -145,12 +152,25 @@ open class MapActivity : AppCompatActivity() {
     protected var stationSelected: LocatableStation? = null
 
     private val locationPermissionRequest = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { updateLocation(force=true, goto=true) }
-    private val locationClient by lazy { ContextCompat.getSystemService(this, LocationManager::class.java)!! } // TODO: make null safety checks
-    private val locationProvider = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { LocationManager.FUSED_PROVIDER } else { LocationManager.GPS_PROVIDER }
+    private val locationClient by lazy { ContextCompat.getSystemService(this, LocationManager::class.java) }
+    private val locationProviders by lazy {
+        val fused = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { LocationManager.FUSED_PROVIDER } else { null }
+        val gps = LocationManager.GPS_PROVIDER
+        val network = LocationManager.NETWORK_PROVIDER
+        arrayOf(fused, gps, network).filterNotNull()
+    }
+    private var locationProviderMain: String? = null
+    private var locationLast: Location? = null
+    private var locationLastUpdate: Location? = null
+    protected val locationMinDeltaTime: Long = 700L
+    protected val locationMinDeltaDistance: Float = 2f
     private val locationMarkerDrawable by lazy { DynamicDrawable(AppCompatResources.getDrawable(this, R.drawable.locationmark)!!) }
     private val locationMarkerDrawableDirected by lazy { DynamicDrawable(AppCompatResources.getDrawable(this, R.drawable.locationmark_directed)!!) }
     private val locationMarker by lazy { PositionMarker(map) }
-    private val locationHandler by lazy { LocationListener { onLocationReceived(it, false) } }
+    private var gpsHandlersInitialized = false
+    @Volatile private var gpsEnabled = false
+    @Volatile private var gpsEnabledNextCheck = -1L
+    protected val gpsEnabledNextCheckAfter = 5000
 
     private val sensorManager by lazy { ContextCompat.getSystemService(this, SensorManager::class.java) }
     private val sensorSampling = SensorManager.SENSOR_DELAY_NORMAL
@@ -199,11 +219,24 @@ open class MapActivity : AppCompatActivity() {
                     return
                 }
                 mLastAzimutDeg = mAzimutDegMovAvg
+                if (!locationMarker.isVisible()) { return }
                 map.invalidate()
             }
 
             override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
         }
+    }
+
+    private var mAskForMobileDataCount = 3
+    private var mAskForMobileDataNext = -1L
+    protected val mAskForMobileDataAgainAfter = 5000
+    private var mCurrentDialogType = 0
+    private var mCurrentDialog: AlertDialog? = null
+    private var mCurrentToast: Toast? = null
+
+    private companion object {
+        const val DIALOG_LOCATION = 1
+        const val DIALOG_MOBILE_DATA = 2
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -266,10 +299,21 @@ open class MapActivity : AppCompatActivity() {
 
         val stationStart = intent.getSerializableExtraCompat<LocatableStation>(ActivityResultSerializable.INPUT_DATA)
         if (stationStart != null) { selectStation(stationStart) }
+
+        if (locationClient == null || locationProviders.isEmpty()) {
+            btnLocate.visibility = View.GONE
+        }
+
+        txtCopyright.movementMethod = LinkMovementMethod.getInstance()
+
+        val now = System.currentTimeMillis()
+        gpsEnabledNextCheck = now + 2 * gpsEnabledNextCheckAfter
+        mAskForMobileDataNext = now + mAskForMobileDataAgainAfter
     }
 
     private fun initSettings() {
-
+        map.setUseDataConnection(preferences.getBoolean("mapUseMobileData", false))
+        checkMobileDataUsage()
     }
 
     private fun initMap() {
@@ -301,10 +345,9 @@ open class MapActivity : AppCompatActivity() {
         map.requestLayout()
     }
 
-
     private fun initHandlers() {
         map.addMapListener(object : MapListener {
-            override fun onScroll(event: ScrollEvent?): Boolean { updateLocationSearch(50); return false }
+            override fun onScroll(event: ScrollEvent?): Boolean { updateLocationSearch(50); updateMarkerVisibilities(100); return false }
             override fun onZoom(event: ZoomEvent?): Boolean { updateLocationSearch(50); updateMarkerZoom(); return false }
         })
         map.addOnFirstLayoutListener { _, _, _, _, _ -> updateLocationSearch() }
@@ -339,9 +382,10 @@ open class MapActivity : AppCompatActivity() {
         findViewById<View>(R.id.fillerCutout).updateLayoutParams{ height = safeTop }
     }
 
-    @SuppressLint("MissingPermission")
     private fun initResourceIntensiveHandlers() {
-        locationClient.requestLocationUpdates(locationProvider, 500L, 5.0f, locationHandler)
+        removeResourceIntensiveHandlers()
+
+        ntInitGpsHandlers()
 
         if (sensorAcc != null && sensorMag != null) {
             sensorManager?.registerListener(orientationHandler, sensorAcc, sensorSampling)
@@ -352,16 +396,58 @@ open class MapActivity : AppCompatActivity() {
         }
     }
 
+    private fun ntInitGpsHandlersIfNeeded() {
+        if (gpsHandlersInitialized) { return }
+        ntInitGpsHandlers()
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun ntInitGpsHandlers() {
+        locationProviderMain = null
+
+        val lc = locationClient ?: return
+        if (!LocationManagerCompat.isLocationEnabled(lc)) { return }
+
+        gpsHandlersInitialized = true
+
+        val enabledProviders = lc.getProviders(true)
+        if (enabledProviders.isEmpty()) {
+            runOnUiThread {
+                mCurrentToast?.cancel()
+                mCurrentToast = Toast.makeText(this, R.string.mapNoGpsProviders, Toast.LENGTH_SHORT)
+                mCurrentToast?.show()
+            }
+            return
+        }
+
+        lc.removeUpdates(this)
+        for (provider in locationProviders) {
+            if (!enabledProviders.contains(provider)) { continue }
+            if (locationProviderMain == null) { locationProviderMain = provider }
+            lc.requestLocationUpdates(provider, locationMinDeltaTime, locationMinDeltaDistance, this)
+        }
+    }
+
     @SuppressLint("MissingPermission")
     private fun removeResourceIntensiveHandlers() {
-        locationClient.removeUpdates(locationHandler)
+        try { locationClient?.removeUpdates(this) }
+        catch (_: Throwable) { Log.w(LOG_TAG_ECHTZEYT, "MapActivity: unable to remove location handler") }
+
         if (sensorAcc != null) { sensorManager?.unregisterListener(orientationHandler, sensorAcc) }
         if (sensorMag != null) { sensorManager?.unregisterListener(orientationHandler, sensorMag) }
     }
 
     private fun initThreads() {
-        thread(start=true, isDaemon=false) {
+        thread(start=true, isDaemon=true) {
             while (true) {
+                if (!isInForeground) {
+                    Thread.sleep(1000)
+                    continue
+                }
+
+                ntCheckIfGpsEnabledChanged()
+                ntUpdateMarkerVisibilities()
+
                 val timeNow = System.currentTimeMillis()
                 val skipUpdate = (nextLocateUpdate < 0) || (timeNow < nextLocateUpdate) || !showMarkers
                 if (skipUpdate) {
@@ -385,12 +471,16 @@ open class MapActivity : AppCompatActivity() {
     }
 
     private fun updateMarkerZoom() {
+        updateMarkerAlphas()
+
         val zoomLevel = map.zoomLevelDouble
+        if ((zoomLevel - zoomLastUpdateMarkerVisibility).absoluteValue > zoomDeltaVisibilityNoticeable) { updateMarkerVisibilities(0) }
         if ((zoomLevel - zoomLastUpdateMarkers).absoluteValue < zoomDeltaNoticeable) { return }
-        zoomLastUpdateMarkers = zoomLevel
 
         val scale = scaleMin + (getMarkerZoomValue(zoomLevel) - mScaleOffsetY) * mScaleFactorY
         if ((1-scale/scaleLastUpdateMarkers).absoluteValue < scaleDeltaNoticeable) { return }
+
+        zoomLastUpdateMarkers = zoomLevel
         scaleLastUpdateMarkers = scale
 
         drawableMarker.scale = scale
@@ -399,7 +489,6 @@ open class MapActivity : AppCompatActivity() {
         locationMarkerDrawable.scale = scale
         locationMarkerDrawableDirected.scale = scale
 
-        updateMarkerAlphas()
     }
 
     private fun getMarkerZoomValue(x: Double) : Double {
@@ -427,38 +516,54 @@ open class MapActivity : AppCompatActivity() {
     }
 
     private fun ntUpdateLocationSearch() {
+        checkMobileDataUsage() // not-ui-thread-safe even though it is not nt-prefixed
+
         val condition = ConditionVariable()
-        Handler(Looper.getMainLooper()).post {
+        var markerBB: BoundingBox? = null
+        var mapZoom = 0.0
+        runOnUiThread {
             updateLocationArea()
+            markerBB = getMarkerVisibilitiesBoundingBox()
+            mapZoom = map.zoomLevelDouble
             condition.open()
         }
         condition.block()
+
+        if (!isInForeground) { return }
 
         val areaCenter = currentLocationArea.centerWithDateLine
         val center = LocationLatLon(areaCenter.latitude, areaCenter.longitude)
         val width = 2 * currentLocationArea.longitudeSpanWithDateLine
         val height = 2 * currentLocationArea.latitudeSpan
         val area = LocationAreaRect(center, width, height)
-        val stations = transportLocateStationAPI.locateStations(area).filter { stationsFound.add(it.id) }
+        val stations: List<Station>
+        try { stations = transportLocateStationAPI.locateStations(area).filter { stationsFound.add(it.id) } } catch(e: Exception) { return }
 
-        Handler(Looper.getMainLooper()).post {
+        nextLocateUpdate = -1L
+
+        if (mapZoom > zoomMarkerMin) updateMarkerVisibilities(markerBB)
+        if (!isInForeground) { return }
+
+        runOnUiThread {
             for (station in stations) {
                 if (station !is LocatableStation) { continue }
 
-                val marker = StopMarker(map, station)
+                val marker = StopMarker(map, station, locationMarker)
                 marker.icon = drawableMarker
                 marker.setIcon(drawableMarkerSelected, StopMarker.FLAG_SELECTED)
                 marker.setOnMarkerClickListener { _, _ -> selectStation(station); true }
                 marker.setVisible(showMarkers)
+                marker.updateVisibility(markerBB)
                 stationSelected?.let { marker.selectAndDeselectOthers(it) }
-                map.overlays.add(marker)
+                map.overlayManager.add(marker)
 
                 if (drawableMarkerShadow == null) { continue }
-                val shadowMarker = StopMarker(map, station)
+                val shadowMarker = StopMarker(map, station, null)
                 shadowMarker.icon = drawableMarkerShadow
                 shadowMarker.setOnMarkerClickListener { _, _ -> true }
                 shadowMarker.setVisible(showMarkers)
-                map.overlays.add(0, shadowMarker)
+                shadowMarker.updateVisibility(markerBB)
+                map.overlayManager.add(0, shadowMarker)
             }
 
             map.invalidate()
@@ -498,6 +603,11 @@ open class MapActivity : AppCompatActivity() {
         finish()
     }
 
+    override fun finish() {
+        mCurrentDialog?.dismiss()
+        super.finish()
+    }
+
     private fun askForLocationPermissions() {
         locationPermissionRequest.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
     }
@@ -505,89 +615,209 @@ open class MapActivity : AppCompatActivity() {
     private fun gotoCurrentLocation() {
         val locCoarse = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
         val locFine = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-        if (locCoarse || locFine) { updateLocation(force=true, goto=true); return }
-        askForLocationPermissions()
+        if (!locCoarse && !locFine) { askForLocationPermissions() }
+        if (locationProviderMain == null) { ntInitGpsHandlers() }
+        updateLocation(force=true, goto=true)
+    }
+
+    private fun ntCheckIfGpsEnabledChanged() {
+        val now = System.currentTimeMillis()
+        if (gpsEnabledNextCheck < 0) { return }
+        if (now < gpsEnabledNextCheck) { return }
+
+        val lc = locationClient ?: return
+
+        val gpsEnabledT = gpsEnabled
+        gpsEnabled = LocationManagerCompat.isLocationEnabled(lc)
+
+        if (gpsEnabled != gpsEnabledT) {
+            Thread.sleep(200)
+            runOnUiThread { updateLocation(force=false, goto=false) }
+        }
+
+        gpsEnabledNextCheck = now + gpsEnabledNextCheckAfter
     }
 
     @SuppressLint("MissingPermission")
     private fun updateLocation(force: Boolean, goto: Boolean) {
-        if (!LocationManagerCompat.isLocationEnabled(locationClient)) {
-            onLocationReceived(null, false)
+        // only really update when the last known location is older than our update time
+        val now = System.currentTimeMillis()
+        if (now - (locationLast?.time?:0) < locationMinDeltaTime) {
+            if (goto) { gotoLocation(locationLast) }
+            return
+        }
+
+        val lc = locationClient ?: return
+
+        if (!LocationManagerCompat.isLocationEnabled(lc)) {
+            onLocationChanged(null, false)
+            gpsEnabled = false
+            gpsEnabledNextCheck = now + 2000
             if (force) { askForLocationTurnedOn() }
             return
         }
 
+        if (locationProviderMain == null) { ntInitGpsHandlersIfNeeded() }
+        val lp = locationProviderMain ?: return
+
         if (force) {
-            LocationManagerCompat.getCurrentLocation(locationClient, locationProvider, null, ContextCompat.getMainExecutor(this)) { onLocationReceived(it, goto) }
+            LocationManagerCompat.getCurrentLocation(lc, lp, null, ContextCompat.getMainExecutor(this)) { onLocationChanged(it, goto) }
             return
         }
 
-        onLocationReceived(locationClient.getLastKnownLocation(locationProvider), goto)
+        onLocationChanged(lc.getLastKnownLocation(lp), goto)
     }
 
-    private fun onLocationReceived(location: Location?, goto: Boolean) {
-        if (location == null) {
-            locationMarker.setVisible(false)
+    override fun onLocationChanged(location: Location) {
+        locationLast = location
+
+        gpsEnabled = true
+        gpsEnabledNextCheck = System.currentTimeMillis() + 5000
+
+        // only update our animations if there is a significant difference between our last updated position and now
+        locationLastUpdate?.let {
+            // if the new latitude/longitude/... is different -> skip the return statement by returning from the let block
+            if ((location.latitude - it.latitude).absoluteValue > Double.MIN_VALUE) { return@let }
+            if ((location.longitude - it.longitude).absoluteValue > Double.MIN_VALUE) { return@let }
+            // if no component was (sufficiently) different from the last update, return from the function
             return
         }
+        locationLastUpdate = location
 
         val position = GeoPoint(location.latitude, location.longitude)
-        locationMarker.position = position
+        locationMarker.animateToPosition(position)
         locationMarker.setVisible(true)
         updateMarkerAlphas()
         map.invalidate()
+    }
 
-        if (goto) {
-            if (map.boundingBox.contains(position)) {
-                map.controller.animateTo(position, zoomDefault, 700L)
-            } else {
-                Toast.makeText(this, "Location outside permitted area", Toast.LENGTH_SHORT).show()
-            }
+    private fun onLocationChanged(location: Location?, goto: Boolean) {
+        if (location == null) {
+            locationLast = null
+            locationMarker.setVisible(false)
+            map.invalidate()
+            return
         }
+        onLocationChanged(location)
+        if (goto) { gotoLocation(location) }
+    }
+
+    private fun gotoLocation(location: Location?) {
+        if (location == null) { return }
+        val position = GeoPoint(location.latitude, location.longitude)
+        if (!map.boundingBox.contains(position)) {
+            mCurrentToast?.cancel()
+            mCurrentToast = Toast.makeText(this, R.string.mapOutsidePermittedArea, Toast.LENGTH_SHORT)
+            mCurrentToast?.show()
+            return
+        }
+
+        val zoomTo = map.zoomLevelDouble.coerceAtLeast(zoomDefault)
+        map.controller.animateTo(position, zoomTo, 700L)
     }
 
     private fun askForLocationTurnedOn() {
         // thanks to https://stackoverflow.com/questions/43138788/ask-user-to-turn-on-location for parts of this code
-        AlertDialog.Builder(this, R.style.AlertDialogTheme)
+        if (mCurrentDialogType == DIALOG_LOCATION) { return } // dont show the dialog if we already have the same dialog open
+        mCurrentDialog?.dismiss()
+
+        mCurrentDialogType = DIALOG_LOCATION
+        mCurrentDialog = AlertDialog.Builder(this, R.style.AlertDialogTheme)
             .setTitle(R.string.mapLocationEnableTitle)
+            .setIcon(R.drawable.ic_locate)
             .setMessage(R.string.mapLocationEnableText)
             .setPositiveButton(R.string.mapLocationEnableDone) { _, _ -> updateLocation(force=false, goto=true) }
             .setNeutralButton(R.string.mapLocationEnableSettings) { _, _ -> startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) }
             .setNegativeButton(R.string.mapLocationEnableCancel) { dialog, _ -> dialog.cancel() }
+            .setOnDismissListener { mCurrentDialogType = 0 }
             .show()
     }
 
     private fun updateMarkerAlphas() {
-        // this will be called when the map may have changed, to make sure that markers will get transparent
-        // if the location marker is behind them -> stop markers will still be in front but slightly transparent
-        val positionP = PointL()
-        map.projection.toProjectedPixels(locationMarker.position, positionP)
-        val positionOutOfBounds =
-            (positionP.x < 0) || (positionP.y < 0) || (positionP.x > map.width) || (positionP.y > map.height)
+        val zoom = map.zoomLevelDouble
+        drawableMarkerShadow?.setOptimizedAlpha(when {
+            !showMarkers -> 0
+            zoom > zoomShadowMax -> 255
+            zoom > zoomShadowMin -> (255 * ((zoom - zoomShadowMin) / (zoomShadowMax - zoomShadowMin))).toInt()
+            else -> 0
+        })
 
-        drawableMarkerShadow?.let {
-            val zoom = map.zoomLevelDouble
-            it.setOptimizedAlpha(when {
-                !showMarkers -> 0
-                zoom > zoomShadowMax -> 255
-                zoom > zoomShadowMin -> (255 * ((zoom - zoomShadowMin) / (zoomShadowMax - zoomShadowMin))).toInt()
-                else -> 0
-            })
+        val markerSelectedAlpha = when {
+            showMarkers -> 255
+            else -> 0
         }
+        drawableMarkerSelected.setOptimizedAlpha(markerSelectedAlpha)
 
-        for (marker in map.overlays) {
-            if (marker !is StopMarker) { continue }
-            marker.alpha = if (showMarkers) 1f else 0f
-            if (!showMarkers) { continue }
-            if (positionOutOfBounds) { continue }
-            if (!marker.contains(positionP)) { continue }
-            marker.alpha = 0.3f
+        val markersAlphaT = drawableMarker.getOptimizedAlpha()
+        val markersAlpha = when {
+            !showMarkers -> 0
+            zoom > zoomMarkerMax -> 255
+            zoom > zoomMarkerMin -> (255 * ((zoom - zoomMarkerMin) / (zoomMarkerMax - zoomMarkerMin))).roundToInt()
+            else -> 0
         }
-        // TODO: implement this
+        if (markersAlpha == markersAlphaT) { return }
+        if ((markersAlpha - markersAlphaT).absoluteValue <= 5 && markersAlpha != 0 && markersAlpha != 255) { return }
+        drawableMarker.setOptimizedAlpha(markersAlpha)
+        if (markersAlpha < 5 || markersAlphaT < 5) { updateMarkerVisibilities(getMarkerVisibilitiesBoundingBox()) }
+        if ((markersAlpha - markersAlphaT).absoluteValue > 15 || markersAlpha == 255 || markersAlpha == 0) {
+            map.invalidate()
+        }
     }
 
-    private fun isInNightMode() : Boolean {
-        return (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+    private fun getMarkerVisibilitiesBoundingBox(): BoundingBox {
+        val mapbb = map.boundingBox
+        val lonOffset = 2 * drawableMarker.intrinsicWidth * (mapbb.longitudeSpanWithDateLine / map.width)
+        val latOffset = 2 * drawableMarker.intrinsicHeight * (mapbb.latitudeSpan / map.height)
+        return BoundingBox(mapbb.latNorth+latOffset, mapbb.lonEast+lonOffset, mapbb.latSouth-latOffset, mapbb.lonWest-lonOffset)
+    }
+
+    private fun updateMarkerVisibilities(within: BoundingBox?) {
+        for (marker in map.overlays) {
+            if (marker !is StopMarker) { continue }
+            marker.updateVisibility(within)
+        }
+
+        updateMarkerVisibilities(10_000) // request another update after at most 10s
+        runOnUiThread {
+            zoomLastUpdateMarkerVisibility = map.zoomLevelDouble
+        }
+    }
+
+    @Suppress("SameParameterValue")
+    protected fun updateMarkerVisibilities(after: Long) {
+        var next = System.currentTimeMillis() + after
+        if (nextUpdateMarkerVisibility >= 0) {
+            next = nextUpdateMarkerVisibility.coerceAtMost(next)
+        }
+        nextUpdateMarkerVisibility = next
+    }
+
+    private fun ntUpdateMarkerVisibilities() {
+        if (nextUpdateMarkerVisibility < 0) { return }
+        val now = System.currentTimeMillis()
+        if (now < nextUpdateMarkerVisibility) { return }
+
+        val condition = ConditionVariable()
+        var boundingBox: BoundingBox? = null
+        var zoom = 0.0
+        runOnUiThread {
+            // sometimes osmdroid throws an exception when the map is not loaded -> simply skip
+            try { boundingBox = getMarkerVisibilitiesBoundingBox() } catch (_: IllegalArgumentException) { println("MADDIN101: wth") }
+            zoom = map.zoomLevelDouble
+            condition.open()
+        }
+        condition.block()
+
+        if (boundingBox == null) { return }
+        /* there is other code in updateMarkerAlphas to make sure the markers are hidden as soon as
+           the zoom exceeds their max display zoom; at the max zoom level, most markers would be
+           included in the check -> optimization by skipping these cases */
+        if (zoom < zoomMarkerMin) {
+            nextUpdateMarkerVisibility = -1 // temporarily disable these checks to avoid unnecessary runOnUiThread calls
+            return
+        }
+
+        updateMarkerVisibilities(boundingBox)
     }
 
     private fun closePullup() {
@@ -600,10 +830,6 @@ open class MapActivity : AppCompatActivity() {
         map.invalidate()
     }
 
-    private fun removeAllStopMarkers() {
-        map.overlays.removeAll { it is StopMarker }
-    }
-
     private fun toggleMarkerVisibility() {
         showMarkers = !showMarkers
 
@@ -611,5 +837,50 @@ open class MapActivity : AppCompatActivity() {
         map.invalidate()
 
         btnHideMarkers.setImageResource(if (showMarkers) R.drawable.ic_stationmark_visible else R.drawable.ic_stationmark_hidden)
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun checkMobileDataUsage() {
+        if (!isInForeground) { return }
+        if (mAskForMobileDataCount <= 0) { return } // dont show the dialog if we have asked too many times
+        if (map.useDataConnection()) { return } // dont show the dialog if mobile data usage is allowed, the tiles will load eventually
+        if (mCurrentDialogType == DIALOG_MOBILE_DATA) { return } // dont show the dialog if we are already showing such a dialog
+        if (mAskForMobileDataNext < 0) { return }
+        val now = System.currentTimeMillis()
+        if (now < mAskForMobileDataNext) { return } // dont show the dialog if we showed the last dialog just a second ago
+        val tileStates = map.overlayManager.tilesOverlay.tileStates
+        if (tileStates.notFound + tileStates.scaled < 0.3 * tileStates.total) { return } // dont show the dialog when enough tiles are loaded (i.e. they are in the cache)
+        val connManager = ContextCompat.getSystemService(this, ConnectivityManager::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (connManager != null && connManager.activeNetwork == null) { return } // dont show if there is no active network
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (connManager?.isDefaultNetworkActive != true) { return } // dont show if there is no active network
+        }
+
+        if (connManager?.isActiveNetworkMetered != true) { return } // dont show the dialog when we are not on a metered connection
+
+        mAskForMobileDataCount--
+        mAskForMobileDataNext = now + mAskForMobileDataAgainAfter
+        mCurrentDialogType = DIALOG_MOBILE_DATA
+
+        runOnUiThread {
+            mCurrentDialog?.dismiss()
+            mCurrentDialog = AlertDialog.Builder(this, R.style.AlertDialogTheme)
+                .setTitle(R.string.mapMobileAllowTitle)
+                .setMessage(R.string.mapMobileAllowText)
+                .setIcon(R.drawable.ic_cellular)
+                .setPositiveButton(R.string.mapMobileAllowPermanent) { _, _ -> map.setUseDataConnection(true); preferences.edit { putBoolean("mapUseMobileData", true) } }
+                .setNeutralButton(R.string.mapMobileAllowTemporary) { _, _ -> map.setUseDataConnection(true) }
+                .setNegativeButton(R.string.mapMobileAllowNo) { _, _ -> preferences.edit { putBoolean("mapUseMobileData", false) } }
+                .setCancelable(true)
+                .setOnDismissListener { mCurrentDialogType = 0; mAskForMobileDataNext = System.currentTimeMillis() + mAskForMobileDataAgainAfter }
+                .show()
+        }
+    }
+
+    override fun onPause() {
+        mCurrentDialog?.dismiss()
+        super.onPause()
     }
 }

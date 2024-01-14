@@ -19,6 +19,7 @@
         <item>30 Sekunden</item>
         <item>1 Minute</item>
     </string-array>
+    <string name="settingsMapUseMobileData">Mobile Daten für Karte benutzen</string>
     <string name="widgetNotLoaded">Widget nicht geladen</string>
     <string name="widgetNotLoadedInfo">Du kannst versuchen das Widget (neu) zu laden indem du drauf klickst oder die Größe oder andere Einstellungen (kurzzeitig) veränderst</string>
     <string name="widgetNoStation">Keine Station ausgewählt</string>
@@ -48,7 +49,8 @@
     <string name="updateEmpty">Hier gibt es nichts zu sehen!</string>
     <string name="btnMenuDescription">Menü öffnen</string>
     <string name="appNameSettings">Einstellungen</string>
-    <string name="appNameMap">Karte</string>
+    <string name="appNameLicenses">Lizenzen</string>
+    <string name="btnLicensesDescription">Lizenzen</string>
     <string name="btnDonateDescription">Unterstütze mich</string>
     <string name="btnMessageDescription">Feedback</string>
     <string name="btnAnnouncementDescription">Benachrichtigung</string>
@@ -76,6 +78,25 @@
     <string name="mapLocationEnableSettings">Zu den Einstellungen</string>
     <string name="mapLocationEnableDone">Fertig</string>
     <string name="mapLocationEnableCancel">Abbrechen</string>
+    <string name="mapMobileAllowTitle">Mobile Daten verwenden?</string>
+    <string name="mapMobileAllowText">Einige Teile der Karte konnten nicht heruntergeladen werden. Möchtest du mobile Daten nutzen, um Kartendaten herunterzuladen? Deine Auswahl kann in den Einstellungen jederzeit geändert werden.</string>
+    <string name="mapMobileAllowPermanent">Ja, immer</string>
+    <string name="mapMobileAllowTemporary">Nur jetzt</string>
+    <string name="mapMobileAllowNo">Nein</string>
+    <string name="mapOutsidePermittedArea">Du scheinst außerhalb des abgedeckten Bereichs zu sein</string>
+    <string name="licenseBase">Diese App basiert auf dem <a href="https://github.com/maddinkunze/echtzeyt">Echtzeyt</a> Framework.</string>
+    <string name="licenseSelf">Die App selber ist unter der Apache License 2.0 veröffentlicht.</string>
+    <string name="licenseLibrariesTitle">Die folgenden Bibliotheken werden aktuell genutzt:</string>
+    <string name="licenseLibraries"><ul>
+        <li><a href="https://github.com/osmdroid/osmdroid">OSMDroid</a> (Apache License 2.0)</li>\n
+        <li><a href="https://github.com/maddinkunze/transportapi">TransportAPI</a></li>
+    </ul></string>
+    <string name="licenseAdditionalTitle">Außerdem werden/wurden Daten aus folgenden Quellen benutzt:</string>
+    <string name="licenseAdditional"><ul>
+        <li>Kartendaten von <a href="https://openstreetmap.org/">OpenStreetMap</a> und Mitwirkenden</li>\n
+        <li>Einige Icons stammen von <a href="https://svgrepo.com/">SVGRepo</a> (PD, CC0 oder vergleichbare Lizenz)</li>
+    </ul></string>
     <string name="_libraryEchtzeytBasedOn">basiert auf\u0020</string>
     <string name="widgetNameSettings">Einstellungen</string>
+    <string name="mapNoGpsProviders">Es konnten keine Standortanbieter auf deinem Gerät gefunden werden. Hat dein Gerät GPS Funktionalität?</string>
 </resources>

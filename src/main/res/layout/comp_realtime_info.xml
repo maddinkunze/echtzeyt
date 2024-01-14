@@ -4,44 +4,44 @@
     <TextView
         android:id="@+id/txtLineNumber"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:ellipsize="end"
         android:focusable="false"
         android:focusableInTouchMode="false"
         android:fontFamily="@font/roboto"
-        android:gravity="top|end"
+        android:gravity="center_vertical|end"
         android:maxLines="1"
         android:textColor="@color/foreground"
         android:textIsSelectable="false"
-        android:textSize="@dimen/text_size" />
+        android:textSize="@dimen/realtimeinfo_textsize" />
 
-        <TextView
-            android:id="@+id/txtLineName"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginStart="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginRight="10dp"
-            android:ellipsize="end"
-            android:fontFamily="@font/roboto"
-            android:gravity="start|center_vertical"
-            android:maxLines="1"
-            android:textColor="@color/foreground"
-            android:textSize="@dimen/text_size"
-            android:textStyle="bold" />
+    <TextView
+        android:id="@+id/txtLineName"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:fontFamily="@font/roboto"
+        android:gravity="start|center_vertical"
+        android:maxLines="1"
+        android:textColor="@color/foreground"
+        android:textSize="@dimen/realtimeinfo_textsize"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/txtLineTimeHour"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ellipsize="end"
-        android:fontFamily="@font/roboto"
+        android:fontFamily="@font/roboto_mono"
         android:gravity="top|end"
         android:maxLines="1"
         android:textColor="@color/foreground"
-        android:textSize="@dimen/text_size"
+        android:textSize="@dimen/realtimeinfo_textsize"
         android:visibility="gone" />
 
     <TextView
@@ -53,11 +53,11 @@
         android:layout_marginEnd="5dp"
         android:layout_marginRight="5dp"
         android:ellipsize="end"
-        android:fontFamily="@font/roboto"
+        android:fontFamily="@font/roboto_mono"
         android:gravity="top|end"
         android:maxLines="1"
         android:textColor="@color/foreground"
-        android:textSize="@dimen/text_size" />
+        android:textSize="@dimen/realtimeinfo_textsize" />
 
     <TextView
         android:id="@+id/txtLineTimeSec"
@@ -66,10 +66,10 @@
         android:layout_marginEnd="5dp"
         android:layout_marginRight="5dp"
         android:ellipsize="end"
-        android:fontFamily="@font/roboto"
+        android:fontFamily="@font/roboto_mono"
         android:gravity="top|end"
         android:maxLines="1"
         android:textColor="@color/foreground"
-        android:textSize="@dimen/text_size" />
+        android:textSize="@dimen/realtimeinfo_textsize" />
 
 </merge>

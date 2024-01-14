@@ -20,6 +20,30 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <LinearLayout
+        android:id="@+id/layoutMapCopyright"
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/map_copyright_margin"
+        android:layout_marginLeft="@dimen/map_copyright_margin"
+        android:alpha="0.7"
+        android:background="@drawable/copyright"
+        android:paddingLeft="@dimen/map_copyright_padding_x"
+        android:paddingTop="@dimen/map_copyright_padding_y"
+        android:paddingRight="@dimen/map_copyright_padding_x"
+        android:paddingBottom="@dimen/map_copyright_padding_y"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" >
+        <TextView
+            android:id="@+id/txtMapCopyright"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/mapCopyright"
+            android:textColor="@color/foregroundText"
+            android:textSize="@dimen/map_copyright_text_size" />
+    </LinearLayout>
+
     <View
         android:id="@+id/fillerCutout"
         android:layout_width="match_parent"
@@ -159,7 +183,7 @@
     </com.maddin.echtzeyt.components.PullupScrollView>
 
     <com.maddin.echtzeyt.components.FloatingButton
-        android:id="@+id/btnMapBack"
+        android:id="@+id/btnLicensesBack"
         android:layout_width="@dimen/bigfloating_size"
         android:layout_height="@dimen/bigfloating_size"
         android:layout_marginTop="@dimen/bigfloating_margin"

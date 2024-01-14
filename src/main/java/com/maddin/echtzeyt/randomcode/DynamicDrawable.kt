@@ -140,6 +140,10 @@ class DynamicDrawable(drawable: Drawable, optimize: Boolean) : DelegatedDrawable
         return (paintReal?:paintPre).alpha
     }
 
+    fun getOptimizedAlpha() : Int {
+        return paintPre.alpha
+    }
+
     override fun getIntrinsicWidth(): Int {
         return (super.getIntrinsicWidth() * scale).roundToInt()
     }

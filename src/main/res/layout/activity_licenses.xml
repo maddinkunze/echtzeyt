@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:theme="@style/Theme.Echtzeyt"
+    tools:context=".LicensesActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarLicenses"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/toolbar"
+        android:minHeight="@dimen/toolbar_height"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="@string/appNameLicenses"
+        app:titleMarginStart="6dp"
+        app:titleTextColor="?attr/colorSecondary" />
+
+    <com.maddin.echtzeyt.components.BottomFadeEdgeScrollView
+        android:id="@+id/scrollLicenses"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbarLicenses">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="@dimen/licenses_item_margin"
+            android:paddingTop="20dp"
+            android:paddingRight="@dimen/licenses_item_margin"
+            android:paddingBottom="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/licenseBase"
+                android:textColor="@color/foregroundText"
+                android:textColorLink="@color/foreground"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/licenseSelf"
+                android:textColorLink="@color/foregroundText"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/licenses_item_margin"
+                android:text="@string/licenseLibrariesTitle"
+                android:textColor="@color/foregroundText"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/licenseLibraries"
+                android:textColor="@color/foregroundText"
+                android:textColorLink="@color/foreground" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/licenses_item_margin"
+                android:text="@string/licenseAdditionalTitle"
+                android:textColor="@color/foregroundText"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/licenseAdditional"
+                android:textColor="@color/foregroundText"
+                android:textColorLink="@color/foreground" />
+        </LinearLayout>
+    </com.maddin.echtzeyt.components.BottomFadeEdgeScrollView>
+
+    <com.maddin.echtzeyt.components.FloatingButton
+        android:id="@+id/btnLicensesBack"
+        android:layout_width="@dimen/bigfloating_size"
+        android:layout_height="@dimen/bigfloating_size"
+        android:layout_marginBottom="@dimen/bigfloating_margin"
+        android:layout_marginEnd="@dimen/bigfloating_margin"
+        android:layout_marginRight="@dimen/bigfloating_margin"
+        android:background="@drawable/floatingbutton"
+        android:clickable="true"
+        android:contentDescription="@string/mapBack"
+        android:focusable="true"
+        android:padding="@dimen/bigfloating_padding"
+        android:scaleType="fitCenter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:radiusInner="@dimen/bigfloating_radius"
+        app:shadowColors="@array/shadow_colors"
+        app:shadowSize="@dimen/shadow_size"
+        app:shadowStops="@array/shadow_stops"
+        app:srcCompat="@drawable/ic_check" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

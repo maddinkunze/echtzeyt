@@ -22,7 +22,7 @@
         app:titleMarginStart="6dp"
         app:titleTextColor="?attr/colorSecondary" />
 
-    <ImageButton
+    <com.maddin.echtzeyt.components.FloatingButton
         android:id="@+id/btnSettingsSave"
         android:layout_width="@dimen/bigfloating_size"
         android:layout_height="@dimen/bigfloating_size"
@@ -36,6 +36,10 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_check"
+        app:radiusInner="@dimen/bigfloating_radius"
+        app:shadowColors="@array/shadow_colors"
+        app:shadowSize="@dimen/shadow_size"
+        app:shadowStops="@array/shadow_stops"
         tools:ignore="DuplicateSpeakableTextCheck" />
 
     <com.google.android.material.switchmaterial.SwitchMaterial
@@ -102,6 +106,7 @@
         tools:ignore="TouchTargetSizeCheck,TextContrastCheck,VisualLintButtonSize" />
 
     <LinearLayout
+        android:id="@+id/settingsUpdateEveryLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/settings_switch_margin"
@@ -142,6 +147,27 @@
             app:trackHeight="6dp"
             app:trackTint="@color/backgroundSunken" />
     </LinearLayout>
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/settingsMapUseMobileDataSwitch"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="@dimen/settings_switch_margin"
+        android:layout_marginLeft="@dimen/settings_switch_margin"
+        android:layout_marginTop="@dimen/settings_switch_margin"
+        android:layout_marginEnd="@dimen/settings_switch_margin"
+        android:layout_marginRight="@dimen/settings_switch_margin"
+        android:text="@string/settingsMapUseMobileData"
+        android:textColor="@color/foreground"
+        android:textSize="@dimen/settings_label_size"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/settingsUpdateEveryLayout"
+        app:switchPadding="@dimen/settings_switch_padding"
+        app:thumbTint="@color/foreground"
+        app:trackTint="@color/backgroundSunken"
+        app:useMaterialThemeColors="true"
+        tools:ignore="TouchTargetSizeCheck,TextContrastCheck,VisualLintButtonSize" />
 
     <LinearLayout
         android:id="@+id/layoutBuildApp"
@@ -226,5 +252,22 @@
             android:textSize="10sp"
             tools:ignore="SmallSp,TextContrastCheck" />
     </LinearLayout>
+
+    <com.maddin.echtzeyt.components.FloatingInfoButton
+        android:id="@+id/btnLicenses"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/smallfloating_margin_side"
+        android:layout_marginRight="@dimen/smallfloating_margin_side"
+        android:layout_marginBottom="@dimen/smallfloating_margin_bottom"
+        app:icon="@drawable/ic_license"
+        app:radiusInner="@dimen/bigfloating_radius"
+        app:shadowBelow="@id/btnMenu"
+        app:shadowColors="@array/shadow_colors"
+        app:shadowSize="@dimen/shadow_size_small"
+        app:shadowStops="@array/shadow_stops"
+        app:layout_constraintBottom_toTopOf="@+id/btnSettingsSave"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:text="@string/btnLicensesDescription" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
