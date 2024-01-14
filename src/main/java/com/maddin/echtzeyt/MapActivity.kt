@@ -431,7 +431,7 @@ abstract class MapActivity : EchtzeytForegroundActivity(), LocationListener {
     @SuppressLint("MissingPermission")
     private fun removeResourceIntensiveHandlers() {
         try { locationClient?.removeUpdates(this) }
-        catch (_: Throwable) { Log.w(LOG_TAG_ECHTZEYT, "MapActivity: unable to remove location handler") }
+        catch (_: Throwable) { Log.w(ECHTZEYT_LOG_TAG, "MapActivity: unable to remove location handler") }
 
         if (sensorAcc != null) { sensorManager?.unregisterListener(orientationHandler, sensorAcc) }
         if (sensorMag != null) { sensorManager?.unregisterListener(orientationHandler, sensorMag) }
@@ -722,7 +722,7 @@ abstract class MapActivity : EchtzeytForegroundActivity(), LocationListener {
         mCurrentDialog?.dismiss()
 
         mCurrentDialogType = DIALOG_LOCATION
-        mCurrentDialog = AlertDialog.Builder(this, R.style.AlertDialogTheme)
+        mCurrentDialog = AlertDialog.Builder(this, R.style.Theme_Echtzeyt_AlertDialog)
             .setTitle(R.string.mapLocationEnableTitle)
             .setIcon(R.drawable.ic_locate)
             .setMessage(R.string.mapLocationEnableText)
@@ -866,7 +866,7 @@ abstract class MapActivity : EchtzeytForegroundActivity(), LocationListener {
 
         runOnUiThread {
             mCurrentDialog?.dismiss()
-            mCurrentDialog = AlertDialog.Builder(this, R.style.AlertDialogTheme)
+            mCurrentDialog = AlertDialog.Builder(this, R.style.Theme_Echtzeyt_AlertDialog)
                 .setTitle(R.string.mapMobileAllowTitle)
                 .setMessage(R.string.mapMobileAllowText)
                 .setIcon(R.drawable.ic_cellular)

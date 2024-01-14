@@ -12,7 +12,7 @@
         <item name="colorOnSecondary">@color/background</item>
     </style>
 
-    <style name="AlertDialogTheme" parent="ThemeOverlay.AppCompat.Dialog.Alert">
+    <style name="Theme.Echtzeyt.AlertDialog" parent="ThemeOverlay.AppCompat.Dialog.Alert">
         <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
         <item name="buttonBarNeutralButtonStyle">@style/NeutralButtonStyle</item>
         <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
@@ -27,5 +27,14 @@
     </style>
     <style name="NegativeButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
         <item name="android:textColor">@color/foreground</item>
+    </style>
+
+    <style name="Theme.Echtzeyt.TabLayout.Tab" parent="TextAppearance.Design.Tab">
+        <item name="textAllCaps">false</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="Theme.Echtzeyt.TabLayout.Tab.Selected" parent="Theme.Echtzeyt.TabLayout.Tab">
+        <item name="android:textStyle">bold</item>
     </style>
 </resources>

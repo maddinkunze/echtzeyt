@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/layoutBuildApp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@id/layoutBuildBase"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/txtAppInformationName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/appName"
+            android:textColor="@color/foreground"
+            android:textSize="12sp"
+            tools:ignore="TextContrastCheck" />
+
+        <TextView
+            android:id="@+id/txtAppInformationConcat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" @ "
+            android:textColor="@color/foreground"
+            android:textSize="12sp"
+            tools:ignore="HardcodedText,TextContrastCheck" />
+
+        <TextView
+            android:id="@+id/txtAppInformationVersion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/appVersion"
+            android:textColor="@color/foreground"
+            android:textSize="12sp"
+            tools:ignore="TextContrastCheck" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutBuildBase"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/txtBaseInformationText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_libraryEchtzeytBasedOn"
+            android:textColor="@color/foregroundHint"
+            android:textSize="10sp"
+            tools:ignore="SmallSp,TextContrastCheck" />
+
+        <TextView
+            android:id="@+id/txtBaseInformationName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_libraryEchtzeytName"
+            android:textColor="@color/foregroundHint"
+            android:textSize="10sp"
+            tools:ignore="SmallSp,TextContrastCheck" />
+
+        <TextView
+            android:id="@+id/txtBaseInformationConcat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" @ "
+            android:textColor="@color/foregroundHint"
+            android:textSize="10sp"
+            tools:ignore="HardcodedText,SmallSp,TextContrastCheck" />
+
+        <TextView
+            android:id="@+id/txtBaseInformationVersion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_libraryEchtzeytVersion"
+            android:textColor="@color/foregroundHint"
+            android:textSize="10sp"
+            tools:ignore="SmallSp,TextContrastCheck" />
+    </LinearLayout>
+
+</merge>

@@ -38,7 +38,7 @@ import kotlin.concurrent.thread
 private data class WidgetInformation(val widgetId: Int, val context: Context, val firstUpdate: Long, var nextUpdate: Long, val deltaUpdate: Long, val durationActive: Long, var nextAlive: Long, var stepsAlive: Int, val stationName: String, var station: Station?)
 
 
-abstract class EchtzeytWidget : AppWidgetProvider() {
+open class EchtzeytWidget : AppWidgetProvider() {
     companion object {
         @Volatile private var threadLastActive: Long = 0
         @Volatile private var threadCurrentId: Int = 0
@@ -50,8 +50,8 @@ abstract class EchtzeytWidget : AppWidgetProvider() {
     }
 
 
-    protected abstract val transportSearchStationAPI: SearchStationAPI
-    protected abstract val transportRealtimeAPI: RealtimeAPI
+    protected val transportSearchStationAPI by lazy { ECHTZEYT_CONFIGURATION.widgetRealtimeStationAPI!! }
+    protected val transportRealtimeAPI by lazy { ECHTZEYT_CONFIGURATION.widgetRealtimeRealtimeAPI!! }
 
     override fun onAppWidgetOptionsChanged(context: Context?, appWidgetManager: AppWidgetManager?, widgetId: Int, newOptions: Bundle?) {
         super.onAppWidgetOptionsChanged(context, appWidgetManager, widgetId, newOptions)
@@ -382,15 +382,15 @@ abstract class EchtzeytWidget : AppWidgetProvider() {
     }
 }
 
-abstract class EchtzeytWidgetConfigureActivity : AppCompatActivity() {
+open class EchtzeytWidgetConfigureActivity : AppCompatActivity() {
     private var widgetId = AppWidgetManager.INVALID_APPWIDGET_ID
     private lateinit var adapterSearch: ArrayAdapter<String>
-    protected abstract val transportSearchStationAPI: SearchStationAPI
+    protected val transportSearchStationAPI by lazy { ECHTZEYT_CONFIGURATION.widgetRealtimeStationAPI!! }
     private var shouldUpdateSearch = false
     private lateinit var preferences: SharedPreferences
     private var runUntilOptions = mutableMapOf<Int, String>()
     private var runEveryOptions = mutableMapOf<Int, String>()
-    protected abstract val widgetClass: Class<*>
+    protected val widgetClass by lazy { ECHTZEYT_CONFIGURATION.widgetRealtimeClass!! }
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

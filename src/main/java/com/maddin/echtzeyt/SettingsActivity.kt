@@ -5,13 +5,37 @@ import android.os.Bundle
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Lifecycle
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.switchmaterial.SwitchMaterial
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import com.maddin.echtzeyt.components.FloatingInfoButton
 import com.maddin.echtzeyt.components.LabeledDiscreteSeekBar
+import com.maddin.echtzeyt.fragments.settings.GeneralSettingsFragment
+import com.maddin.echtzeyt.fragments.settings.RealtimeSettingsFragment
+
+class ViewPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
+    FragmentStateAdapter(fragmentManager, lifecycle) {
+
+    override fun getItemCount(): Int {
+        return 4
+    }
+
+    override fun createFragment(position: Int): Fragment {
+        return when (position%2) {
+            0 -> GeneralSettingsFragment()
+            else -> RealtimeSettingsFragment()
+        }
+    }
+}
 
 open class SettingsActivity : AppCompatActivity() {
     private val optionsUpdateEvery = mutableMapOf<Int, String>()
-    private val preferences by lazy { getSharedPreferences(PREFERENCES_NAME(this), MODE_PRIVATE) }
+    private val preferences by lazy { ECHTZEYT_CONFIGURATION.preferences(this) }
 
     private val switchSaveContent by lazy { findViewById<SwitchMaterial>(R.id.settingsSaveContentSwitch) }
     private val switchAutoDark by lazy { findViewById<SwitchMaterial>(R.id.settingsAutoDarkSwitch) }
@@ -51,6 +75,19 @@ open class SettingsActivity : AppCompatActivity() {
 
         val settingsTitle = "${resources.getString(R.string.appName)} - ${resources.getString(R.string.appNameSettings)}"
         findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbarSettings).title = settingsTitle
+
+
+
+
+
+        // PLAYGROUND:
+        val viewPager = findViewById<ViewPager2>(R.id.viewpagerSettings)
+        val tabLayout = findViewById<TabLayout>(R.id.tabLayoutSettingsMenu)
+
+        viewPager.adapter = ViewPagerAdapter(supportFragmentManager, lifecycle)
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            tab.text = "Test $position"
+        }.attach()
     }
 
     private fun updateApp() {

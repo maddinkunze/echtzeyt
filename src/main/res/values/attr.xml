@@ -56,4 +56,8 @@
         <attr name="text" format="string" />
         <attr name="icon" format="reference" />
     </declare-styleable>
+
+    <declare-styleable name="MenuTabLayout">
+        <attr name="paddingContent" format="dimension" />
+    </declare-styleable>
 </resources>

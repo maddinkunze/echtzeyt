@@ -56,24 +56,19 @@ fun setAppLocale(context: Context, language: String) {
     resources.updateConfiguration(config, resources.displayMetrics)
 }
 
-private var mPreferencesName = ""
 // val EXAMPLE_API = com.maddin.transportapi.impl.EmptyAPI() // this api should not be used anywhere
 // val EXAMPLE_API = com.maddin.transportapi.impl.ExampleAPI() // uncomment this to test the app with mock data
-const val LOG_TAG_ECHTZEYT = "Echtzeyt.LOG"
-
-@Suppress("FunctionName")
-fun PREFERENCES_NAME(context: Context) : String {
-    if (mPreferencesName.isEmpty()) { mPreferencesName = context.packageName }
-    return mPreferencesName
-}
 
 abstract class EchtzeytForegroundActivity: AppCompatActivity() {
     private var nextCheckForeground = 0L
     protected var isInForeground = false
-    protected val preferences: SharedPreferences by lazy { getSharedPreferences(PREFERENCES_NAME(this), MODE_PRIVATE) }
+    protected val preferences: SharedPreferences by lazy { ECHTZEYT_CONFIGURATION.preferences(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (!ECHTZEYT_CONFIGURATION.check() && BuildConfig.DEBUG) {
+            throw IllegalStateException("EchteytConfiguration not loaded/filled! Please make sure you are calling ECHTZEYT_CONFIGURATION.load() before any activity or similar is created. One way to make ensure wanted behaviour is overriding tha default Application class, overriding the onCreate() method and calling ECHTZEYT_CONFIGURATION.load() from there.")
+        }
         isInForeground = true
     }
 
@@ -110,7 +105,7 @@ abstract class EchtzeytForegroundActivity: AppCompatActivity() {
 
 }
 
-abstract class EchtzeytActivity : EchtzeytForegroundActivity() {
+open class EchtzeytActivity : EchtzeytForegroundActivity() {
     // Internal variables about when the next search/update/... should happen
     private var shouldUpdateSearch = false
     private var nextUpdateConnections = 0L
@@ -159,15 +154,17 @@ abstract class EchtzeytActivity : EchtzeytForegroundActivity() {
     private var currentStation: Station? = null
     private var savedStations: MutableSet<String> = mutableSetOf()
     private val adapterSearch by lazy { ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item) }
-    protected abstract val transportSearchStationAPI: com.maddin.transportapi.SearchStationAPI
-    protected abstract val transportRealtimeAPI: com.maddin.transportapi.RealtimeAPI
+    protected val transportSearchStationAPI by lazy { ECHTZEYT_CONFIGURATION.realtimeStationAPI!! }
+    protected val transportRealtimeAPI by lazy { ECHTZEYT_CONFIGURATION.realtimeRealtimeAPI!! }
 
     // Everything related to updating widgets when the app is opened
-    private var classesWidgets = mutableListOf<Class<*>>()
+    private val classesWidgets: List<Class<*>> by lazy { arrayOf(
+        ECHTZEYT_CONFIGURATION.widgetRealtimeClass
+    ).filterNotNull() }
 
     // Everything related to other activities (such as the settings or a station selection map)
-    protected abstract val activitySettings: Class<out SettingsActivity>
-    protected open val activityMap: Class<out MapActivity>? = null
+    protected val activitySettings by lazy { ECHTZEYT_CONFIGURATION.activitySettings }
+    protected val activityMap by lazy { if (!ECHTZEYT_CONFIGURATION.mapsSupportLocateStations) { return@lazy null }; ECHTZEYT_CONFIGURATION.activityMap }
     private val activityMapLauncher by lazy { registerForActivityResult(ActivityResultSerializable<LocatableStation>(activityMap!!)) { commitToStation(it) } }
 
     // Notifications and exceptions
@@ -203,10 +200,6 @@ abstract class EchtzeytActivity : EchtzeytForegroundActivity() {
             sendBroadcast(intent)
         }
 
-    }
-
-    protected fun addWidgetClass(cls: Class<*>) {
-        classesWidgets.add(cls)
     }
 
     private fun initVariables() {
@@ -578,7 +571,7 @@ abstract class EchtzeytActivity : EchtzeytForegroundActivity() {
         }
 
         // If errors occurred, ask the user whether or not he wants to report it
-        AlertDialog.Builder(this, R.style.AlertDialogTheme)
+        AlertDialog.Builder(this, R.style.Theme_Echtzeyt_AlertDialog)
             .setTitle(R.string.sendLogsTitle)
             .setMessage(R.string.sendLogsText)
             .setIcon(R.drawable.ic_error)
