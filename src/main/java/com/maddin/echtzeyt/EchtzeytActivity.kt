@@ -21,6 +21,8 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityManagerCompat
 import androidx.core.view.children
 import com.maddin.echtzeyt.components.FloatingInfoButton
 import com.maddin.echtzeyt.components.InstantAutoCompleteTextView
@@ -38,7 +40,7 @@ import java.util.*
 import kotlin.concurrent.thread
 
 
-@Suppress("deprecation", "unused")
+/*@Suppress("deprecation", "unused")
 fun setAppLocale(context: Context, language: String) {
     val resources = context.resources
     val config = resources.configuration
@@ -54,7 +56,7 @@ fun setAppLocale(context: Context, language: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) { config.setLayoutDirection(locale) }
     }
     resources.updateConfiguration(config, resources.displayMetrics)
-}
+}*/
 
 // val EXAMPLE_API = com.maddin.transportapi.impl.EmptyAPI() // this api should not be used anywhere
 // val EXAMPLE_API = com.maddin.transportapi.impl.ExampleAPI() // uncomment this to test the app with mock data
@@ -91,9 +93,13 @@ abstract class EchtzeytForegroundActivity: AppCompatActivity() {
         val timeNow = System.currentTimeMillis()
         if (timeNow < nextCheckForeground) { return }
 
-        val appProcessInfo = ActivityManager.RunningAppProcessInfo()
-        ActivityManager.getMyMemoryState(appProcessInfo)
-        isInForeground = (appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) || (appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE)
+        isInForeground = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            val appProcessInfo = ActivityManager.RunningAppProcessInfo()
+            ActivityManager.getMyMemoryState(appProcessInfo)
+            (appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) || (appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE)
+        } else {
+            hasWindowFocus()
+        }
 
         val delayNextUpdate = preferences.getInt("updateEvery", 5000)
         nextCheckForeground = timeNow + 2 * delayNextUpdate.coerceAtLeast(5_000)

@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:background="@color/background"
     android:theme="@style/Theme.Echtzeyt"
-    tools:context=".EchtzeytWidgetConfigureActivity">
+    tools:context=".EchtzeytWidgetConfigureActivity"
+    tools:ignore="Overdraw">
 
     <LinearLayout
         android:id="@+id/focusableLayoutWidgetConfiguration"
@@ -60,7 +61,7 @@
         android:layout_marginRight="@dimen/layout_padding"
         android:layout_weight="1"
         android:background="@color/background"
-        android:fontFamily="@font/roboto"
+        app:fontFamily="@font/roboto"
         android:hint="@string/edtSearchTip"
         android:inputType="textNoSuggestions"
         android:maxLines="1"

@@ -4,7 +4,6 @@
     <dimen name="button_radius">4dp</dimen>
     <dimen name="button_margin">10dp</dimen>
     <dimen name="button_padding">8dp</dimen>
-    <dimen name="button_elevation">50dp</dimen>
 
     <dimen name="toolbar_height">46dp</dimen>
     <dimen name="toolbar_radius">20dp</dimen>
@@ -43,7 +42,6 @@
 
     <dimen name="pullup_close_margin">-4dp</dimen> <!-- distance between the close button and the ok button on a pullup menu -->
     <dimen name="pullup_radius">@dimen/bigfloating_radius</dimen>
-    <dimen name="pullup_elevation">@dimen/button_elevation</dimen>
 
     <item name="map_zoom_start" type="dimen" format="float">17</item>
     <item name="map_zoom_station" type="dimen" format="float">18</item>

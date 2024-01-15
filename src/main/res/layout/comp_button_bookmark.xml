@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="32dp"
     android:background="@android:color/transparent"
-    android:fontFamily="@font/roboto"
+    app:fontFamily="@font/roboto"
     android:gravity="center_vertical"
     android:paddingTop="0dp"
     android:paddingBottom="0dp"

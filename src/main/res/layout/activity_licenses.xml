@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:background="@color/background"
     android:theme="@style/Theme.Echtzeyt"
-    tools:context=".LicensesActivity">
+    tools:context=".LicensesActivity"
+    tools:ignore="Overdraw">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarLicenses"

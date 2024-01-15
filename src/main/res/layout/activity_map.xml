@@ -160,7 +160,8 @@
                     app:layout_constraintStart_toStartOf="@+id/btnClosePullup"
                     app:layout_constraintTop_toTopOf="@+id/btnClosePullup"
                     app:srcCompat="@drawable/roundbuttonring"
-                    app:tint="@color/backgroundPullup" />
+                    app:tint="@color/backgroundPullup"
+                    tools:ignore="UnusedAttribute" />
 
                 <ImageButton
                     android:id="@+id/btnClosePullup"

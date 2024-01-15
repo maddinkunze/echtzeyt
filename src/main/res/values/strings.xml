@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="appName" translatable="false">Echtzeyt</string>
     <string name="appVersion" translatable="false" />
     <string name="appNameSettings">Settings</string>
@@ -35,10 +35,9 @@
     <string name="btnLocateDescription">Locate me on the map</string>
     <string name="btnLikeDescription">Add this station to bookmarks</string>
     <string name="edtSearchTip">Enter station name…</string>
-    <string name="stringEmpty" translatable="false"> </string>
+    <string name="stringEmpty" translatable="false" tools:keep="@string/stringEmpty" />
     <string name="btnBookmarksDescription">Show bookmarks</string>
     <string name="btnSettingsDescription">Settings</string>
-    <string name="btnLicensesDescription">Licenses</string>
     <string name="btnDonateDescription">Support me</string>
     <string name="btnMessageDescription">Feedback</string>
     <string name="btnAnnouncementDescription">Announcement</string>

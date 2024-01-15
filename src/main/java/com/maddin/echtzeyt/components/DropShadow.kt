@@ -1,5 +1,6 @@
 package com.maddin.echtzeyt.components
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Resources
 import android.content.res.Resources.NotFoundException
@@ -329,6 +330,7 @@ class DropShadow(context: Context, private val attrs: AttributeSet?, private val
         bm.recycle()
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         return false
     }

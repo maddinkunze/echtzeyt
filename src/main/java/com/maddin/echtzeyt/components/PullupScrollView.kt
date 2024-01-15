@@ -72,6 +72,7 @@ class PullupScrollView(context: Context, private val attrs: AttributeSet?, priva
         mChildLayout.updatePadding(top=newPos)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(ev: MotionEvent?): Boolean {
         if (ev == null) { return super.onTouchEvent(null) }
         if (!mCanReceiveFocus) { return false }

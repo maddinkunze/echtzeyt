@@ -21,7 +21,7 @@
             android:paddingRight="@dimen/smallfloating_padding_text_x"
             android:paddingBottom="@dimen/smallfloating_padding_text_y"
             android:textColor="@color/foreground"
-            tools:ignore="TextContrastCheck" />
+            tools:ignore="LabelFor,TextContrastCheck" />
 
         <ImageButton
             android:id="@+id/flib_button"

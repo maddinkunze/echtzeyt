@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
         android:id="@+id/txtLineNumber"
@@ -8,7 +9,7 @@
         android:ellipsize="end"
         android:focusable="false"
         android:focusableInTouchMode="false"
-        android:fontFamily="@font/roboto"
+        app:fontFamily="@font/roboto"
         android:gravity="center_vertical|end"
         android:maxLines="1"
         android:textColor="@color/foreground"
@@ -25,7 +26,7 @@
         android:layout_marginRight="10dp"
         android:layout_weight="1"
         android:ellipsize="end"
-        android:fontFamily="@font/roboto"
+        app:fontFamily="@font/roboto"
         android:gravity="start|center_vertical"
         android:maxLines="1"
         android:textColor="@color/foreground"
@@ -37,7 +38,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ellipsize="end"
-        android:fontFamily="@font/roboto_mono"
+        app:fontFamily="@font/roboto_mono"
         android:gravity="top|end"
         android:maxLines="1"
         android:textColor="@color/foreground"
@@ -53,7 +54,7 @@
         android:layout_marginEnd="5dp"
         android:layout_marginRight="5dp"
         android:ellipsize="end"
-        android:fontFamily="@font/roboto_mono"
+        app:fontFamily="@font/roboto_mono"
         android:gravity="top|end"
         android:maxLines="1"
         android:textColor="@color/foreground"
@@ -66,7 +67,7 @@
         android:layout_marginEnd="5dp"
         android:layout_marginRight="5dp"
         android:ellipsize="end"
-        android:fontFamily="@font/roboto_mono"
+        app:fontFamily="@font/roboto_mono"
         android:gravity="top|end"
         android:maxLines="1"
         android:textColor="@color/foreground"

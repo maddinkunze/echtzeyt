@@ -24,7 +24,7 @@
             android:id="@+id/txtWidgetLineNumbers"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="right|end"
+            android:gravity="end"
             android:singleLine="false"
             android:textColor="@color/foregroundText"
             android:textSize="@dimen/widget_text_size" />
@@ -63,14 +63,15 @@
                 android:layout_alignParentRight="true"
                 android:importantForAccessibility="no"
                 android:src="@drawable/widget_linenames_fadingedge"
-                app:srcCompat="@drawable/widget_linenames_fadingedge" />
+                app:srcCompat="@drawable/widget_linenames_fadingedge"
+                tools:ignore="UnusedAttribute" />
         </RelativeLayout>
 
         <TextView
             android:id="@+id/txtWidgetTimesHours"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="right|end"
+            android:gravity="end"
             android:singleLine="false"
             android:textColor="@color/foregroundText"
             android:textSize="@dimen/widget_text_size" />
@@ -79,7 +80,7 @@
             android:id="@+id/txtWidgetTimesMinutes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="right|end"
+            android:gravity="end"
             android:singleLine="false"
             android:textColor="@color/foregroundText"
             android:textSize="@dimen/widget_text_size" />
@@ -88,7 +89,7 @@
             android:id="@+id/txtWidgetTimesSeconds"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="right|end"
+            android:gravity="end"
             android:singleLine="false"
             android:textColor="@color/foregroundText"
             android:textSize="@dimen/widget_text_size" />
@@ -109,7 +110,7 @@
         android:importantForAccessibility="no"
         android:src="@drawable/widget_foreground"
         app:srcCompat="@drawable/widget_foreground"
-        tools:ignore="VisualLintBounds" />
+        tools:ignore="UnusedAttribute,VisualLintBounds" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -140,7 +141,7 @@
             android:importantForAccessibility="no"
             android:src="@drawable/widget_bottom_fadingedge"
             app:srcCompat="@drawable/widget_bottom_fadingedge"
-            tools:ignore="ImageContrastCheck" />
+            tools:ignore="ImageContrastCheck,UnusedAttribute" />
     </LinearLayout>
 
     <RelativeLayout
@@ -159,7 +160,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/roboto"
+                app:fontFamily="@font/roboto"
                 android:singleLine="true"
                 android:text=" - "
                 android:textColor="@android:color/transparent"
@@ -182,7 +183,7 @@
                 android:layout_marginTop="@dimen/widget_toolbar_title_size"
                 android:layout_marginBottom="@dimen/widget_toolbar_text_size"
                 android:orientation="vertical"
-                tools:ignore="UselessLeaf"></LinearLayout>
+                tools:ignore="UselessLeaf" />
 
             <LinearLayout
                 android:id="@+id/layoutButtonWidgetReload"
@@ -263,7 +264,7 @@
             android:importantForAccessibility="no"
             android:src="@drawable/widget_toolbar_foreground"
             app:srcCompat="@drawable/widget_toolbar_foreground"
-            tools:ignore="VisualLintBounds" />
+            tools:ignore="UnusedAttribute,VisualLintBounds" />
 
         <LinearLayout
             android:id="@+id/layoutToolbarText"

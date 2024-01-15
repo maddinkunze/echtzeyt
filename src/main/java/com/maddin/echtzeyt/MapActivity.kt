@@ -37,6 +37,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.graphics.applyCanvas
 import androidx.core.location.LocationManagerCompat
+import androidx.core.net.ConnectivityManagerCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.updateLayoutParams
@@ -854,7 +855,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (connManager != null && connManager.activeNetwork == null) { return } // dont show if there is no active network
         }
-        if (connManager?.isActiveNetworkMetered != true) { return } // dont show the dialog when we are not on a metered connection
+        if (connManager != null && !ConnectivityManagerCompat.isActiveNetworkMetered(connManager)) { return } // dont show the dialog when we are not on a metered connection
 
         mAskForMobileDataCount--
         mAskForMobileDataNext = now + mAskForMobileDataAgainAfter

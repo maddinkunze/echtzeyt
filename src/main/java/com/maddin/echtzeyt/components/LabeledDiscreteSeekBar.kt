@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RoundRectShape
+import android.os.Build
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.widget.SeekBar
@@ -110,7 +111,12 @@ class LabeledDiscreteSeekBar(context: Context, attrs: AttributeSet?, defStyleAtt
         mBackground = ShapeDrawable(RoundRectShape(FloatArray(8) { thumbRadius }, null, null))
         mBackground.intrinsicHeight = trackHeight.roundToInt()
         mBackground.paint.color = trackColor
-        background = null
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            background = null
+        } else {
+            setBackgroundColor(Color.TRANSPARENT)
+        }
 
         recalculateThumbInternal()
     }
@@ -138,7 +144,11 @@ class LabeledDiscreteSeekBar(context: Context, attrs: AttributeSet?, defStyleAtt
 
         canvas.save()
         canvas.translate(mPaddingExternal[0].toFloat(), mPaddingExternal[1].toFloat())
-        thumb.draw(canvas)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            thumb.draw(canvas)
+        } else {
+            mThumb.draw(canvas)
+        }
 
         val mProgress = progress.coerceIn(0, mItems.size)
         var text = "Item ${mProgress+1}"
@@ -146,8 +156,9 @@ class LabeledDiscreteSeekBar(context: Context, attrs: AttributeSet?, defStyleAtt
             text = mItems[mProgress]
         }
 
-        val leftText = thumb.bounds.left + mPaddingThumb[0] + 0.5f * (thumb.intrinsicWidth - paintText.measureText(text) - mPaddingThumb[0] - mPaddingThumb[2])
-        val topText = thumb.bounds.top + mPaddingThumb[1] - paintText.fontMetrics.ascent
+        val thumbT = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) { thumb } else { mThumb }
+        val leftText = thumbT.bounds.left + mPaddingThumb[0] + 0.5f * (thumbT.intrinsicWidth - paintText.measureText(text) - mPaddingThumb[0] - mPaddingThumb[2])
+        val topText = thumbT.bounds.top + mPaddingThumb[1] - paintText.fontMetrics.ascent
         canvas.drawText(text, leftText, topText, paintText)
         canvas.restore()
     }
@@ -201,7 +212,12 @@ class LabeledDiscreteSeekBar(context: Context, attrs: AttributeSet?, defStyleAtt
         // Set the padding such that the thumb can never be hidden behind the edges of the device
         val paddingThumb = (width/2).toInt()
         setPaddingInternal(paddingThumb, 0, paddingThumb, 0, true)
-        invalidateDrawable(thumb)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            invalidateDrawable(thumb)
+        } else {
+            invalidateDrawable(mThumb)
+        }
     }
 
     private fun recalculateThumb() {

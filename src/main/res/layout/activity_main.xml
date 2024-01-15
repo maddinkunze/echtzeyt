@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:background="@color/background"
     android:theme="@style/Theme.Echtzeyt"
-    tools:context=".EchtzeytActivity" >
+    tools:context=".EchtzeytActivity"
+    tools:ignore="Overdraw">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -54,7 +55,7 @@
             android:layout_height="@dimen/button_size"
             android:layout_weight="1"
             android:background="@color/background"
-            android:fontFamily="@font/roboto"
+            app:fontFamily="@font/roboto"
             android:hint="@string/edtSearchTip"
             android:inputType="textNoSuggestions"
             android:maxLines="1"
@@ -418,7 +419,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="5dp"
-                android:fontFamily="@font/roboto"
+                app:fontFamily="@font/roboto"
                 android:gravity="center"
                 android:text="@string/txtBookmarksHeading"
                 android:textSize="18sp"
@@ -434,7 +435,7 @@
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="5dp"
                 android:alpha="0.5"
-                android:fontFamily="@font/roboto"
+                app:fontFamily="@font/roboto"
                 android:text="@string/txtBookmarksEmpty"
                 tools:ignore="TextContrastCheck" />
 

@@ -1,22 +1,13 @@
 package com.maddin.echtzeyt.components
 
-import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.Typeface
-import android.os.Build
-import android.text.TextUtils
 import android.util.AttributeSet
-import android.view.View
-import android.view.View.OnLayoutChangeListener
 import android.widget.TextView
-import androidx.core.animation.doOnCancel
-import androidx.core.animation.doOnEnd
-import androidx.core.view.children
+import androidx.core.view.ViewCompat
 import androidx.core.view.get
 import androidx.core.view.updatePadding
-import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import com.maddin.echtzeyt.R
 
 val TabLayout.Tab.textView: TextView
@@ -94,7 +85,7 @@ class MenuTabLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     override fun onTabSelected(tab: Tab?) {
         if (tab == null) { return }
         if (mLastAnimatedTabShow != tab) {
-            tab.textView.animate().alpha(mAlphaTextSelected).setDuration(120).withEndAction { mLastAnimatedTabShow = null }.start()
+            ViewCompat.animate(tab.textView).alpha(mAlphaTextSelected).setDuration(120).withEndAction { mLastAnimatedTabShow = null }.start()
             mLastAnimatedTabShow = tab
         }
         reinforceTabTypeface(tab, true)
@@ -103,7 +94,7 @@ class MenuTabLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     override fun onTabUnselected(tab: Tab?) {
         if (tab == null) { return }
         if (mLastAnimatedTabHide != tab) {
-            tab.textView.animate().alpha(mAlphaTextNormal).setDuration(80).withEndAction { mLastAnimatedTabHide = null }.start()
+            ViewCompat.animate(tab.textView).alpha(mAlphaTextNormal).setDuration(80).withEndAction { mLastAnimatedTabHide = null }.start()
             mLastAnimatedTabHide = tab
         }
         reinforceTabTypeface(tab, false)
