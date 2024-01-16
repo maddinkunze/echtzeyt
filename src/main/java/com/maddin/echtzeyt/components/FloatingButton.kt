@@ -14,9 +14,6 @@ class FloatingButton(context: Context, private val attrs: AttributeSet?, private
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context) : this(context, null)
 
-    // implementing member variables for DropShadowView
-    override val _this = this
-
     override val mShadow by lazy { DropShadow(context, attrs, defStyleAttr) }
     override var mShadowAttached = false
 
@@ -43,8 +40,8 @@ class FloatingButton(context: Context, private val attrs: AttributeSet?, private
         if (pT != paddingTop && pB != paddingBottom) { updatePadding(top=pT, bottom=pB) }
     }
 
-    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        super.onLayout(changed, left, top, right, bottom)
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
         addShadow()
     }
 

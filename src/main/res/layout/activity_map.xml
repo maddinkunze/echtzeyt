@@ -135,12 +135,8 @@
 
                     <ImageButton
                         android:id="@+id/btnPullupStationConfirm"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:background="@drawable/imagebutton_second"
+                        style="@style/Theme.Echtzeyt.Button"
                         android:contentDescription="@string/mapStationConfirm"
-                        android:padding="@dimen/button_padding"
-                        android:scaleType="centerInside"
                         app:srcCompat="@drawable/ic_check"
                         tools:ignore="TouchTargetSizeCheck,RedundantDescriptionCheck" />
                 </LinearLayout>
@@ -185,65 +181,26 @@
 
     <com.maddin.echtzeyt.components.FloatingButton
         android:id="@+id/btnLicensesBack"
-        android:layout_width="@dimen/bigfloating_size"
-        android:layout_height="@dimen/bigfloating_size"
-        android:layout_marginTop="@dimen/bigfloating_margin"
-        android:layout_marginStart="@dimen/bigfloating_margin"
-        android:layout_marginLeft="@dimen/bigfloating_margin"
-        android:background="@drawable/floatingbutton_second"
-        android:clickable="true"
+        style="@style/Theme.Echtzeyt.Button.Floating.Map"
         android:contentDescription="@string/mapBack"
-        android:focusable="true"
-        android:padding="@dimen/bigfloating_padding"
-        android:scaleType="fitCenter"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/fillerCutout"
-        app:radiusInner="@dimen/bigfloating_radius"
-        app:shadowColors="@array/shadow_colors"
-        app:shadowSize="@dimen/shadow_size"
-        app:shadowStops="@array/shadow_stops"
         app:srcCompat="@drawable/ic_back" />
 
     <com.maddin.echtzeyt.components.FloatingButton
         android:id="@+id/btnMapLocate"
-        android:layout_width="@dimen/bigfloating_size"
-        android:layout_height="@dimen/bigfloating_size"
-        android:layout_marginTop="@dimen/bigfloating_margin"
-        android:layout_marginEnd="@dimen/bigfloating_margin"
-        android:layout_marginRight="@dimen/bigfloating_margin"
-        android:background="@drawable/floatingbutton_second"
-        android:clickable="true"
+        style="@style/Theme.Echtzeyt.Button.Floating.Map"
         android:contentDescription="@string/btnLocateDescription"
-        android:focusable="true"
-        android:padding="@dimen/bigfloating_padding"
-        android:scaleType="fitCenter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/fillerCutout"
-        app:radiusInner="@dimen/bigfloating_radius"
-        app:shadowColors="@array/shadow_colors"
-        app:shadowSize="@dimen/shadow_size"
-        app:shadowStops="@array/shadow_stops"
         app:srcCompat="@drawable/ic_locate" />
 
     <com.maddin.echtzeyt.components.FloatingButton
         android:id="@+id/btnMapHideMarkers"
-        android:layout_width="@dimen/bigfloating_size"
-        android:layout_height="@dimen/bigfloating_size"
-        android:layout_marginTop="@dimen/bigfloating_margin"
-        android:layout_marginEnd="@dimen/bigfloating_margin"
-        android:layout_marginRight="@dimen/bigfloating_margin"
-        android:background="@drawable/floatingbutton_second"
-        android:clickable="true"
+        style="@style/Theme.Echtzeyt.Button.Floating.Map"
         android:contentDescription="@string/btnLocateDescription"
-        android:focusable="true"
-        android:padding="@dimen/bigfloating_padding"
-        android:scaleType="fitCenter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnMapLocate"
-        app:radiusInner="@dimen/bigfloating_radius"
-        app:shadowColors="@array/shadow_colors"
-        app:shadowSize="@dimen/shadow_size"
-        app:shadowStops="@array/shadow_stops"
         app:srcCompat="@drawable/ic_stationmark_visible"
         app:offsetIconY="0.04" />
 

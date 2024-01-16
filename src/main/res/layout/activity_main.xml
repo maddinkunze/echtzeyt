@@ -9,21 +9,53 @@
     tools:context=".EchtzeytActivity"
     tools:ignore="Overdraw">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+    <Space
+        android:id="@+id/spaceToolbarMain"
+        android:layout_height="@dimen/toolbar_radius"
+        android:layout_width="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/toolbarMain" />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/fragmentsMain"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/spaceToolbarMain" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/toolbarMain"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/toolbar"
-        android:minHeight="@dimen/toolbar_height"
-        android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:title="@string/appName"
-        app:titleMarginStart="6dp"
-        app:titleTextColor="?attr/colorSecondary" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <LinearLayout
+        <com.maddin.echtzeyt.components.MenuTabLayout
+            android:id="@+id/menutabsMain"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/Theme.Echtzeyt.TabLayout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar"
+            tools:ignore="SpeakableTextPresentCheck" />
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:title="@string/appName"
+            style="@style/Theme.Echtzeyt.Toolbar" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!--LinearLayout
         android:id="@+id/focusableLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -113,7 +145,7 @@
             app:srcCompat="@drawable/ic_search"
             tools:ignore="TouchTargetSizeCheck" />
 
-    </LinearLayout>
+    </LinearLayout-->
 
     <!--Spinner
         android:id="@+id/spinnerSearch"
@@ -126,7 +158,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" /-->
 
-    <View
+    <!--View
         android:id="@+id/dividerSearch"
         android:layout_width="0dp"
         android:layout_height="1dp"
@@ -156,7 +188,7 @@
         app:layout_constraintBottom_toTopOf="@+id/txtLastUpdated"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dividerSearch">
+        app:layout_constraintTop_toBottomOf="@+id/dividerSearch"-->
 
         <!--androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layoutScroll"
@@ -264,7 +296,7 @@
                 app:layout_constraintWidth_min="20dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout-->
-        <LinearLayout
+        <!--LinearLayout
             android:id="@+id/layoutScroll"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -288,18 +320,22 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="TextContrastCheck" />
+        tools:ignore="TextContrastCheck" /-->
 
     <com.maddin.echtzeyt.components.FloatingConstraintLayout
         android:id="@+id/notificationWindow"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginStart="@dimen/notification_margin_x"
+        android:layout_marginLeft="@dimen/notification_margin_x"
+        android:layout_marginEnd="@dimen/notification_margin_x"
+        android:layout_marginRight="@dimen/notification_margin_x"
+        android:layout_marginBottom="@dimen/notification_margin_y"
         android:background="@drawable/notification"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/btnMenu"
-        app:layout_constraintEnd_toEndOf="@id/btnMenu"
-        app:layout_constraintStart_toStartOf="@id/btnBookmarks"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:radiusInner="@dimen/pullup_radius"
         app:shadowColors="@array/shadow_colors"
         app:shadowSize="@dimen/shadow_size_small"
@@ -368,7 +404,7 @@
 
     </com.maddin.echtzeyt.components.FloatingConstraintLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <!--androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layoutBookmarks"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -480,99 +516,60 @@
         app:shadowSize="@dimen/shadow_size"
         app:shadowStops="@array/shadow_stops"
         app:shadowBelow="@+id/layoutBookmarks"
-        app:srcCompat="@drawable/ic_bookmark" />
+        app:srcCompat="@drawable/ic_bookmark" /-->
 
     <com.maddin.echtzeyt.components.FloatingButton
         android:id="@+id/btnMenu"
-        android:layout_width="@dimen/bigfloating_size"
-        android:layout_height="@dimen/bigfloating_size"
-        android:layout_marginEnd="@dimen/bigfloating_margin"
-        android:layout_marginRight="@dimen/bigfloating_margin"
-        android:layout_marginBottom="@dimen/bigfloating_margin"
-        android:background="@drawable/floatingbutton"
-        android:clickable="true"
+        style="@style/Theme.Echtzeyt.Button.Floating"
         android:contentDescription="@string/btnMenuDescription"
-        android:focusable="true"
-        android:padding="@dimen/bigfloating_padding"
-        android:scaleType="fitCenter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:radiusInner="@dimen/bigfloating_radius"
-        app:shadowColors="@array/shadow_colors"
-        app:shadowSize="@dimen/shadow_size"
-        app:shadowStops="@array/shadow_stops"
         app:srcCompat="@drawable/ic_menu" />
 
     <com.maddin.echtzeyt.components.FloatingInfoButton
         android:id="@+id/btnSettings"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/smallfloating_margin_side"
-        android:layout_marginRight="@dimen/smallfloating_margin_side"
-        android:layout_marginBottom="@dimen/smallfloating_margin_bottom"
+        style="@style/Theme.Echtzeyt.Button.Floating.Info"
         android:visibility="gone"
         app:icon="@drawable/ic_settings"
         app:layout_constraintBottom_toTopOf="@+id/btnMenu"
         app:layout_constraintEnd_toEndOf="parent"
-        app:radiusInner="@dimen/bigfloating_radius"
         app:shadowBelow="@id/btnMenu"
-        app:shadowColors="@array/shadow_colors"
-        app:shadowSize="@dimen/shadow_size_small"
-        app:shadowStops="@array/shadow_stops"
         app:text="@string/btnSettingsDescription" />
 
     <com.maddin.echtzeyt.components.FloatingInfoButton
         android:id="@+id/btnDonate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        style="@style/Theme.Echtzeyt.Button.Floating.Info"
         android:layout_marginEnd="@dimen/smallfloating_margin_side"
         android:layout_marginRight="@dimen/smallfloating_margin_side"
-        android:layout_marginBottom="@dimen/smallfloating_margin_bottom"
         android:visibility="gone"
         app:icon="@drawable/ic_donate"
         app:layout_constraintBottom_toTopOf="@+id/btnSettings"
         app:layout_constraintEnd_toEndOf="parent"
-        app:radiusInner="@dimen/bigfloating_radius"
         app:shadowBelow="@id/btnMenu"
-        app:shadowColors="@array/shadow_colors"
-        app:shadowSize="@dimen/shadow_size_small"
-        app:shadowStops="@array/shadow_stops"
         app:text="@string/btnDonateDescription" />
 
     <com.maddin.echtzeyt.components.FloatingInfoButton
         android:id="@+id/btnMessage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/smallfloating_margin_side"
         android:layout_marginRight="@dimen/smallfloating_margin_side"
-        android:layout_marginBottom="@dimen/smallfloating_margin_bottom"
         android:visibility="gone"
+        style="@style/Theme.Echtzeyt.Button.Floating.Info"
         app:icon="@drawable/ic_message"
         app:layout_constraintBottom_toTopOf="@+id/btnDonate"
         app:layout_constraintEnd_toEndOf="parent"
-        app:radiusInner="@dimen/bigfloating_radius"
         app:shadowBelow="@id/btnMenu"
-        app:shadowColors="@array/shadow_colors"
-        app:shadowSize="@dimen/shadow_size_small"
-        app:shadowStops="@array/shadow_stops"
         app:text="@string/btnMessageDescription" />
 
     <com.maddin.echtzeyt.components.FloatingInfoButton
         android:id="@+id/btnAnnouncement"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/smallfloating_margin_side"
         android:layout_marginRight="@dimen/smallfloating_margin_side"
-        android:layout_marginBottom="@dimen/smallfloating_margin_bottom"
         android:visibility="gone"
+        style="@style/Theme.Echtzeyt.Button.Floating.Info"
         app:icon="@drawable/ic_announcement"
         app:layout_constraintBottom_toTopOf="@+id/btnMessage"
         app:layout_constraintEnd_toEndOf="parent"
-        app:radiusInner="@dimen/bigfloating_radius"
         app:shadowBelow="@id/btnMenu"
-        app:shadowColors="@array/shadow_colors"
-        app:shadowSize="@dimen/shadow_size_small"
-        app:shadowStops="@array/shadow_stops"
         app:text="@string/btnAnnouncementDescription" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:paddingTop="@dimen/toolbar_radius">
+
+    <LinearLayout
+        android:id="@+id/focusableLayout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/layoutSearchbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/layout_padding"
+        android:layout_marginLeft="@dimen/layout_padding"
+        android:layout_marginTop="@dimen/layout_padding"
+        android:layout_marginEnd="@dimen/layout_padding"
+        android:layout_marginRight="@dimen/layout_padding"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.maddin.echtzeyt.components.InstantAutoCompleteTextView
+            android:id="@+id/edtSearch"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/button_size"
+            android:layout_weight="1"
+            android:background="@color/background"
+            android:hint="@string/edtSearchTip"
+            android:inputType="textNoSuggestions"
+            android:maxLines="1"
+            android:padding="0dp"
+            android:paddingStart="5dp"
+            android:paddingLeft="5dp"
+            android:paddingTop="0dp"
+            android:paddingEnd="0dp"
+            android:paddingRight="0dp"
+            android:paddingBottom="0dp"
+            android:singleLine="true"
+            android:textColor="@color/foreground"
+            android:textColorHint="@color/foregroundHint"
+            android:textCursorDrawable="@null"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:fontFamily="@font/roboto"
+            tools:ignore="TextContrastCheck,TouchTargetSizeCheck,VisualLintTextFieldSize" />
+
+        <ImageButton
+            android:id="@+id/btnLike"
+            android:layout_width="@dimen/button_size"
+            android:layout_height="@dimen/button_size"
+            android:layout_marginStart="@dimen/button_margin"
+            android:layout_marginLeft="@dimen/button_margin"
+            android:background="@drawable/imagebutton"
+            android:contentDescription="@string/btnLikeDescription"
+            android:padding="@dimen/button_padding"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_star"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <ImageButton
+            android:id="@+id/btnMap"
+            android:layout_width="@dimen/button_size"
+            android:layout_height="@dimen/button_size"
+            android:layout_marginStart="@dimen/button_margin"
+            android:layout_marginLeft="@dimen/button_margin"
+            android:background="@drawable/imagebutton"
+            android:contentDescription="@string/btnSearchOnMapDescription"
+            android:padding="@dimen/button_padding"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_map"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <ImageButton
+            android:id="@+id/btnSearch"
+            android:layout_width="@dimen/button_size"
+            android:layout_height="@dimen/button_size"
+            android:layout_marginStart="@dimen/button_margin"
+            android:layout_marginLeft="@dimen/button_margin"
+            android:background="@drawable/imagebutton"
+            android:contentDescription="@string/btnSearchDescription"
+            android:padding="@dimen/button_padding"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_search"
+            tools:ignore="TouchTargetSizeCheck" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/dividerSearch"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:alpha="0.4"
+        android:background="@color/foreground"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layoutSearchbar" />
+
+    <TextView
+        android:id="@+id/txtEmpty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/updateEmpty"
+        android:textColor="@color/foregroundText"
+        android:textSize="@dimen/realtimeinfo_textsize"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/scrollLayoutScroll" />
+
+    <com.maddin.echtzeyt.components.BottomFadeEdgeScrollView
+        android:id="@+id/scrollLayoutScroll"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="14dp"
+        android:fadingEdgeLength="32dp"
+        android:requiresFadingEdge="vertical"
+        android:scrollbars="none"
+        app:layout_constraintBottom_toTopOf="@+id/txtLastUpdated"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dividerSearch">
+
+        <LinearLayout
+            android:id="@+id/layoutScroll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="2dp"
+            android:paddingBottom="44dp" />
+    </com.maddin.echtzeyt.components.BottomFadeEdgeScrollView>
+
+    <TextView
+        android:id="@+id/txtLastUpdated"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
+        android:alpha="0.4"
+        android:text="@string/updateNotYet"
+        android:textColor="@color/error"
+        android:textSize="11sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="TextContrastCheck" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutBookmarks"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/btnBookmarks"
+        app:layout_constraintStart_toStartOf="@+id/btnBookmarks"
+        tools:visibility="visible">
+
+        <Space
+            android:id="@+id/bookmarksFillerSpace"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/bigfloating_size"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <View
+            android:id="@+id/bookmarksFillerMain"
+            android:layout_width="@dimen/bigfloating_size"
+            android:layout_height="@dimen/bigfloating_radius"
+            android:background="@color/backgroundButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/bookmarksFillerSpace" />
+
+        <View
+            android:layout_width="@dimen/bigfloating_radius"
+            android:layout_height="@dimen/bigfloating_radius"
+            android:background="@drawable/innerradius"
+            app:layout_constraintStart_toEndOf="@+id/bookmarksFillerMain"
+            app:layout_constraintTop_toTopOf="@+id/bookmarksFillerMain" />
+
+        <LinearLayout
+            android:id="@+id/bookmarksItemsLayout"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bookmarks"
+            android:orientation="vertical"
+            android:paddingBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/bookmarksFillerMain"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_max="300dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="TextSizeCheck">
+
+            <TextView
+                android:id="@+id/bookmarksHeading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="5dp"
+                android:gravity="center"
+                android:text="@string/txtBookmarksHeading"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:fontFamily="@font/roboto" />
+
+            <TextView
+                android:id="@+id/bookmarksEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="5dp"
+                android:alpha="0.5"
+                android:text="@string/txtBookmarksEmpty"
+                app:fontFamily="@font/roboto"
+                tools:ignore="TextContrastCheck" />
+
+            <ScrollView
+                android:id="@+id/bookmarksItemsScroll"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:contentDescription="@string/txtBookmarksHeading"
+                android:fadingEdge="vertical"
+                android:fadingEdgeLength="10dp"
+                android:minHeight="200dp"
+                android:requiresFadingEdge="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/bookmarksItems"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </ScrollView>
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.maddin.echtzeyt.components.FloatingButton
+        android:id="@+id/btnBookmarks"
+        style="@style/Theme.Echtzeyt.Button.Floating"
+        android:contentDescription="@string/btnBookmarksDescription"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/ic_bookmark" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

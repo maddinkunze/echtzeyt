@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Theme.Echtzeyt" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
@@ -10,33 +10,97 @@
         <item name="colorSecondary">@color/background</item>
         <item name="colorSecondaryVariant">@color/background</item>
         <item name="colorOnSecondary">@color/background</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="lollipop">@color/foreground</item>
+        <!-- Customize your theme here. -->
+        <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
 
     <style name="Theme.Echtzeyt.AlertDialog" parent="ThemeOverlay.AppCompat.Dialog.Alert">
-        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
-        <item name="buttonBarNeutralButtonStyle">@style/NeutralButtonStyle</item>
-        <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Theme.Echtzeyt.AlertDialog.PositiveButtonStyle</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Theme.Echtzeyt.AlertDialog.NeutralButtonStyle</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Theme.Echtzeyt.AlertDialog.NegativeButtonStyle</item>
         <item name="android:textColor">@color/foreground</item>
         <item name="android:textColorPrimary">@color/foregroundText</item>
     </style>
-    <style name="PositiveButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+    <style name="Theme.Echtzeyt.AlertDialog.PositiveButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
         <item name="android:textColor">@color/foreground</item>
     </style>
-    <style name="NeutralButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+    <style name="Theme.Echtzeyt.AlertDialog.NeutralButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
         <item name="android:textColor">@color/foreground</item>
     </style>
-    <style name="NegativeButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+    <style name="Theme.Echtzeyt.AlertDialog.NegativeButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
         <item name="android:textColor">@color/foreground</item>
     </style>
 
+    <style name="Theme.Echtzeyt.Toolbar" parent="Widget.AppCompat.Toolbar">
+        <item name="android:minHeight">@dimen/toolbar_height</item>
+        <item name="android:theme">?attr/actionBarTheme</item>
+        <item name="titleMarginStart">6dp</item>
+        <item name="titleTextColor">?attr/colorSecondary</item>
+    </style>
+
+    <style name="Theme.Echtzeyt.Button">
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:background">@drawable/imagebutton_second</item>
+        <item name="android:padding">@dimen/button_padding</item>
+        <item name="android:scaleType">centerInside</item>
+    </style>
+
+    <style name="Theme.Echtzeyt.Button.Floating" parent="Widget.AppCompat.ImageButton">
+        <item name="android:layout_width">@dimen/bigfloating_size</item>
+        <item name="android:layout_height">@dimen/bigfloating_size</item>
+        <item name="android:layout_margin">@dimen/bigfloating_margin</item>
+        <item name="android:background">@drawable/floatingbutton</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:padding">@dimen/bigfloating_padding</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="radiusInner">@dimen/bigfloating_radius</item>
+        <item name="shadowBelow">@+id/layoutBookmarks</item>
+        <item name="shadowColors">@array/shadow_colors</item>
+        <item name="shadowSize">@dimen/shadow_size</item>
+        <item name="shadowStops">@array/shadow_stops</item>
+    </style>
+
+    <style name="Theme.Echtzeyt.Button.Floating.Map">
+        <item name="android:background">@drawable/floatingbutton_second</item>
+    </style>
+
+    <style name="Theme.Echtzeyt.Button.Floating.Info" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">@dimen/smallfloating_margin_bottom</item>
+        <item name="android:layout_marginEnd">@dimen/smallfloating_margin_side</item>
+        <item name="android:layout_marginRight">@dimen/smallfloating_margin_side</item>
+        <item name="radiusInner">@dimen/bigfloating_radius</item>
+        <item name="shadowColors">@array/shadow_colors</item>
+        <item name="shadowSize">@dimen/shadow_size_small</item>
+        <item name="shadowStops">@array/shadow_stops</item>
+    </style>
+
     <style name="Theme.Echtzeyt.TabLayout" parent="Widget.Design.TabLayout">
-        <item name="android:textStyle">bold</item>
+        <item name="tabTextAppearance">@style/Theme.Echtzeyt.TabLayout.Tab</item>
+        <item name="paddingContent">@dimen/toolbar_radius</item>
+        <item name="android:layout_marginTop">-12dp</item>
+        <item name="android:background">@color/transparent</item>
+        <item name="tabBackground">@color/transparent</item>
+        <item name="tabGravity">center</item>
+        <item name="tabIndicatorAnimationMode">elastic</item>
+        <item name="tabIndicatorColor">@color/background</item>
+        <item name="tabIndicatorGravity">bottom</item>
+        <item name="tabIndicatorHeight">4dp</item>
+        <item name="tabMode">auto</item>
+        <item name="android:fadingEdge">horizontal</item>
+        <item name="android:fadingEdgeLength">40dp</item>
+        <item name="android:requiresFadingEdge">horizontal</item>
     </style>
     <style name="Theme.Echtzeyt.TabLayout.Tab" parent="TextAppearance.Design.Tab">
+        <item name="textAllCaps">false</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">16sp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:singleLine">true</item>
         <item name="android:textColor">?attr/colorSecondary</item>
+        <item name="android:paddingLeft">40dp</item>
     </style>
 </resources>

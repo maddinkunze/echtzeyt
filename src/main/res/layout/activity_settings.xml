@@ -33,30 +33,12 @@
 
         <com.maddin.echtzeyt.components.MenuTabLayout
             android:id="@+id/tabLayoutSettingsMenu"
-            style="@style/Theme.Echtzeyt.TabLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="-12dp"
-            android:background="@color/transparent"
-            android:fadingEdge="horizontal"
-            android:fadingEdgeLength="40dp"
-            android:requiresFadingEdge="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/toolbarSettings"
-            app:paddingContent="@dimen/toolbar_radius"
-            app:tabBackground="@color/transparent"
-            app:tabGravity="center"
-            app:tabIndicatorAnimationMode="elastic"
-            app:tabIndicatorColor="@color/background"
-            app:tabIndicatorGravity="bottom"
-            app:tabIndicatorHeight="4dp"
-            app:tabMinWidth="0dp"
-            app:tabMode="auto"
-            app:tabPaddingEnd="20dp"
-            app:tabPaddingStart="20dp"
-            app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget"
-            app:tabTextColor="?attr/colorSecondary"
+            style="@style/Theme.Echtzeyt.TabLayout"
             tools:ignore="SpeakableTextPresentCheck" />
 
         <androidx.appcompat.widget.Toolbar
@@ -66,31 +48,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:minHeight="@dimen/toolbar_height"
-            android:theme="?attr/actionBarTheme"
             app:title="@string/appNameSettings"
-            app:titleMarginStart="6dp"
-            app:titleTextColor="?attr/colorSecondary" />
+            style="@style/Theme.Echtzeyt.Toolbar" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.maddin.echtzeyt.components.FloatingButton
         android:id="@+id/btnSettingsSave"
-        android:layout_width="@dimen/bigfloating_size"
-        android:layout_height="@dimen/bigfloating_size"
-        android:layout_marginEnd="@dimen/bigfloating_margin"
-        android:layout_marginRight="@dimen/bigfloating_margin"
-        android:layout_marginBottom="@dimen/bigfloating_margin"
-        android:background="@drawable/floatingbutton"
+        style="@style/Theme.Echtzeyt.Button.Floating"
         android:contentDescription="@string/btnSettingsDescription"
-        android:padding="@dimen/bigfloating_padding"
-        android:scaleType="fitCenter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_check"
-        app:radiusInner="@dimen/bigfloating_radius"
-        app:shadowColors="@array/shadow_colors"
-        app:shadowSize="@dimen/shadow_size"
-        app:shadowStops="@array/shadow_stops"
         tools:ignore="DuplicateSpeakableTextCheck" />
 
     <Space

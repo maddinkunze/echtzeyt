@@ -12,9 +12,7 @@ import androidx.fragment.app.Fragment
 import com.maddin.echtzeyt.R
 import com.maddin.echtzeyt.fragments.NamedFragment
 
-class AboutSettingsFragment : Fragment(R.layout.fragment_settings_about), NamedFragment {
-    override val titleResource = R.string.menuSettingsAbout
-
+class AboutSettingsFragment : Fragment(R.layout.fragment_settings_about) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 

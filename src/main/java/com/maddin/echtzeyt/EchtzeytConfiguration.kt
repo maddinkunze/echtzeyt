@@ -4,6 +4,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.maddin.echtzeyt.fragments.NamedFragment
+import com.maddin.echtzeyt.fragments.echtzeyt.RealtimeFragment
+import com.maddin.echtzeyt.fragments.echtzeyt.TripsFragment
 import com.maddin.echtzeyt.fragments.settings.AboutSettingsFragment
 import com.maddin.echtzeyt.fragments.settings.GeneralSettingsFragment
 import com.maddin.echtzeyt.fragments.settings.MapSettingsFragment
@@ -16,9 +19,10 @@ import com.maddin.transportapi.SearchStationAPI
 import com.maddin.transportapi.StationAPI
 
 var ECHTZEYT_CONFIGURATION = EchtzeytConfiguration()
-val ECHTZEYT_LOG_TAG = "Echtzeyt.LOG"
+const val ECHTZEYT_LOG_TAG = "Echtzeyt.LOG"
 
-open class EchtzeytConfiguration {
+@Suppress("MemberVisibilityCanBePrivate")
+class EchtzeytConfiguration {
     constructor()
     constructor(api: Any?) {
         load(api)
@@ -28,14 +32,16 @@ open class EchtzeytConfiguration {
     var activitySettings: Class<out SettingsActivity> by LazyMutable { SettingsActivity::class.java }
     var activityMap: Class<out MapActivity> by LazyMutable { MapActivity::class.java }
 
-    var generalSettingsFragment: Fragment by LazyMutable { GeneralSettingsFragment() }
-    var aboutSettingsFragment: Fragment by LazyMutable { AboutSettingsFragment() }
+    var generalSettingsFragment: Class<out Fragment> by LazyMutable { GeneralSettingsFragment::class.java }
+    var aboutSettingsFragment: Class<out Fragment> by LazyMutable { AboutSettingsFragment::class.java }
+
     private lateinit var mPreferences: SharedPreferences
 
     var realtimeStationAPI: SearchStationAPI? = null
     var realtimeRealtimeAPI: RealtimeAPI? = null
     var realtimeSupport = false
-    var realtimeSettingsFragment: Fragment? by LazyMutable { if (!realtimeSupport) { return@LazyMutable null }; RealtimeSettingsFragment() }
+    var realtimeFragment by LazyMutable { if (realtimeSupport) RealtimeFragment::class.java else null }
+    var realtimeSettingsFragment by LazyMutable { if (realtimeSupport) RealtimeSettingsFragment::class.java else null }
 
     var widgetRealtimeStationAPI: SearchStationAPI? = null
     var widgetRealtimeRealtimeAPI: RealtimeAPI? = null
@@ -45,14 +51,31 @@ open class EchtzeytConfiguration {
     var mapsStationAPI: LocationStationAPI? = null
     var mapsSupport = true
     var mapsSupportLocateStations = false
-    var mapsSettingsFragment: Fragment? by LazyMutable { if (!mapsSupport) { return@LazyMutable null }; MapSettingsFragment() }
+    var mapsSettingsFragment by LazyMutable { if (mapsSupport) MapSettingsFragment::class.java else null }
 
     var tripsStationAPI: StationAPI? = null
     var tripSupport = false
-    var tripSettingsFragment: Fragment? by LazyMutable { if (!tripSupport) { return@LazyMutable null }; TripSettingsFragment() }
+    var tripFragment by LazyMutable { if (tripSupport || true) TripsFragment::class.java else null }
+    var tripSettingsFragment by LazyMutable { if (tripSupport) TripSettingsFragment::class.java else null }
+
+    var customFragmentsView = mutableListOf<NamedFragment>()
+    var customFragmentsSettings = mutableListOf<NamedFragment>()
+
+    val fragmentsView by lazy { listOfNotNull(
+        realtimeFragment?.let { NamedFragment(R.string.menuSettingsRealtime, it) },
+        tripFragment?.let { NamedFragment(R.string.menuSettingsTrips, it) }
+    ).plus(customFragmentsView) }
+
+    val fragmentsSettings by lazy { listOfNotNull(
+        NamedFragment(R.string.menuSettingsGeneral, generalSettingsFragment),
+        realtimeSettingsFragment?.let { NamedFragment(R.string.menuSettingsRealtime, it) },
+        tripSettingsFragment?.let { NamedFragment(R.string.menuSettingsTrips, it) },
+        mapsSettingsFragment?.let { NamedFragment(R.string.menuSettingsMap, it) }
+    ).plus(customFragmentsSettings)
+     .plus(NamedFragment(R.string.menuSettingsAbout, aboutSettingsFragment)) } // the about settings fragment should always come last
 
     var isLoaded = false
-        protected set
+        private set
 
     fun load(api: Any?) {
         isLoaded = true

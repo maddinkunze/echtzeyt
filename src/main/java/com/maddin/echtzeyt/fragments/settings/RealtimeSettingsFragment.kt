@@ -7,7 +7,6 @@ import com.maddin.echtzeyt.R
 import com.maddin.echtzeyt.components.LabeledDiscreteSeekBar
 
 class RealtimeSettingsFragment : SettingsFragment(R.layout.fragment_settings_realtime) {
-    override val titleResource = R.string.menuSettingsRealtime
     override lateinit var settings: Array<SettingsProperty>
 
     override fun onLoadSettings(view: View, context: Context, savedInstanceState: Bundle?) {

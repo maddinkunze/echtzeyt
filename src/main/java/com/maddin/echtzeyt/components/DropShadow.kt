@@ -14,11 +14,13 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.RadialGradient
 import android.graphics.Shader
+import android.os.Build
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.ArrayRes
+import androidx.annotation.RequiresApi
 import androidx.annotation.StyleableRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
@@ -30,6 +32,7 @@ import androidx.core.view.marginBottom
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
 import androidx.core.view.marginTop
+import com.maddin.echtzeyt.BuildConfig
 import com.maddin.echtzeyt.R
 import com.maddin.echtzeyt.randomcode.applyRandomId
 
@@ -140,10 +143,28 @@ fun Resources.getShadowColors(@ArrayRes colorsRes: Int, @ArrayRes stopsRes: Int)
     return zipStopsAndColors(colors, stops)
 }
 
+// workaround for weird bug where the app would crash when started with dev setting "view attributes" on
+// on creating the DropShadow, the view constructor would be called which in term would call
+// retrieveExplicitStyle() which would call theme.getExplicitStyle(), resulting in a NPE
+// by not passing the attributeset onto the view (but instead null) we can circumvent this behaviour
+// https://medium.com/@debuggingisfun/retrieveexplicitstyle-android-10-crash-cef9bced1d01
+private val workaroundSetAttrsNull = BuildConfig.DEBUG
+
 @Suppress("unused")
-class DropShadow(context: Context, private val attrs: AttributeSet?, private val defStyleAttr: Int) : View(context, attrs, defStyleAttr) {
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
-    constructor(context: Context) : this(context, null)
+class DropShadow : View {
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : super(context, if (workaroundSetAttrsNull) null else attrs, defStyleAttr, defStyleRes) {
+        getAttributes(attrs, defStyleAttr, defStyleRes)
+    }
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, if (workaroundSetAttrsNull) null else attrs, defStyleAttr) {
+        getAttributes(attrs, defStyleAttr)
+    }
+    constructor(context: Context, attrs: AttributeSet?) : super(context, if (workaroundSetAttrsNull) null else attrs) {
+        getAttributes(attrs)
+    }
+    constructor(context: Context) : super(context) {
+        getAttributes()
+    }
 
     companion object {
         private val colorStopsDefault = mapOf(Pair(0f, Color.argb(24, 0, 0, 0)), Pair(1f, Color.TRANSPARENT))
@@ -162,12 +183,8 @@ class DropShadow(context: Context, private val attrs: AttributeSet?, private val
 
     private var mInitialized = false
 
-    init {
-        getAttributes()
-    }
-
-    private fun getAttributes() {
-        val styledAttr = context.theme.obtainStyledAttributes(attrs, R.styleable.DropShadow, defStyleAttr, 0)
+    private fun getAttributes(attrs: AttributeSet?=null, defStyleAttr: Int=0, defStyleRes: Int=0) {
+        val styledAttr = context.theme.obtainStyledAttributes(attrs, R.styleable.DropShadow, defStyleAttr, defStyleRes)
         try {
             mShadowSize = styledAttr.getDimensionPixelSize(R.styleable.DropShadow_shadowSize, mShadowSize)
             mRadiusOriginal = styledAttr.getDimensionPixelSize(R.styleable.DropShadow_radiusInner, mRadiusOriginal)
@@ -334,17 +351,16 @@ class DropShadow(context: Context, private val attrs: AttributeSet?, private val
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         return false
     }
+
+    override fun getExplicitStyle(): Int {
+
+        return super.getExplicitStyle()
+    }
 }
 
-
-// Default Implementation for extending Views to have a DropShadow
-
-interface ViewAsInterface {
-    val _this: View
-}
 
 // all of those attributes should be protected, but kotlin currently does not (fully) support protected members on interfaces
-interface DropShadowView : ViewAsInterface {
+interface DropShadowView {
     val mShadow: DropShadow
     var mShadowAttached: Boolean
 
@@ -356,11 +372,12 @@ interface DropShadowView : ViewAsInterface {
     var mShadowAboveIndex: Int
 
     fun readAttributes(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) {
+        this as View  // assert that we are implemented on a view
         val styledAttr = context.theme.obtainStyledAttributes(attrs, R.styleable.DropShadowView, defStyleAttr, defStyleRes)
         try {
             mShadowSize = styledAttr.getDimensionPixelSize(R.styleable.DropShadowView_shadowSize, mShadowSize)
             mRadiusInner = styledAttr.getDimensionPixelSize(R.styleable.DropShadowView_radiusInner, mRadiusInner)
-            mColorStops = styledAttr.getShadowColors(R.styleable.DropShadowView_shadowColors, R.styleable.DropShadowView_shadowStops, _this.resources) ?: mColorStops
+            mColorStops = styledAttr.getShadowColors(R.styleable.DropShadowView_shadowColors, R.styleable.DropShadowView_shadowStops, resources) ?: mColorStops
 
             mShadowBelow = styledAttr.getResourceId(R.styleable.DropShadowView_shadowBelow, mShadowBelow)
             mShadowAboveIndex = styledAttr.getInteger(R.styleable.DropShadowView_shadowAboveIndex, mShadowAboveIndex)
@@ -371,10 +388,12 @@ interface DropShadowView : ViewAsInterface {
 
     // should be called in (overridden) onLayout in the view this is implemented on
     fun addShadow() {
+        this as View  // assert that we are implemented on a view
+        if (isInEditMode) { return }
         if (mShadowAttached) { return }
         if (mShadowSize <= 0) { return }
 
-        val layout = _this.parent as ViewGroup
+        val layout = parent as ViewGroup
         if (layout.children.contains(mShadow)) { return }
 
         mShadow.applyRandomId()
@@ -383,22 +402,23 @@ interface DropShadowView : ViewAsInterface {
         mColorStops?.let { mShadow.setColorStops(it) }
 
         var belowView = layout.children.find { it.id == mShadowBelow }
-        if (belowView == null) { belowView = _this }
+        if (belowView == null) { belowView = this }
         var index = layout.children.indexOf(belowView)
         index = (index+mShadowAboveIndex).coerceAtLeast(0).coerceAtMost(layout.children.count())
 
-        layout.addView(mShadow, index)
+        post {
+            layout.addView(mShadow, index)
 
-        if (layout !is ConstraintLayout) { return }
+            if (layout !is ConstraintLayout) { return@post }
 
-        val constraints = ConstraintSet()
-        constraints.clone(layout)
-        constraints.connect(mShadow.id, ConstraintSet.LEFT, _this.id, ConstraintSet.LEFT)
-        constraints.connect(mShadow.id, ConstraintSet.TOP, _this.id, ConstraintSet.TOP)
-        constraints.connect(mShadow.id, ConstraintSet.RIGHT, _this.id, ConstraintSet.RIGHT)
-        constraints.connect(mShadow.id, ConstraintSet.BOTTOM, _this.id, ConstraintSet.BOTTOM)
-        constraints.applyTo(layout)
-
+            val constraints = ConstraintSet()
+            constraints.clone(layout)
+            constraints.connect(mShadow.id, ConstraintSet.LEFT, id, ConstraintSet.LEFT)
+            constraints.connect(mShadow.id, ConstraintSet.TOP, id, ConstraintSet.TOP)
+            constraints.connect(mShadow.id, ConstraintSet.RIGHT, id, ConstraintSet.RIGHT)
+            constraints.connect(mShadow.id, ConstraintSet.BOTTOM, id, ConstraintSet.BOTTOM)
+            constraints.applyTo(layout)
+        }
         mShadowAttached = true
     }
 

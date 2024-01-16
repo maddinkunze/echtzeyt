@@ -53,7 +53,6 @@ import com.maddin.echtzeyt.randomcode.getSerializableExtraCompat
 import com.maddin.transportapi.LocatableStation
 import com.maddin.transportapi.LocationAreaRect
 import com.maddin.transportapi.LocationLatLon
-import com.maddin.transportapi.LocationStationAPI
 import com.maddin.transportapi.Station
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapListener
@@ -441,10 +440,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener {
     private fun initThreads() {
         thread(start=true, isDaemon=true) {
             while (true) {
-                if (!isInForeground) {
-                    Thread.sleep(1000)
-                    continue
-                }
+                if (!checkIfForeground.block(15000)) { continue }
 
                 ntCheckIfGpsEnabledChanged()
                 ntUpdateMarkerVisibilities()
@@ -530,7 +526,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener {
         }
         condition.block()
 
-        if (!isInForeground) { return }
+        if (!checkIfForeground.block(0)) { return }
 
         val areaCenter = currentLocationArea.centerWithDateLine
         val center = LocationLatLon(areaCenter.latitude, areaCenter.longitude)
@@ -543,7 +539,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener {
         nextLocateUpdate = -1L
 
         if (mapZoom > zoomMarkerMin) updateMarkerVisibilities(markerBB)
-        if (!isInForeground) { return }
+        if (!checkIfForeground.block(0)) { return }
 
         runOnUiThread {
             for (station in stations) {
@@ -842,7 +838,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener {
 
     @SuppressLint("MissingPermission")
     private fun checkMobileDataUsage() {
-        if (!isInForeground) { return }
+        if (!checkIfForeground.block(0)) { return }
         if (mAskForMobileDataCount <= 0) { return } // dont show the dialog if we have asked too many times
         if (map.useDataConnection()) { return } // dont show the dialog if mobile data usage is allowed, the tiles will load eventually
         if (mCurrentDialogType == DIALOG_MOBILE_DATA) { return } // dont show the dialog if we are already showing such a dialog

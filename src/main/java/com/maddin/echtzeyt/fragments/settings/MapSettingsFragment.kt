@@ -9,7 +9,6 @@ import com.maddin.echtzeyt.R
 import kotlin.math.roundToInt
 
 class MapSettingsFragment : SettingsFragment(R.layout.fragment_settings_map) {
-    override val titleResource = R.string.menuSettingsMap
     override lateinit var settings: Array<out SettingsProperty>
     override fun onLoadSettings(view: View, context: Context, savedInstanceState: Bundle?) {
         settings = arrayOf(

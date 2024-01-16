@@ -10,9 +10,6 @@ class FloatingConstraintLayout(context: Context, private val attrs: AttributeSet
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context) : this(context, null)
 
-    // implementing member variables for DropShadowView
-    override val _this = this
-
     override val mShadow by lazy { DropShadow(context, attrs, defStyleAttr) }
     override var mShadowAttached = false
 

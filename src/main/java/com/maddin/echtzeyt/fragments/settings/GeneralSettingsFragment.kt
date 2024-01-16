@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.maddin.echtzeyt.R
 
 class GeneralSettingsFragment : SettingsFragment(R.layout.fragment_settings_general) {
-    override val titleResource = R.string.menuSettingsGeneral
     private lateinit var propAutoDark: BoolProperty
     private lateinit var propDarkMode: BoolProperty
     override lateinit var settings: Array<SettingsProperty>

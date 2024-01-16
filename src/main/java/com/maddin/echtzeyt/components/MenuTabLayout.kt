@@ -68,7 +68,7 @@ class MenuTabLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
         tab.textView.alpha = if (selected) mAlphaTextSelected else mAlphaTextNormal
         reinforceTabTypeface(tab, selected)
 
-        tab.view.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> reinforceTabTypeface(tab) }
+        tab.view.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> post { reinforceTabTypeface(tab) } }
     }
 
     private fun reinforceTabTypeface(tab: Tab) {

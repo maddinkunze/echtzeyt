@@ -6,6 +6,8 @@ import android.text.Spannable
 import android.text.Spanned
 import android.text.style.StrikethroughSpan
 import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.updatePadding
@@ -43,6 +45,62 @@ class RealtimeInfo(context: Context, connection: RealtimeConnection, odd: Boolea
             setBackgroundResource(R.drawable.realtime_highlight)
         }
 
+        updateConnection(connection)
+    }
+
+    fun measureForMaximumWidth(parent: ViewGroup) {
+        measure(
+            MeasureSpec.makeMeasureSpec(parent.width, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(parent.height, MeasureSpec.EXACTLY)
+        )
+    }
+
+    private fun getMaxWidthBeforeLayout(view: View, spec: Int): Int {
+        view.measure(
+            MeasureSpec.makeMeasureSpec(measuredWidth, spec),
+            MeasureSpec.makeMeasureSpec(measuredHeight, MeasureSpec.UNSPECIFIED)
+        )
+        return view.measuredWidth
+    }
+
+    fun getMaxLineNumberWidth(spec: Int = MeasureSpec.AT_MOST): Int {
+        return getMaxWidthBeforeLayout(txtLineNumber, spec)
+    }
+
+    fun getLineNumberWidth(): Int {
+        return txtLineNumber.width
+    }
+
+    fun setLineNumberMinWidth(width: Int) {
+        txtLineNumber.minWidth = width
+    }
+
+    fun getMaxSecondsWidth(spec: Int = MeasureSpec.AT_MOST): Int {
+        return getMaxWidthBeforeLayout(txtDepSecs, spec)
+    }
+
+    fun getSecondsWidth(): Int {
+        return txtDepSecs.width
+    }
+
+    fun setSecondsMinWidth(width: Int) {
+        txtDepSecs.minWidth = width
+    }
+
+    fun getMaxMinutesWidth(spec: Int = MeasureSpec.AT_MOST): Int {
+        return getMaxWidthBeforeLayout(txtDepMins, spec)
+    }
+
+    fun getMinutesWidth(): Int {
+        return txtDepMins.width
+    }
+
+    fun setMinutesMinWidth(width: Int) {
+        if (!shouldRespectMinSize) { return }
+        txtDepMins.minWidth = width
+    }
+
+    fun updateConnection(connection: RealtimeConnection) {
         txtLineNumber.text = connection.vehicle.line?.name ?: ""
         txtLineName.text = connection.vehicle.direction?.name ?: ""
 
@@ -69,30 +127,5 @@ class RealtimeInfo(context: Context, connection: RealtimeConnection, odd: Boolea
             txtDepMins.alpha = 0.5f
             txtDepSecs.alpha = 0.5f
         }
-    }
-
-    fun getLineNumberWidth(): Int {
-        return txtLineNumber.width
-    }
-
-    fun setLineNumberMinWidth(width: Int) {
-        txtLineNumber.minWidth = width
-    }
-
-    fun getSecondsWidth(): Int {
-        return txtDepSecs.width
-    }
-
-    fun setSecondsMinWidth(width: Int) {
-        txtDepSecs.minWidth = width
-    }
-
-    fun getMinutesWidth(): Int {
-        return txtDepMins.width
-    }
-
-    fun setMinutesMinWidth(width: Int) {
-        if (!shouldRespectMinSize) { return }
-        txtDepMins.minWidth = width
     }
 }

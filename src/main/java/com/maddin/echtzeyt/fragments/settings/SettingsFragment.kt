@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.maddin.echtzeyt.ECHTZEYT_CONFIGURATION
 import com.maddin.echtzeyt.components.LabeledDiscreteSeekBar
+import com.maddin.echtzeyt.fragments.EchtzeytForegroundFragment
 import com.maddin.echtzeyt.fragments.NamedFragment
 import java.lang.Exception
 import kotlin.math.absoluteValue
@@ -126,7 +127,7 @@ open class DiscreteSliderProperty(protected val propertyName: String, protected 
 
 }
 
-abstract class SettingsFragment : Fragment, NamedFragment {
+abstract class SettingsFragment : EchtzeytForegroundFragment {
     constructor() : super()
     constructor(@LayoutRes resId: Int) : super(resId)
 

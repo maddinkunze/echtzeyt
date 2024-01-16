@@ -14,9 +14,6 @@ class FloatingInfoButton(context: Context, private val attrs: AttributeSet?, pri
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context) : this(context, null)
 
-    // implementing member variables for DropShadowView
-    override val _this = this
-
     override val mShadow by lazy { DropShadow(context, attrs, defStyleAttr) }
     override var mShadowAttached = false
 
@@ -46,8 +43,8 @@ class FloatingInfoButton(context: Context, private val attrs: AttributeSet?, pri
         }
     }
 
-    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        super.onLayout(changed, l, t, r, b)
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
         addShadow()
     }
 
@@ -59,5 +56,10 @@ class FloatingInfoButton(context: Context, private val attrs: AttributeSet?, pri
     override fun onVisibilityChanged(changedView: View, visibility: Int) {
         super.onVisibilityChanged(changedView, visibility)
         setShadowVisibility(visibility)
+    }
+
+    override fun setOnClickListener(l: OnClickListener?) {
+        super.setOnClickListener(l)
+        button.setOnClickListener(l)
     }
 }
