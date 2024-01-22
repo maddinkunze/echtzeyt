@@ -34,6 +34,7 @@
     <string name="btnSearchOnMapDescription">Search on map</string>
     <string name="btnLocateDescription">Locate me on the map</string>
     <string name="btnLikeDescription">Add this station to bookmarks</string>
+    <string name="btnInfoDescription">Show more information</string>
     <string name="edtSearchTip">Enter station name…</string>
     <string name="stringEmpty" translatable="false" tools:keep="@string/stringEmpty" />
     <string name="btnBookmarksDescription">Show bookmarks</string>
@@ -63,7 +64,9 @@
     <string name="menuSettingsAbout">About</string>
     <string name="updateNotYet">Not updated yet!</string>
     <string name="updateLast">Last updated:</string>
-    <string name="updateEmpty">Nothing to see here!</string>
+    <string name="updateEmpty">It seems like nothing is departing from here anytime soon.</string>
+    <string name="updateStationEmpty">Please enter a station name</string>
+    <string name="updateStationInvalid">The station name you\'ve entered could not be found.</string>
     <string name="btnMenuDescription">Show menu</string>
     <string name="contactTitle">Give feedback (email)</string>
     <string name="contactEmail" translatable="false" />
@@ -83,6 +86,7 @@
     <string name="sendLogsText">It seems you may experienced something unusual. Do you want to report it by including the latest errors in your feedback email?</string>
     <string name="sendLogsYes">Yes, send error logs</string>
     <string name="sendLogsNo">No</string>
+    <string name="pullupNoServingLines">It seems like nothing departs from here.</string>
     <string name="mapStationConfirm">Use selected station</string>
     <string name="mapBack">Go back</string>
     <string name="mapMobileAllowTitle">Allow mobile data?</string>
@@ -103,6 +107,7 @@
     <string name="licenseLibrariesTitle">The following libraries are currently used:</string>
     <string name="licenseLibraries"><ul>
         <li><a href="https://github.com/osmdroid/osmdroid">OSMDroid</a> (Apache License 2.0)</li>\n
+        <li><a href="https://github.com/material-components/material-components-android">Material Components</a> by Google (Apache License 2.0)</li>\n
         <li><a href="https://github.com/maddinkunze/transportapi">TransportAPI</a></li>
     </ul></string>
     <string name="licenseAdditionalTitle">Furthermore, the following sources were used in some way, shape, or form:</string>
@@ -110,6 +115,7 @@
         <li>Map Data by <a href="https://openstreetmap.org/">OpenStreetMap</a> and contributors</li>\n
         <li>Some icons from <a href="https://svgrepo.com/">SVGRepo</a> (PD, CC0 or similar license)</li>
     </ul></string>
+    <string name="licenseAdditionalImplementation" />
     <string name="_libraryEchtzeytBasedOn">based on\u0020</string>
     <string name="_libraryEchtzeytName" translatable="false">Echtzeyt</string>
     <string name="_libraryEchtzeytVersion" translatable="false" />

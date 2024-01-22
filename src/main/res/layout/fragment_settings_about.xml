@@ -70,6 +70,13 @@
                 android:text="@string/licenseAdditional"
                 android:textColor="@color/foregroundText"
                 android:textColorLink="@color/foreground" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/licenseAdditionalImplementation"
+                android:textColor="@color/foregroundText"
+                android:textColorLink="@color/foreground" />
         </LinearLayout>
     </com.maddin.echtzeyt.components.BottomFadeEdgeScrollView>
 

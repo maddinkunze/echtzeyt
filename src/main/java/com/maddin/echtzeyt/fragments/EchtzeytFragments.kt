@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.maddin.echtzeyt.ECHTZEYT_CONFIGURATION
-import com.maddin.echtzeyt.ECHTZEYT_LOG_TAG
 
 abstract class EchtzeytForegroundFragment: Fragment {
     constructor(@LayoutRes resId: Int) : super(resId)
@@ -74,7 +73,7 @@ abstract class EchtzeytForegroundFragment: Fragment {
 }
 
 // thanks to https://stackoverflow.com/questions/67334537/how-to-make-viewpager2-less-sensitive for parts of the following code
-fun ViewPager2.reduceDragSensitivity(f: Int = 2) {
+fun ViewPager2.reduceDragSensitivity(f: Int = 3) {
     try {
         val recyclerViewField = ViewPager2::class.java.getDeclaredField("mRecyclerView")
         recyclerViewField.isAccessible = true
@@ -85,7 +84,7 @@ fun ViewPager2.reduceDragSensitivity(f: Int = 2) {
         val touchSlop = touchSlopField.get(recyclerView) as Int
         touchSlopField.set(recyclerView, touchSlop * f)
     } catch (e: Throwable) {
-        Log.w(ECHTZEYT_LOG_TAG, "Unable to reduce drag sensitivity", e)
+        Log.w(ECHTZEYT_CONFIGURATION.LOG_TAG, "Unable to reduce drag sensitivity", e)
     }
 }
 

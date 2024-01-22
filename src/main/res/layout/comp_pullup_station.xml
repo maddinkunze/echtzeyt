@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutPullup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:radiusInner="@dimen/pullup_radius"
+        app:shadowColors="@array/shadowColors"
+        app:shadowSize="@dimen/shadow_size"
+        app:shadowStops="@array/shadowStops">
+
+        <LinearLayout
+            android:id="@+id/layoutStationInfo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="24dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginRight="24dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/txtStationName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:text="@string/widgetNoStation"
+                android:textColor="@color/foreground"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/btnPullupStationLike"
+                style="@style/Theme.Echtzeyt.Button"
+                android:background="@drawable/imagebutton_second"
+                android:contentDescription="@string/btnLikeDescription"
+                app:srcCompat="@drawable/ic_star"
+                tools:ignore="TouchTargetSizeCheck" />
+
+            <ImageButton
+                android:id="@+id/btnPullupStationConfirm"
+                style="@style/Theme.Echtzeyt.Button"
+                android:layout_marginStart="@dimen/button_margin"
+                android:layout_marginLeft="@dimen/button_margin"
+                android:background="@drawable/imagebutton_second"
+                android:contentDescription="@string/mapStationConfirm"
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_check"
+                tools:ignore="TouchTargetSizeCheck,RedundantDescriptionCheck"
+                tools:visibility="visible" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/viewClosePullupRing"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/pullup_close_margin"
+            android:layout_marginLeft="@dimen/pullup_close_margin"
+            android:layout_marginTop="@dimen/pullup_close_margin"
+            android:layout_marginEnd="@dimen/pullup_close_margin"
+            android:layout_marginRight="@dimen/pullup_close_margin"
+            android:layout_marginBottom="@dimen/pullup_close_margin"
+            android:importantForAccessibility="no"
+            app:layout_constraintBottom_toBottomOf="@+id/btnClosePullup"
+            app:layout_constraintEnd_toEndOf="@+id/btnClosePullup"
+            app:layout_constraintStart_toStartOf="@+id/btnClosePullup"
+            app:layout_constraintTop_toTopOf="@+id/btnClosePullup"
+            app:srcCompat="@drawable/roundbuttonring"
+            app:tint="@color/backgroundPullup"
+            tools:ignore="UnusedAttribute" />
+
+        <ImageButton
+            android:id="@+id/btnClosePullup"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/closebutton"
+            android:contentDescription="@string/btnClose"
+            android:padding="2dp"
+            android:scaleType="centerInside"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_close"
+            app:tint="@color/backgroundPullup"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <TextView
+            android:id="@+id/txtServingNone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginRight="20dp"
+            android:gravity="center_horizontal"
+            android:text="@string/pullupNoServingLines"
+            android:textColor="@color/foregroundText"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/layoutServingLines" />
+
+        <com.maddin.echtzeyt.components.FlowLayout
+            android:id="@+id/layoutServingLines"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="10dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layoutStationInfo"
+            app:layout_spacing_horizontal="5dp"
+            app:layout_spacing_vertical="5dp"
+            tools:visibility="visible" />
+
+        <View
+            android:id="@+id/viewBottomPadding"
+            android:layout_width="match_parent"
+            android:layout_height="16dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/layoutServingLines"
+            tools:visibility="visible" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</merge>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutPullup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/pullup"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:radiusInner="@dimen/pullup_radius"
+        app:shadowColors="@array/shadowColors"
+        app:shadowSize="@dimen/shadow_size"
+        app:shadowStops="@array/shadowStops">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="24dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginRight="24dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/txtStationName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:text="@string/widgetNoStation"
+                android:textColor="@color/foreground"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/pullup_close_margin"
+            android:layout_marginLeft="@dimen/pullup_close_margin"
+            android:layout_marginTop="@dimen/pullup_close_margin"
+            android:layout_marginEnd="@dimen/pullup_close_margin"
+            android:layout_marginRight="@dimen/pullup_close_margin"
+            android:layout_marginBottom="@dimen/pullup_close_margin"
+            android:importantForAccessibility="no"
+            app:layout_constraintBottom_toBottomOf="@+id/btnClosePullup"
+            app:layout_constraintEnd_toEndOf="@+id/btnClosePullup"
+            app:layout_constraintStart_toStartOf="@+id/btnClosePullup"
+            app:layout_constraintTop_toTopOf="@+id/btnClosePullup"
+            app:srcCompat="@drawable/roundbuttonring"
+            app:tint="@color/backgroundPullup"
+            tools:ignore="UnusedAttribute" />
+
+        <ImageButton
+            android:id="@+id/btnClosePullup"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/closebutton"
+            android:contentDescription="@string/btnClose"
+            android:padding="2dp"
+            android:scaleType="centerInside"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_close"
+            app:tint="@color/backgroundPullup"
+            tools:ignore="TouchTargetSizeCheck" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</merge>

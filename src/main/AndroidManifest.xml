@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -14,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Echtzeyt"
         tools:ignore="DataExtractionRules,RtlEnabled">
-        <activity android:name=".EchtzeytActivity"
+        <activity android:name=".activities.EchtzeytActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,15 +23,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name=".activities.SettingsActivity"
             android:exported="false" />
         <activity
-            android:name=".MapActivity"
+            android:name=".activities.MapActivity"
             android:exported="false" />
 
         <receiver
             android:label="@string/widgetName"
-            android:name=".EchtzeytWidget"
+            android:name=".activities.EchtzeytWidget"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -42,7 +43,7 @@
                 android:resource="@xml/widget_echtzeyt_provider" />
         </receiver>
         <activity
-            android:name=".EchtzeytWidgetConfigureActivity"
+            android:name=".activities.EchtzeytWidgetConfigureActivity"
             android:exported="false" />
 
         <meta-data

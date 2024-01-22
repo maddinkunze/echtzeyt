@@ -8,8 +8,12 @@
     <color name="backgroundButtonSecondHover">#E1C9EF</color>
     <color name="backgroundButtonClose">#DD2020</color>
     <color name="backgroundSunken">#BBBBBB</color>
+    <color name="backgroundSearchbar">#D4D4D4</color>
+    <color name="backgroundHighlight">@color/backgroundSunken</color>
+    <color name="backgroundHighlightSecond">#C4C4C4</color>
     <color name="backgroundWidgetToolbar">@color/foreground</color>
-    <color name="backgroundPullup">#F4F4F4</color>
+    <color name="backgroundPullup">#E8E8E8</color>
+    <color name="backgroundPullupSecond">#F4F4F4</color>
     <color name="backgroundNotification">#FDEBDC</color>
     <color name="backgroundStationmarker">#FFFFFF</color>
     <color name="backgroundPositionmarker">@color/backgroundStationmarker</color>
@@ -26,7 +30,7 @@
     <color name="successWidget">#A8FF82</color>
 
     <color name="transparent">@android:color/transparent</color>
-    <array name="shadow_colors">
+    <array name="shadowColors">
         <item>#12000000</item>
         <item>#04000000</item>
         <item>#00000000</item>
@@ -36,9 +40,48 @@
         <item>#FFFF00</item>
         <item>@color/transparent</item>
     </array-->
-    <array name="shadow_stops">
+    <array name="shadowStops">
         <item>0</item>
         <item>0.3</item>
         <item>1</item>
     </array>
+
+    <color name="lineBackgroundDefault">#C0C0C0</color>
+    <color name="lineForegroundDefault">#606060</color>
+    <color name="lineBackgroundWalk">@color/transparent</color>
+    <color name="lineForegroundWalk">@color/lineForegroundDefault</color>
+    <color name="lineBackgroundWalkRun">@color/lineBackgroundWalk</color>
+    <color name="lineForegroundWalkRun">@color/lineForegroundWalk</color>
+    <color name="lineBackgroundWalkLong">@color/lineBackgroundWalk</color>
+    <color name="lineForegroundWalkLong">@color/lineForegroundWalk</color>
+    <color name="lineBackgroundBus">#6E3266</color>
+    <color name="lineForegroundBus">#F0F0F0</color>
+    <color name="lineBackgroundBusNight">@color/lineBackgroundBus</color>
+    <color name="lineForegroundBusNight">#E3BF59</color>
+    <color name="lineBackgroundTram">#782435</color>
+    <color name="lineForegroundTram">@color/lineForegroundBus</color>
+    <color name="lineBackgroundSubway">#32328C</color>
+    <color name="lineForegroundSubway">@color/lineForegroundBus</color>
+    <color name="lineBackgroundSuburban">#008d4f</color>
+    <color name="lineForegroundSuburban">@color/lineForegroundBus</color>
+    <color name="lineBackgroundCablecar">@color/lineBackgroundDefault</color>
+    <color name="lineForegroundCablecar">@color/lineForegroundDefault</color>
+    <color name="lineBackgroundTrain">@color/lineBackgroundDefault</color>
+    <color name="lineForegroundTrain">#4C6363</color>
+    <color name="lineBackgroundPlane">#505020</color>
+    <color name="lineForegroundPlane">@color/lineForegroundBus</color>
+    <color name="lineBackgroundHelicopter">@color/lineBackgroundDefault</color>
+    <color name="lineForegroundHelicopter">@color/lineForegroundDefault</color>
+    <color name="lineBackgroundBike">@color/lineBackgroundWalk</color>
+    <color name="lineForegroundBike">#3B5516</color>
+    <color name="lineBackgroundFerry">#308C9C</color>
+    <color name="lineBackgroundStairs">@color/lineBackgroundWalk</color>
+    <color name="lineForegroundStairs">@color/lineForegroundWalk</color>
+    <color name="lineForegroundFerry">@color/lineForegroundBus</color>
+    <color name="lineBackgroundEscalator">@color/lineBackgroundWalk</color>
+    <color name="lineForegroundEscalator">#596B80</color>
+    <color name="lineBackgroundScooter">@color/lineBackgroundWalk</color>
+    <color name="lineForegroundScooter">#68527C</color>
+    <color name="lineBackgroundSegway">@color/lineBackgroundScooter</color>
+    <color name="lineForegroundSegway">@color/lineForegroundScooter</color>
 </resources>

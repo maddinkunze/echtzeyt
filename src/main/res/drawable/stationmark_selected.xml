@@ -1,24 +1,12 @@
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <vector
-            android:width="@dimen/stationmarker_width"
-            android:height="@dimen/stationmarker_height"
-            android:viewportWidth="500"
-            android:viewportHeight="580">
-            <path
-                android:pathData="M400,15A85,85 0,0 1,485 100L485,400A85,85 0,0 1,400 485L330,485L250,565L170,485L100,485A85,85 0,0 1,15 400L15,100A85,85 0,0 1,100 15Z"
-                android:strokeLineJoin="round"
-                android:strokeWidth="30"
-                android:fillColor="@color/backgroundStationmarker"
-                android:strokeColor="@color/foregroundStationmarker"/>
-        </vector>
-    </item>
-    <item android:bottom="@dimen/stationmarker_arrow_size">
-        <inset
-            android:insetTop="@dimen/stationmarker_icon_padding"
-            android:insetRight="@dimen/stationmarker_icon_padding"
-            android:insetBottom="@dimen/stationmarker_icon_padding"
-            android:insetLeft="@dimen/stationmarker_icon_padding"
-            android:drawable="@drawable/stationmarker_icon" />
-    </item>
-</layer-list>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="@dimen/stationmarker_width" android:height="@dimen/stationmarker_height"
+    android:viewportWidth="500" android:viewportHeight="580">
+    <path
+        android:pathData="M400,15A85,85 0,0 1,485 100L485,400A85,85 0,0 1,400 485L330,485L250,565L170,485L100,485A85,85 0,0 1,15 400L15,100A85,85 0,0 1,100 15Z"
+        android:strokeLineJoin="round"
+        android:strokeWidth="30"
+        android:fillColor="@color/backgroundStationmarker"
+        android:strokeColor="@color/foregroundStationmarker"/>
+    <path android:pathData="M90,250A120,120,0,0,1,410,250A120,120,0,0,1,90,250" android:strokeWidth="40" android:strokeColor="@color/foreground" />
+    <path android:pathData="M200,180L200,320M300,180L300,320M200,250L300,250" android:strokeColor="@color/foreground" android:strokeWidth="40" android:strokeLineCap="round" />
+</vector>

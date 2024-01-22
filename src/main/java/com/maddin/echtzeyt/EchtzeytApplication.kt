@@ -8,8 +8,10 @@ abstract class EchtzeytApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        ECHTZEYT_CONFIGURATION.initApplication(this)
         configure()
         setCorrectNightMode()
+        enableCompatSupportForVectorDrawables()
     }
 
     private fun setCorrectNightMode() {
@@ -21,5 +23,9 @@ abstract class EchtzeytApplication : Application() {
         }
         if (AppCompatDelegate.getDefaultNightMode() == nightMode) { return }
         AppCompatDelegate.setDefaultNightMode(nightMode)
+    }
+
+    private fun enableCompatSupportForVectorDrawables() {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
     }
 }

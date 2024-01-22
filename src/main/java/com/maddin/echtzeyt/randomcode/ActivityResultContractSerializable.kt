@@ -13,20 +13,32 @@ inline fun <reified T : Serializable> Intent.getSerializableExtraCompat(key: Str
     return getSerializableExtra(key) as? T?
 }
 
-class ActivityResultSerializable<T: Serializable>(private val activityToStart: Class<out Activity>) : ActivityResultContract<T?, T?>() {
+open class ActivityResultSerializable<T: Serializable, R: Serializable>(private val activityToStart: Class<out Activity>) : ActivityResultContract<T?, R?>() {
     companion object {
-        const val INPUT_DATA = "data"
-        const val OUTPUT_DATA = "data"
+        const val ACTION = "action"
+        const val INPUT_DATA = "data_in"
+        const val OUTPUT_DATA = "data_out"
+        fun createResult(result: Serializable): Intent {
+            return Intent().putExtra(OUTPUT_DATA, result)
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        private fun <T> parseIntent(intent: Intent?, key: String): T? {
+            intent ?: return null
+            if (!intent.hasExtra(key)) { return null }
+            return intent.getSerializableExtraCompat<Serializable>(key) as? T?
+        }
+
+        fun <T> parseIntent(intent: Intent?): T? {
+            return parseIntent(intent, INPUT_DATA)
+        }
     }
 
     override fun createIntent(context: Context, input: T?): Intent {
         return Intent().setClass(context, activityToStart).putExtra(INPUT_DATA, input)
     }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun parseResult(resultCode: Int, intent: Intent?): T? {
-        if (intent == null) { return null }
-        if (!intent.hasExtra(OUTPUT_DATA)) { return null }
-        return intent.getSerializableExtraCompat<Serializable>(OUTPUT_DATA) as? T?
+    override fun parseResult(resultCode: Int, intent: Intent?): R? {
+        return parseIntent(intent, OUTPUT_DATA)
     }
 }

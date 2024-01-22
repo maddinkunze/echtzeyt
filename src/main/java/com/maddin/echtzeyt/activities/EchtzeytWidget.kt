@@ -1,4 +1,4 @@
-package com.maddin.echtzeyt
+package com.maddin.echtzeyt.activities
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -25,12 +25,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.edit
 import androidx.core.content.res.ResourcesCompat
+import com.maddin.echtzeyt.ECHTZEYT_CONFIGURATION
+import com.maddin.echtzeyt.R
 import com.maddin.echtzeyt.components.InstantAutoCompleteTextView
 import com.maddin.echtzeyt.components.LabeledDiscreteSeekBar
-import com.maddin.transportapi.RealtimeAPI
 import com.maddin.transportapi.RealtimeInfo
 import com.maddin.transportapi.Station
-import com.maddin.transportapi.SearchStationAPI
 import java.time.LocalDateTime
 import kotlin.concurrent.thread
 
@@ -162,7 +162,10 @@ open class EchtzeytWidget : AppWidgetProvider() {
         remoteViews.setViewVisibility(R.id.layoutButtonWidgetStop, View.GONE)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            remoteViews.setViewOutlinePreferredRadiusDimen(R.id.layoutWidget, R.dimen.widget_corner_radius)
+            remoteViews.setViewOutlinePreferredRadiusDimen(
+                R.id.layoutWidget,
+                R.dimen.widget_corner_radius
+            )
             remoteViews.setBoolean(R.id.layoutWidget, "setClipToOutline", true)
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             // val test = RemoteViewOutlineProvider.BACKGROUND
@@ -276,7 +279,8 @@ open class EchtzeytWidget : AppWidgetProvider() {
         val stepAngle = 30
         val currentAngle = (widgetInfo.stepsAlive++ * stepAngle).mod(360)
 
-        val drawable = ResourcesCompat.getDrawable(widgetInfo.context.resources, R.drawable.ic_reload, null) ?: return
+        val drawable = ResourcesCompat.getDrawable(widgetInfo.context.resources,
+            R.drawable.ic_reload, null) ?: return
         val sizeBitmap = (TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, widgetInfo.context.resources.displayMetrics) +
                 widgetInfo.context.resources.getDimension(R.dimen.widget_toolbar_text_size) +
                 widgetInfo.context.resources.getDimension(R.dimen.widget_toolbar_title_size)).toInt()

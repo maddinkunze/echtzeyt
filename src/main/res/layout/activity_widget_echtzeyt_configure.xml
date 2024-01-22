@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/background"
     android:theme="@style/Theme.Echtzeyt"
-    tools:context=".EchtzeytWidgetConfigureActivity"
+    tools:context=".activities.EchtzeytWidgetConfigureActivity"
     tools:ignore="Overdraw">
 
     <LinearLayout

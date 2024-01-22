@@ -7,19 +7,8 @@
     android:background="@color/background"
     android:paddingTop="@dimen/toolbar_radius">
 
-    <LinearLayout
-        android:id="@+id/focusableLayout"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <LinearLayout
-        android:id="@+id/layoutSearchbar"
+    <com.maddin.echtzeyt.components.StationSearchbar
+        android:id="@+id/edtSearch"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/layout_padding"
@@ -27,77 +16,37 @@
         android:layout_marginTop="@dimen/layout_padding"
         android:layout_marginEnd="@dimen/layout_padding"
         android:layout_marginRight="@dimen/layout_padding"
-        android:gravity="center"
-        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <com.maddin.echtzeyt.components.InstantAutoCompleteTextView
-            android:id="@+id/edtSearch"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/button_size"
-            android:layout_weight="1"
-            android:background="@color/background"
-            android:hint="@string/edtSearchTip"
-            android:inputType="textNoSuggestions"
-            android:maxLines="1"
-            android:padding="0dp"
-            android:paddingStart="5dp"
-            android:paddingLeft="5dp"
-            android:paddingTop="0dp"
-            android:paddingEnd="0dp"
-            android:paddingRight="0dp"
-            android:paddingBottom="0dp"
-            android:singleLine="true"
-            android:textColor="@color/foreground"
-            android:textColorHint="@color/foregroundHint"
-            android:textCursorDrawable="@null"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            app:fontFamily="@font/roboto"
-            tools:ignore="TextContrastCheck,TouchTargetSizeCheck,VisualLintTextFieldSize" />
-
-        <ImageButton
-            android:id="@+id/btnLike"
-            android:layout_width="@dimen/button_size"
-            android:layout_height="@dimen/button_size"
-            android:layout_marginStart="@dimen/button_margin"
-            android:layout_marginLeft="@dimen/button_margin"
-            android:background="@drawable/imagebutton"
-            android:contentDescription="@string/btnLikeDescription"
-            android:padding="@dimen/button_padding"
-            android:scaleType="fitCenter"
-            app:srcCompat="@drawable/ic_star"
-            tools:ignore="TouchTargetSizeCheck" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:fillUntil="@+id/btnMap"
+        app:animated="false" >
 
         <ImageButton
             android:id="@+id/btnMap"
-            android:layout_width="@dimen/button_size"
-            android:layout_height="@dimen/button_size"
-            android:layout_marginStart="@dimen/button_margin"
-            android:layout_marginLeft="@dimen/button_margin"
-            android:background="@drawable/imagebutton"
+            style="@style/Theme.Echtzeyt.Button"
             android:contentDescription="@string/btnSearchOnMapDescription"
-            android:padding="@dimen/button_padding"
-            android:scaleType="fitCenter"
+            android:layout_marginEnd="@dimen/button_margin"
+            android:layout_marginRight="@dimen/button_margin"
             app:srcCompat="@drawable/ic_map"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btnInfo"
             tools:ignore="TouchTargetSizeCheck" />
 
         <ImageButton
-            android:id="@+id/btnSearch"
-            android:layout_width="@dimen/button_size"
-            android:layout_height="@dimen/button_size"
-            android:layout_marginStart="@dimen/button_margin"
-            android:layout_marginLeft="@dimen/button_margin"
-            android:background="@drawable/imagebutton"
-            android:contentDescription="@string/btnSearchDescription"
-            android:padding="@dimen/button_padding"
-            android:scaleType="fitCenter"
-            app:srcCompat="@drawable/ic_search"
+            android:id="@+id/btnInfo"
+            style="@style/Theme.Echtzeyt.Button"
+            android:contentDescription="@string/btnInfoDescription"
+            android:layout_marginEnd="@dimen/button_margin"
+            android:layout_marginRight="@dimen/button_margin"
+            app:srcCompat="@drawable/ic_info"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/spaceSearchbarMargin"
             tools:ignore="TouchTargetSizeCheck" />
 
-    </LinearLayout>
+    </com.maddin.echtzeyt.components.StationSearchbar>
 
     <View
         android:id="@+id/dividerSearch"
@@ -105,23 +54,25 @@
         android:layout_height="1dp"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="6dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:alpha="0.4"
         android:background="@color/foreground"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/layoutSearchbar" />
+        app:layout_constraintTop_toBottomOf="@id/edtSearch" />
 
     <TextView
         android:id="@+id/txtEmpty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:text="@string/updateEmpty"
+        android:gravity="center_horizontal"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:text="@string/updateNotYet"
         android:textColor="@color/foregroundText"
-        android:textSize="@dimen/realtimeinfo_textsize"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/scrollLayoutScroll" />
@@ -169,6 +120,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:ignore="TextContrastCheck" />
+
+    <com.maddin.echtzeyt.components.StationPullup
+        android:id="@+id/pullupStationInfo"
+        style="@style/Theme.Echtzeyt.PullupScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        app:additionalPaddingBottom="83dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:minimumVisibleHeight="80dp" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layoutBookmarks"

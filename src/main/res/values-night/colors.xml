@@ -7,8 +7,12 @@
     <color name="backgroundButtonSecondHover">#424242</color>
     <color name="backgroundButtonClose">#FF7878</color>
     <color name="backgroundSunken">#363636</color>
+    <color name="backgroundSearchbar">#1D1D1D</color>
+    <color name="backgroundHighlight">#3B3B3B</color>
+    <color name="backgroundHighlightSecond">#121212</color>
     <color name="backgroundWidgetToolbar">#202020</color>
-    <color name="backgroundPullup">#242424</color>
+    <color name="backgroundPullup">#1A1A1A</color>
+    <color name="backgroundPullupSecond">#242424</color>
     <color name="backgroundNotification">#392E25</color>
     <color name="backgroundStationmarker">#404040</color>
     <color name="foreground">#D0D0D0</color>
@@ -21,7 +25,7 @@
     <color name="success">#408040</color>
     <color name="successWidget">#8EDF7B</color>
 
-    <array name="shadow_colors">
+    <array name="shadowColors">
         <item>#80080820</item>
         <item>#30000010</item>
         <item>#00000000</item>

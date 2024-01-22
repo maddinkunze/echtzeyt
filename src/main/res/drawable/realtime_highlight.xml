@@ -14,8 +14,8 @@
                 android:startY="0"
                 android:type="linear" >
                 <item android:color="@color/transparent" android:offset="0" />
-                <item android:color="@color/backgroundSunken" android:offset="0.15" />
-                <item android:color="@color/backgroundSunken" android:offset="0.85" />
+                <item android:color="@color/backgroundHighlight" android:offset="0.15" />
+                <item android:color="@color/backgroundHighlight" android:offset="0.85" />
                 <item android:color="@color/transparent" android:offset="1" />
             </gradient>
         </aapt:attr>

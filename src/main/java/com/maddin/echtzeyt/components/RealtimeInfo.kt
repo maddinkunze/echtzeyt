@@ -2,6 +2,7 @@ package com.maddin.echtzeyt.components
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Resources.NotFoundException
 import android.text.Spannable
 import android.text.Spanned
 import android.text.style.StrikethroughSpan
@@ -10,9 +11,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.widget.LinearLayoutCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.ViewCompat
 import androidx.core.view.updatePadding
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.maddin.echtzeyt.R
 import com.maddin.transportapi.RealtimeConnection
+import org.xmlpull.v1.XmlPullParserException
 
 private val STRIKE_THROUGH_SPAN = StrikethroughSpan()
 fun TextView.setStrikeThrough() {
@@ -42,10 +49,18 @@ class RealtimeInfo(context: Context, connection: RealtimeConnection, odd: Boolea
 
 
         if (odd) {
-            setBackgroundResource(R.drawable.realtime_highlight)
+            setBackgroundOdd()
         }
 
         updateConnection(connection)
+    }
+
+    fun setBackgroundOdd() {
+        try {
+            setBackgroundResource(R.drawable.realtime_highlight)
+        } catch (_: NotFoundException) {
+            ViewCompat.setBackground(this, VectorDrawableCompat.create(resources, R.drawable.realtime_highlight, null))
+        }
     }
 
     fun measureForMaximumWidth(parent: ViewGroup) {

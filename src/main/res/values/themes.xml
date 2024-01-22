@@ -41,11 +41,12 @@
     </style>
 
     <style name="Theme.Echtzeyt.Button">
-        <item name="android:layout_width">40dp</item>
-        <item name="android:layout_height">40dp</item>
-        <item name="android:background">@drawable/imagebutton_second</item>
+        <item name="android:layout_width">@dimen/button_size</item>
+        <item name="android:layout_height">@dimen/button_size</item>
+        <item name="android:layout_marginLeft">@dimen/button_margin</item>
+        <item name="android:background">@drawable/imagebutton</item>
         <item name="android:padding">@dimen/button_padding</item>
-        <item name="android:scaleType">centerInside</item>
+        <item name="android:scaleType">fitCenter</item>
     </style>
 
     <style name="Theme.Echtzeyt.Button.Floating" parent="Widget.AppCompat.ImageButton">
@@ -59,9 +60,9 @@
         <item name="android:scaleType">fitCenter</item>
         <item name="radiusInner">@dimen/bigfloating_radius</item>
         <item name="shadowBelow">@+id/layoutBookmarks</item>
-        <item name="shadowColors">@array/shadow_colors</item>
+        <item name="shadowColors">@array/shadowColors</item>
         <item name="shadowSize">@dimen/shadow_size</item>
-        <item name="shadowStops">@array/shadow_stops</item>
+        <item name="shadowStops">@array/shadowStops</item>
     </style>
 
     <style name="Theme.Echtzeyt.Button.Floating.Map">
@@ -75,9 +76,9 @@
         <item name="android:layout_marginEnd">@dimen/smallfloating_margin_side</item>
         <item name="android:layout_marginRight">@dimen/smallfloating_margin_side</item>
         <item name="radiusInner">@dimen/bigfloating_radius</item>
-        <item name="shadowColors">@array/shadow_colors</item>
+        <item name="shadowColors">@array/shadowColors</item>
         <item name="shadowSize">@dimen/shadow_size_small</item>
-        <item name="shadowStops">@array/shadow_stops</item>
+        <item name="shadowStops">@array/shadowStops</item>
     </style>
 
     <style name="Theme.Echtzeyt.TabLayout" parent="Widget.Design.TabLayout">
@@ -102,5 +103,59 @@
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">?attr/colorSecondary</item>
         <item name="android:paddingLeft">40dp</item>
+    </style>
+
+    <style name="Theme.Echtzeyt.PullupScrollView" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:clipChildren">false</item>
+        <item name="android:fadeScrollbars">true</item>
+        <item name="android:overScrollMode">never</item>
+        <item name="android:scrollbarDefaultDelayBeforeFade">0</item>
+        <item name="android:scrollbarFadeDuration">0</item>
+        <item name="android:scrollbarSize">0dp</item>
+        <item name="android:scrollbarThumbHorizontal">@null</item>
+        <item name="android:scrollbarThumbVertical">@null</item>
+        <item name="fadeDurationRelative">0.3</item>
+    </style>
+
+    <style name="Theme.Echtzeyt.Button.Favorite" parent="">
+        <item name="android:letterSpacing" tools:ignore="NewApi">0</item>
+    </style>
+
+    <style name="Theme.Echtzeyt.TextView.StationSearch" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">@dimen/button_size</item>
+        <!--item name="android:layout_weight">1</item-->
+        <item name="android:background">@color/transparent</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:hint">@string/edtSearchTip</item>
+        <item name="android:inputType">textNoSuggestions</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:paddingStart">5dp</item>
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+        <item name="android:paddingRight">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textColor">@color/foreground</item>
+        <item name="android:textColorHint">@color/foregroundHint</item>
+        <item name="android:textCursorDrawable">@drawable/cursor</item>
+        <item name="android:textSelectHandle">@drawable/handle</item>
+        <item name="android:textSelectHandleLeft">@drawable/handle_left</item>
+        <item name="android:textSelectHandleRight">@drawable/handle_right</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="fontFamily">@font/roboto</item>
+    </style>
+
+    <style name="Theme.Echtzeyt.TextView.StationSearch.Animated">
+        <item name="android:textSize">19.5sp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingBottom">2dp</item>
+        <item name="textSizeFocus">20sp</item>
+        <item name="heightFocus">@dimen/button_size</item>
     </style>
 </resources>

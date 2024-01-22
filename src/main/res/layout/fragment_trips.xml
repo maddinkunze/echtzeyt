@@ -1,7 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFF00">
+    android:background="@color/background"
+    android:paddingTop="@dimen/toolbar_radius">
 
+    <com.maddin.echtzeyt.components.StationSearchbar
+        android:id="@+id/edtSearchFrom"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="16dp"
+        android:background="@drawable/stationsearch_background"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:textInfo="Von:"
+        app:fillUntil="@id/btnMapFrom">
+
+        <com.maddin.echtzeyt.components.AnimatableImageButton
+            android:id="@+id/btnMapFrom"
+            style="@style/Theme.Echtzeyt.Button"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="@dimen/button_padding_small"
+            android:src="@drawable/ic_map"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </com.maddin.echtzeyt.components.StationSearchbar>
+
+    <com.maddin.echtzeyt.components.StationSearchbar
+        android:id="@+id/edtSearchTo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="16dp"
+        android:background="@drawable/stationsearch_background"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edtSearchFrom"
+        app:textInfo="Nach:"
+        app:fillUntil="@id/btnMapTo" >
+
+        <ImageButton
+            android:id="@+id/btnMapTo"
+            style="@style/Theme.Echtzeyt.Button"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="5dp"
+            android:src="@drawable/ic_map"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </com.maddin.echtzeyt.components.StationSearchbar>
+
+    <View
+        android:id="@+id/dividerSearch"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:alpha="0.4"
+        android:background="@color/foreground"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/edtSearchTo" />
 </androidx.constraintlayout.widget.ConstraintLayout>

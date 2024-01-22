@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/background"
     android:theme="@style/Theme.Echtzeyt"
-    tools:context=".EchtzeytActivity"
+    tools:context=".activities.EchtzeytActivity"
     tools:ignore="Overdraw">
 
     <Space
@@ -337,9 +337,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:radiusInner="@dimen/pullup_radius"
-        app:shadowColors="@array/shadow_colors"
+        app:shadowColors="@array/shadowColors"
         app:shadowSize="@dimen/shadow_size_small"
-        app:shadowStops="@array/shadow_stops"
+        app:shadowStops="@array/shadowStops"
         tools:visibility="visible">
 
         <ImageButton

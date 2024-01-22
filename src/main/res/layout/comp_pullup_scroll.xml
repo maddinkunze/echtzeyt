@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <com.maddin.echtzeyt.components.DropShadow
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="@dimen/shadow_size"
+            app:layout_constraintBottom_toBottomOf="@+id/contentLayout"
+            app:layout_constraintEnd_toEndOf="@+id/contentLayout"
+            app:layout_constraintStart_toStartOf="@+id/contentLayout"
+            app:layout_constraintTop_toTopOf="@+id/contentLayout"
+            app:radiusInner="@dimen/pullup_radius"
+            app:shadowColors="@array/shadowColors"
+            app:shadowSize="@dimen/shadow_size"
+            app:shadowStops="@array/shadowStops" />
+
+    <FrameLayout
+        android:id="@+id/contentLayout"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/pullup"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</merge>

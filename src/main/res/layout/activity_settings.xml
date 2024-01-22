@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/background"
     android:theme="@style/Theme.Echtzeyt"
-    tools:context=".SettingsActivity"
+    tools:context=".activities.SettingsActivity"
     tools:ignore="Overdraw">
 
     <androidx.viewpager2.widget.ViewPager2

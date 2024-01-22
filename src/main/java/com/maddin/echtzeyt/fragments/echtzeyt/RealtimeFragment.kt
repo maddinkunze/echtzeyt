@@ -3,11 +3,11 @@ package com.maddin.echtzeyt.fragments.echtzeyt
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.os.ConditionVariable
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.MeasureSpec
-import android.view.animation.Interpolator
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
@@ -18,17 +18,18 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
-import androidx.core.view.children
-import androidx.core.view.doOnLayout
+import androidx.core.view.WindowInsetsCompat
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import com.maddin.echtzeyt.ECHTZEYT_CONFIGURATION
 import com.maddin.echtzeyt.R
+import com.maddin.echtzeyt.activities.MapResultContractSelectStation
 import com.maddin.echtzeyt.components.InstantAutoCompleteTextView
 import com.maddin.echtzeyt.components.RealtimeInfo
+import com.maddin.echtzeyt.components.StationPullup
+import com.maddin.echtzeyt.components.StationSearchTextView
+import com.maddin.echtzeyt.components.StationSearchbar
 import com.maddin.echtzeyt.fragments.EchtzeytForegroundFragment
-import com.maddin.echtzeyt.randomcode.ActivityResultSerializable
 import com.maddin.echtzeyt.randomcode.ClassifiedException
 import com.maddin.transportapi.LocatableStation
 import com.maddin.transportapi.RealtimeConnection
@@ -40,37 +41,29 @@ import java.util.Calendar
 import kotlin.concurrent.thread
 
 class RealtimeFragment : EchtzeytForegroundFragment(R.layout.fragment_realtime) {
-    private var shouldUpdateSearch = false
+    private var shouldUpdateStationPullup = false
     private var nextUpdateConnections = 0L
-    private var currentStationSearch = ""
 
     // Elements/Views
-    private val edtSearch by lazy { safeView.findViewById<InstantAutoCompleteTextView>(R.id.edtSearch) }
-    private val btnSearch by lazy { safeView.findViewById<ImageButton>(R.id.btnSearch) }
+    private val edtSearch by lazy { safeView.findViewById<StationSearchbar>(R.id.edtSearch) }
     private val btnMap by lazy { safeView.findViewById<ImageButton>(R.id.btnMap) }
-    private val btnLike by lazy { safeView.findViewById<ImageButton>(R.id.btnLike) }
+    private val btnInfo by lazy { safeView.findViewById<ImageButton>(R.id.btnInfo) }
     private val btnBookmarks by lazy { safeView.findViewById<ImageButton>(R.id.btnBookmarks) }
     private val layoutConnections by lazy { safeView.findViewById<LinearLayout>(R.id.layoutScroll) }
+    private val pullupStation by lazy { safeView.findViewById<StationPullup>(R.id.pullupStationInfo) }
 
+    private var mKeyboardVisible = false
 
     // Bookmark variables
     private var bookmarksOpened = false
+    private var pullupStationOpened = false
 
-    private var currentStationName = ""
-    private var currentStation: Station? = null
-    private var savedStations: MutableSet<String> = mutableSetOf()
-    private val adapterSearch by lazy { ArrayAdapter<String>(safeContext, R.layout.support_simple_spinner_dropdown_item) }
-    protected val transportSearchStationAPI by lazy { ECHTZEYT_CONFIGURATION.realtimeStationAPI!! }
     protected val transportRealtimeAPI by lazy { ECHTZEYT_CONFIGURATION.realtimeRealtimeAPI!! }
 
     // Everything related to other activities (such as the settings or a station selection map)
-    protected val activitySettings by lazy { ECHTZEYT_CONFIGURATION.activitySettings }
-    protected val activityMap by lazy { if (!ECHTZEYT_CONFIGURATION.mapsSupportLocateStations) { return@lazy null }; ECHTZEYT_CONFIGURATION.activityMap }
-    private val activityMapLauncher by lazy { registerForActivityResult(ActivityResultSerializable<LocatableStation>(activityMap!!)) { commitToStation(it) } }
+    private val activityMapLauncher by lazy { registerForActivityResult(MapResultContractSelectStation()) { if (it == null) { return@registerForActivityResult }; commitToStation(it) } }
 
     // Notifications and exceptions
-    private var currentNotification: JSONObject? = null
-    private var lastClosedNotification = ""
     private var exceptions: MutableList<ClassifiedException> = mutableListOf()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -84,60 +77,54 @@ class RealtimeFragment : EchtzeytForegroundFragment(R.layout.fragment_realtime) 
     }
 
     override fun onResume() {
-        updateConnectionsIn(0, true)
+        updateConnectionsIn(100, true)
         super.onResume()
     }
 
     private fun initVariables() {
         // the launcher has to be registered before the activity has been started
         // by explicitly stating activityMapLauncher, we force lazy to initialize activityMapLauncher
-        if (activityMap != null) { activityMapLauncher }
+        if (ECHTZEYT_CONFIGURATION.mapsSupportLocateStations) { activityMapLauncher }
+        edtSearch.searchStationAPI = ECHTZEYT_CONFIGURATION.realtimeStationAPI!!
 
         toggleBookmarks(true)
     }
     private fun initSettings() {
         // Save last station?
-        if (!preferences.contains("saveStation")) { preferences.edit().putBoolean("saveStation", true).apply() }
-        if (preferences.getBoolean("saveStation", true)) { currentStationName = preferences.getString("station", "")?:"" }
-
-        // Saved stations
-        if (!preferences.contains("savedStations")) { preferences.edit().putStringSet("savedStations", savedStations).apply() }
-        val savedStationsTemp = preferences.getStringSet("savedStations", savedStations)
-        if (savedStationsTemp != null) { savedStations = savedStationsTemp }
-
-        // Notifications (last closed notification -> do not show a notification that is already closed)
-        if (!preferences.contains("lastClosedNotification")) { preferences.edit().putString("lastClosedNotification", lastClosedNotification).apply() }
-        lastClosedNotification = preferences.getString("lastClosedNotification", lastClosedNotification).toString()
+        edtSearch.setText(ECHTZEYT_CONFIGURATION.getLastRealtimeStationName())
     }
     private fun initHandlers() {
-        // Set adapter (dropdown) for the station search -> autocomplete
-        edtSearch.setAdapter(adapterSearch)
-        edtSearch.threshold = 0  // Show dropdown after the first character entered
-        edtSearch.setDropDownBackgroundResource(R.drawable.dropdown)  // Change background resource of the dropdown to match the rest
-
-        // Listener when the main search input changes
-        edtSearch.addOnTextChangedListener { text ->
-            val search = text.toString()
-            if (search == currentStationName) { edtSearch.clearFocus(); return@addOnTextChangedListener }
-
-            currentStationSearch = search
-            shouldUpdateSearch = true
-        }
-
-        // When selecting an item of the search dropdown
-        edtSearch.addOnItemSelectedListener { clearFocus(); commitToStation() }
-
-        // Update station times and close the dropdown when clicking on the search button
-        btnSearch.setOnClickListener { clearFocus(); commitToStation() }
+        // When the search has selected a new station, update connections and pullup etc
+        edtSearch.onItemSelectedListeners.add { commitToStation(edtSearch.currentStation, updateSearch=false) }
 
         // Open map (for selecting a station) when the map button is clicked
         btnMap.setOnClickListener { openStationMap() }
 
-        // Toggle like when clicking the star/like button
-        btnLike.setOnClickListener { toggleLike() }
-
         // Toggle the bookmarks/favorites menu when clicking the bookmarks button
         btnBookmarks.setOnClickListener { toggleBookmarks() }
+
+        // Toggle the station info pullup when the info button is pressed
+        btnInfo.setOnClickListener { toggleStationPullup() }
+
+        // When a new favorite station was added, update the bookmarks view
+        ECHTZEYT_CONFIGURATION.onFavoriteStationsChangedListeners.add { updateBookmarks() }
+
+        // When the pullup gets closed, update the info button
+        pullupStation.addOnCloseListener {
+            pullupStationOpened = false
+            updateInfoButtonFill()
+        }
+
+        // Listener for whether the ime (i.e. keyboard inset) is visible / has been hidden
+        // -> clear focus from text inputs on keyboard hide
+        safeView.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) { return@addOnLayoutChangeListener }
+            if (!v.isAttachedToWindow) { return@addOnLayoutChangeListener }
+            val keyboardVisible = WindowInsetsCompat.toWindowInsetsCompat(v.rootWindowInsets, v).isVisible(
+                WindowInsetsCompat.Type.ime())
+            if (mKeyboardVisible && !keyboardVisible) { edtSearch.clearFocus() }
+            mKeyboardVisible = keyboardVisible
+        }
     }
     private fun initThreads() {
         // Theoretically these threads could be combined into one, however this can be laggy, especially on older hardware
@@ -150,8 +137,8 @@ class RealtimeFragment : EchtzeytForegroundFragment(R.layout.fragment_realtime) 
                     return@thread
                 }
 
-                if (shouldUpdateSearch) { ntUpdateSearch() }
-                Thread.sleep(20)
+                edtSearch.ntUpdateSearch()
+                Thread.sleep(50)
             }
         }
 
@@ -171,11 +158,6 @@ class RealtimeFragment : EchtzeytForegroundFragment(R.layout.fragment_realtime) 
     }
     private fun initApp() {
         safeView.findViewById<View>(R.id.layoutBookmarks).alpha = 0f
-
-        edtSearch.setText(currentStationName)
-        if (currentStationName.isNotEmpty()) { edtSearch.clearFocus() }
-
-        commitToStation()
         updateBookmarks()
     }
 
@@ -194,16 +176,36 @@ class RealtimeFragment : EchtzeytForegroundFragment(R.layout.fragment_realtime) 
         // Select all necessary views
         val txtLastUpdated = safeView.findViewById<TextView>(R.id.txtLastUpdated)
         val txtEmpty = safeView.findViewById<TextView>(R.id.txtEmpty)
-        currentStationSearch = edtSearch.text.toString()
+        val currentStation = edtSearch.currentStation
+        if (currentStation == null) {
+            activity?.runOnUiThread {
+                layoutConnections.removeAllViews()
+                txtEmpty.setText(R.string.updateStationEmpty)
+                txtEmpty.visibility = View.VISIBLE
+            }
+            return
+        }
 
         val connections: List<RealtimeConnection>
         try {
-            if ((currentStation == null) || (currentStation!!.name != currentStationSearch)) {
+            /*if ((currentStation == null) || (currentStation!!.name.lowercase() != currentStationSearch.lowercase())) {
                 val stations = transportSearchStationAPI.searchStations(currentStationSearch)
-                if (stations.isEmpty()) { return }
+                if (stations.isEmpty()) {
+                    currentStation = null
+                    activity?.runOnUiThread {
+                        layoutConnections.removeAllViews()
+                        txtEmpty.setText(R.string.updateStationInvalid)
+                        txtEmpty.visibility = View.VISIBLE
+                    }
+                    return
+                }
                 currentStation = stations[0]
+            }*/
+            if (shouldUpdateStationPullup) {
+                activity?.runOnUiThread { pullupStation.setStation(currentStation) }
+                shouldUpdateStationPullup = false
             }
-            connections = transportRealtimeAPI.getRealtimeInformation(currentStation!!).connections
+            connections = transportRealtimeAPI.getRealtimeInformation(currentStation).connections
         } catch (e: Exception) {
             activity?.runOnUiThread {
                 txtLastUpdated.setTextColor(resources.getColor(R.color.error))
@@ -220,29 +222,37 @@ class RealtimeFragment : EchtzeytForegroundFragment(R.layout.fragment_realtime) 
         }
 
         // TODO: maybe optimize this by reusing already existing RealtimeInfo views
+        // TODO: also, maybe use a recycler view?
         val views = connections.mapIndexed { i, it -> RealtimeInfo(safeContext, it, (i%2)>0) }
 
-        activity?.runOnUiThread {
-            txtEmpty.visibility = if (connections.isEmpty()) { View.VISIBLE } else { View.GONE }
+        var maxLineNumberWidth = 0
+        var maxMinWidth = 0
+        var maxSecWidth = 0
 
-            var maxLineNumberWidth = 0
-            var maxMinWidth = 0
-            var maxSecWidth = 0
+        for (view in views) {
+            view.measureForMaximumWidth(layoutConnections)
+            maxLineNumberWidth = maxLineNumberWidth.coerceAtLeast(view.getMaxLineNumberWidth())
+            maxMinWidth = maxMinWidth.coerceAtLeast(view.getMaxMinutesWidth())
+            maxSecWidth = maxSecWidth.coerceAtLeast(view.getMaxSecondsWidth())
+        }
+
+        for (view in views) {
+            view.setLineNumberMinWidth(maxLineNumberWidth)
+            view.setMinutesMinWidth(maxMinWidth)
+            view.setSecondsMinWidth(maxSecWidth)
+        }
+
+        activity?.runOnUiThread {
+            if (connections.isEmpty()) {
+                txtEmpty.setText(R.string.updateEmpty)
+                txtEmpty.visibility = View.VISIBLE
+            } else {
+                txtEmpty.visibility = View.GONE
+            }
 
             layoutConnections.removeAllViews()
 
             for (view in views) {
-                view.measureForMaximumWidth(layoutConnections)
-                maxLineNumberWidth = maxLineNumberWidth.coerceAtLeast(view.getMaxLineNumberWidth())
-                maxMinWidth = maxMinWidth.coerceAtLeast(view.getMaxMinutesWidth())
-                maxSecWidth = maxSecWidth.coerceAtLeast(view.getMaxSecondsWidth())
-            }
-
-            for (view in views) {
-                view.setLineNumberMinWidth(maxLineNumberWidth)
-                view.setMinutesMinWidth(maxMinWidth)
-                view.setSecondsMinWidth(maxSecWidth)
-
                 layoutConnections.addView(view)
             }
 
@@ -255,43 +265,6 @@ class RealtimeFragment : EchtzeytForegroundFragment(R.layout.fragment_realtime) 
             txtLastUpdated.alpha = 1f
             txtLastUpdated.animate().alpha(0.4f).setDuration(300).setStartDelay(300).start()
         }
-    }
-    private fun ntUpdateSearch() {
-        try {
-            currentStationSearch = edtSearch.text.toString()
-        } catch (_: IndexOutOfBoundsException) { } // quite normal due to threading
-
-        try {
-            var stations = emptyList<Station>()
-            if (currentStationSearch.isNotEmpty()) {
-                stations = transportSearchStationAPI.searchStations(currentStationSearch)
-            }
-
-            activity?.runOnUiThread {
-                adapterSearch.clear()
-                if (stations.isEmpty()) {
-                    adapterSearch.notifyDataSetChanged()
-                    edtSearch.dismissDropDown()
-                    return@runOnUiThread
-                }
-
-                for (station in stations) {
-                    val stationName = station.name
-                    if (stationName == currentStationSearch) { clearFocus(); return@runOnUiThread }
-                    adapterSearch.add(stationName)
-                }
-
-                adapterSearch.notifyDataSetChanged()
-                edtSearch.post {
-                    edtSearch.showSuggestions()
-                }
-            }
-        } catch (e: Exception) {
-            val classification = classifyExceptionDefault(e)
-            exceptions.add(ClassifiedException(e, classification))
-        }
-
-        shouldUpdateSearch = false
     }
 
     private fun sendFeedback(sendLogs: Boolean) {
@@ -326,21 +299,6 @@ class RealtimeFragment : EchtzeytForegroundFragment(R.layout.fragment_realtime) 
             .show()
     }
 
-    private fun toggleLike() {
-        val btnLike = safeView.findViewById<ImageButton>(R.id.btnLike)
-        if (savedStations.contains(currentStationName)) {
-            savedStations.remove(currentStationName)
-            btnLike.setImageResource(R.drawable.ic_star)
-        } else {
-            savedStations.add(currentStationName)
-            btnLike.setImageResource(R.drawable.ic_star_filled)
-        }
-
-        preferences.edit().remove("savedStations").apply()
-        preferences.edit().putStringSet("savedStations", savedStations).apply()
-        updateBookmarks()
-    }
-
     private fun toggleBookmarks() { toggleBookmarks(false) }
     private fun toggleBookmarks(forceClose: Boolean) {
         val duration = 150L
@@ -361,45 +319,81 @@ class RealtimeFragment : EchtzeytForegroundFragment(R.layout.fragment_realtime) 
     private fun updateBookmarks() {
         val items = safeView.findViewById<LinearLayout>(R.id.bookmarksItems)
         val itemsScroll = items.parent as View
+        val savedStations = ECHTZEYT_CONFIGURATION.getFavoriteStations()
 
         items.removeAllViews()
         val txtEmpty = safeView.findViewById<TextView>(R.id.bookmarksEmpty)
         if (savedStations.isEmpty()) {
             txtEmpty.visibility = View.VISIBLE
             itemsScroll.visibility = View.GONE
+            itemsScroll.invalidate()
             return
         }
         txtEmpty.visibility = View.GONE
         itemsScroll.visibility = View.VISIBLE
 
         val inflater = LayoutInflater.from(safeContext)
+        var odd = false
         for (savedStation in savedStations) {
             val root = inflater.inflate(R.layout.comp_button_bookmark, items, false)
             val itemButton = root.findViewById<Button>(R.id.btnBookmarkItem)
-            itemButton.text = " • $savedStation"
+            itemButton.text = savedStation
+            if (odd) { itemButton.setBackgroundResource(R.drawable.favorite_highlight) }
             itemButton.setOnClickListener { commitToStation(savedStation) }
             items.addView(itemButton)
+
+            odd = !odd
         }
+        itemsScroll.invalidate()
     }
 
-    private fun commitToStation(stationName: String? = null) {
+    private fun toggleStationPullup(forceClose: Boolean = false) {
+        if (pullupStationOpened || forceClose) {
+            pullupStation.hidePullup()
+            pullupStationOpened = false
+        } else {
+            edtSearch.currentStation?.let {
+                pullupStation.setStation(it, true)
+                pullupStationOpened = true
+            }
+        }
+        updateInfoButtonFill()
+    }
+
+    private fun updateInfoButtonFill() {
+        btnInfo.setImageResource(if (pullupStationOpened) R.drawable.ic_info_filled else R.drawable.ic_info)
+    }
+
+    private fun commitToStation(station: Station?, updateSearch: Boolean=true, updatePullup: Boolean=true, updateConnections: Boolean=true) {
+        if (updateSearch) { edtSearch.currentStation = station }
+        if (updatePullup) { station?.let { pullupStation.setStation(it) } }
+        if (updateConnections) { updateConnections() }
+        ECHTZEYT_CONFIGURATION.setCurrentRealtimeStation(station)
+    }
+
+    private fun commitToStation(stationName: String) {
+        edtSearch.setText(stationName)
+        toggleBookmarks(true)
+    }
+
+    /*private fun commitToStation(stationName: String? = null) {
         val edtSearch = safeView.findViewById<TextView>(R.id.edtSearch)
         if (!stationName.isNullOrEmpty()) {
             edtSearch.text = stationName
         }
         currentStationName = edtSearch.text.toString()
         preferences.edit().putString("station", currentStationName).apply()
-        safeView.findViewById<ImageButton>(R.id.btnLike).setImageResource(if (savedStations.contains(currentStationName)) { R.drawable.ic_star_filled } else { R.drawable.ic_star })
+        shouldUpdateStationPullup = true
 
         toggleBookmarks(true)
         updateConnections()
-    }
+    }*/
 
-    private fun commitToStation(station: Station?) {
+    /*private fun commitToStation(station: Station?) {
         if (station == null) { return }
         currentStation = station
         commitToStation(station.name)
-    }
+    }*/
 
     private fun scheduleNextConnectionsUpdate(next: Long, force: Boolean = false) {
         if ((next > nextUpdateConnections) && !force) { return }
@@ -418,14 +412,6 @@ class RealtimeFragment : EchtzeytForegroundFragment(R.layout.fragment_realtime) 
         scheduleNextConnectionsUpdate(0, true)
     }
 
-    private fun clearFocus() {
-        val edtSearch = safeView.findViewById<AutoCompleteTextView>(R.id.edtSearch)
-        val focusLayout = safeView.findViewById<LinearLayout>(R.id.focusableLayout)
-        edtSearch.dismissDropDown()
-        focusLayout.requestFocus()
-        (activity?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(safeView.findViewById<View>(R.id.dividerSearch).windowToken, 0)
-    }
-
     private fun classifyExceptionDefault(e: Exception) : String {
         if (e is java.net.UnknownHostException) {
             return "No internet connection"
@@ -434,11 +420,7 @@ class RealtimeFragment : EchtzeytForegroundFragment(R.layout.fragment_realtime) 
     }
 
     protected fun openStationMap() {
-        if (activityMap == null) { return }
-
-        var station: LocatableStation? = null
-        if (currentStation is LocatableStation) { station = currentStation as LocatableStation }
-
-        activityMapLauncher.launch(station)
+        if (!ECHTZEYT_CONFIGURATION.mapsSupportLocateStations) { return }
+        activityMapLauncher.launch(edtSearch.currentStation as? LocatableStation)
     }
 }

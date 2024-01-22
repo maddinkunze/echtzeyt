@@ -16,6 +16,9 @@
 
     <declare-styleable name="PullupScrollView">
         <attr name="minimumVisibleHeight" format="dimension" />
+        <attr name="additionalPaddingBottom" format="dimension" />
+        <attr name="backgroundPullup" format="reference" />
+        <attr name="backgroundColorPullup" format="color" />
         <attr name="fadeDuration" format="integer" />
         <attr name="fadeInDuration" format="integer" />
         <attr name="fadeOutDuration" format="integer" />
@@ -59,5 +62,21 @@
 
     <declare-styleable name="MenuTabLayout">
         <attr name="paddingContent" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="FlowLayout">
+        <attr name="layout_spacing_horizontal" format="dimension" />
+        <attr name="layout_spacing_vertical" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="InstantAutoCompleteTextView">
+        <attr name="textSizeFocus" format="dimension" />
+        <attr name="heightFocus" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="StationSearchbar">
+        <attr name="animated" format="boolean" />
+        <attr name="textInfo" format="string" />
+        <attr name="fillUntil" format="reference" />
     </declare-styleable>
 </resources>

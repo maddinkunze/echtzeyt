@@ -50,8 +50,11 @@
     <string name="updateLast">"Letzte Aktualisierung: "</string>
     <string name="settingsAutoDark">Systemfarben übernehmen</string>
     <string name="btnLikeDescription">Station zu Lesezeichen hinzufügen</string>
+    <string name="btnInfoDescription">Mehr Informationen anzeigen</string>
     <string name="btnBookmarksDescription">Lesezeichen anzeigen</string>
-    <string name="updateEmpty">Hier gibt es nichts zu sehen!</string>
+    <string name="updateEmpty">Es scheint so, als würde in nächster Zeit nichts von hier losfahren.</string>
+    <string name="updateStationEmpty">Bitte gib den Namen einer Haltestelle ein</string>
+    <string name="updateStationInvalid">Die eingegebene Haltestelle konnte nicht gefunden werden</string>
     <string name="btnMenuDescription">Menü öffnen</string>
     <string name="appNameSettings">Einstellungen</string>
     <string name="appNameLicenses">Lizenzen</string>
@@ -75,6 +78,7 @@
     <string name="sendLogsText">Es scheint so als wäre dir gerade etwas ungewöhnliches passiert. Möchtest du die letzten aufgezeichneten Fehler zusammen mit deinem Feedback senden?</string>
     <string name="sendLogsYes">Ja, sende Fehlerbericht</string>
     <string name="sendLogsNo">Nein</string>
+    <string name="pullupNoServingLines">Es scheint so, als würde hier nichts fahren.</string>
     <string name="mapStationConfirm">Ausgewählte Station benutzen</string>
     <string name="mapBack">Zurück</string>
     <string name="mapLocationEnableTitle">Aktiviere deinen Standort</string>
@@ -93,6 +97,7 @@
     <string name="licenseLibrariesTitle">Die folgenden Bibliotheken werden aktuell genutzt:</string>
     <string name="licenseLibraries"><ul>
         <li><a href="https://github.com/osmdroid/osmdroid">OSMDroid</a> (Apache License 2.0)</li>\n
+        <li><a href="https://github.com/material-components/material-components-android">Material Components</a> von Google (Apache License 2.0)</li>\n
         <li><a href="https://github.com/maddinkunze/transportapi">TransportAPI</a></li>
     </ul></string>
     <string name="licenseAdditionalTitle">Außerdem werden/wurden Daten aus folgenden Quellen benutzt:</string>
@@ -100,6 +105,7 @@
         <li>Kartendaten von <a href="https://openstreetmap.org/">OpenStreetMap</a> und Mitwirkenden</li>\n
         <li>Einige Icons stammen von <a href="https://svgrepo.com/">SVGRepo</a> (PD, CC0 oder vergleichbare Lizenz)</li>
     </ul></string>
+    <string name="licenseAdditionalImplementation" />
     <string name="_libraryEchtzeytBasedOn">basiert auf\u0020</string>
     <string name="widgetNameSettings">Einstellungen</string>
     <string name="mapNoGpsProviders">Es konnten keine Standortanbieter auf deinem Gerät gefunden werden. Hat dein Gerät GPS Funktionalität?</string>

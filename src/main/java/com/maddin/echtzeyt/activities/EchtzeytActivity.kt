@@ -1,4 +1,4 @@
-package com.maddin.echtzeyt
+package com.maddin.echtzeyt.activities
 
 import android.app.ActivityManager
 import android.appwidget.AppWidgetManager
@@ -15,14 +15,17 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
+import com.maddin.echtzeyt.BuildConfig
+import com.maddin.echtzeyt.ECHTZEYT_CONFIGURATION
+import com.maddin.echtzeyt.R
 import com.maddin.echtzeyt.components.FloatingInfoButton
 import com.maddin.echtzeyt.components.MenuTabLayout
 import com.maddin.echtzeyt.fragments.MenuViewPagerAdapter
@@ -240,7 +243,9 @@ open class EchtzeytActivity : EchtzeytForegroundActivity() {
         btnSettings.setOnClickListener { toggleMenu(true); openSettings() }
 
         // Open the support/donation link when clicking the donation button
-        btnDonate.setOnClickListener { toggleMenu(true); startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(resources.getString(R.string.urlSupportMe)))) }
+        btnDonate.setOnClickListener { toggleMenu(true); startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(resources.getString(
+            R.string.urlSupportMe
+        )))) }
 
         // Start the feedback process when clicking the feedback button
         btnMessage.setOnClickListener { toggleMenu(true); sendFeedback() }
@@ -336,9 +341,12 @@ open class EchtzeytActivity : EchtzeytForegroundActivity() {
         return 1
     }
     private fun showNotification() {
-        if (currentNotification == null) { Toast.makeText(this, R.string.notificationToastInvalid, Toast.LENGTH_SHORT).show(); return }
-        if (!currentNotification!!.has("id")) { Toast.makeText(this, R.string.notificationToastInvalid, Toast.LENGTH_SHORT).show(); return }
-        if (ntShowNotificationInternal() != 1) { Toast.makeText(this, R.string.notificationToastOtherError, Toast.LENGTH_SHORT).show(); return }
+        if (currentNotification == null) { Toast.makeText(this,
+            R.string.notificationToastInvalid, Toast.LENGTH_SHORT).show(); return }
+        if (!currentNotification!!.has("id")) { Toast.makeText(this,
+            R.string.notificationToastInvalid, Toast.LENGTH_SHORT).show(); return }
+        if (ntShowNotificationInternal() != 1) { Toast.makeText(this,
+            R.string.notificationToastOtherError, Toast.LENGTH_SHORT).show(); return }
     }
     private fun closeNotification() {
         val notificationWindow = findViewById<View>(R.id.notificationWindow)
