@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:clipChildren="false">
+
+    <com.maddin.echtzeyt.components.VehicleTypeTextView
+        android:id="@+id/txtLineName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="S 3"
+        android:singleLine="true"
+        android:ellipsize="none"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/txtLineDirection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp"
+        android:layout_marginTop="-5sp"
+        android:text="Amber Station" />
+
+    <LinearLayout
+        android:id="@+id/layoutTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp">
+
+        <TextView
+            android:id="@+id/txtTimeInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="17 Minutes" />
+
+        <TextView
+            android:id="@+id/txtStopCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="20 Stops" />
+    </LinearLayout>
+
+</LinearLayout>

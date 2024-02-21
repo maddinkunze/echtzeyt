@@ -148,7 +148,7 @@ fun Resources.getShadowColors(@ArrayRes colorsRes: Int, @ArrayRes stopsRes: Int)
 // retrieveExplicitStyle() which would call theme.getExplicitStyle(), resulting in a NPE
 // by not passing the attributeset onto the view (but instead null) we can circumvent this behaviour
 // https://medium.com/@debuggingisfun/retrieveexplicitstyle-android-10-crash-cef9bced1d01
-private val workaroundSetAttrsNull = BuildConfig.DEBUG
+private val workaroundSetAttrsNull = BuildConfig.DEBUG && Build.VERSION.SDK_INT >= 21
 
 @Suppress("unused")
 class DropShadow : View {
@@ -178,6 +178,7 @@ class DropShadow : View {
     private var mMarginBottom = 0
     private var mShadowSize = 5
     private var mRadiusOriginal = 0
+    private var mExtraOffsetBottom = 0
 
     private var mColorStops = colorStopsDefault
 
@@ -189,6 +190,7 @@ class DropShadow : View {
             mShadowSize = styledAttr.getDimensionPixelSize(R.styleable.DropShadow_shadowSize, mShadowSize)
             mRadiusOriginal = styledAttr.getDimensionPixelSize(R.styleable.DropShadow_radiusInner, mRadiusOriginal)
             mColorStops = styledAttr.getShadowColors(R.styleable.DropShadow_shadowColors, R.styleable.DropShadow_shadowStops, resources) ?: mColorStops
+            mExtraOffsetBottom = styledAttr.getDimensionPixelSize(R.styleable.DropShadow_extraOffsetBottom, mExtraOffsetBottom)
         } finally {
             styledAttr.recycle()
         }
@@ -264,8 +266,7 @@ class DropShadow : View {
     }
 
     private fun shouldRecalculateBitmap() : Boolean {
-        if (mBitmapShadow == null) { return true }
-        return false
+        return mBitmapShadow == null
     }
 
     fun setMarginLeft(left: Int) {
@@ -306,7 +307,7 @@ class DropShadow : View {
         lParams.leftMargin = mMarginLeft - mShadowSize
         lParams.topMargin = mMarginTop - mShadowSize
         lParams.rightMargin = mMarginRight - mShadowSize
-        lParams.bottomMargin = mMarginBottom - mShadowSize
+        lParams.bottomMargin = mMarginBottom - mShadowSize - mExtraOffsetBottom
         layoutParams = lParams
     }
 
@@ -388,6 +389,7 @@ interface DropShadowView {
 
     // should be called in (overridden) onLayout in the view this is implemented on
     fun addShadow() {
+        if (Build.VERSION.SDK_INT < 21) { return }
         this as View  // assert that we are implemented on a view
         if (isInEditMode) { return }
         if (mShadowAttached) { return }
@@ -429,6 +431,6 @@ interface DropShadowView {
 
     // should be called in (overridden) onVisibilityChanged in the view this is implemented on
     fun setShadowVisibility(visibility: Int) {
-        mShadow.visibility = visibility
+        try { mShadow.visibility = visibility } catch (_: Throwable) { (this as View).post { mShadow.visibility = visibility } }
     }
 }

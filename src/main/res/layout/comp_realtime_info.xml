@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
@@ -15,6 +16,21 @@
         android:textColor="@color/foreground"
         android:textIsSelectable="false"
         android:textSize="@dimen/realtimeinfo_textsize" />
+
+    <com.maddin.echtzeyt.components.VehicleTypeTextView
+        android:id="@+id/txtLineNumberIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:ellipsize="end"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        app:fontFamily="@font/roboto"
+        android:gravity="center_vertical|end"
+        android:maxLines="1"
+        android:textColor="@color/foreground"
+        android:textIsSelectable="false"
+        android:visibility="gone"
+        android:textSize="@dimen/realtimeinfo_textsize_icon" />
 
     <TextView
         android:id="@+id/txtLineName"
@@ -32,6 +48,25 @@
         android:textColor="@color/foreground"
         android:textSize="@dimen/realtimeinfo_textsize"
         android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/txtLineTimeNeg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="-"
+        android:layout_marginStart="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginEnd="-2dp"
+        android:layout_marginRight="-2dp"
+        android:ellipsize="end"
+        android:visibility="gone"
+        android:textStyle="bold"
+        app:fontFamily="@font/roboto_mono"
+        android:gravity="top|end"
+        android:maxLines="1"
+        android:textColor="@color/foreground"
+        android:textSize="@dimen/realtimeinfo_textsize"
+        tools:ignore="HardcodedText" />
 
     <TextView
         android:id="@+id/txtLineTimeHour"
@@ -67,6 +102,20 @@
         android:layout_marginEnd="5dp"
         android:layout_marginRight="5dp"
         android:ellipsize="end"
+        app:fontFamily="@font/roboto_mono"
+        android:gravity="top|end"
+        android:maxLines="1"
+        android:textColor="@color/foreground"
+        android:textSize="@dimen/realtimeinfo_textsize" />
+
+    <TextView
+        android:id="@+id/txtLineTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="5dp"
+        android:ellipsize="end"
+        android:visibility="gone"
         app:fontFamily="@font/roboto_mono"
         android:gravity="top|end"
         android:maxLines="1"

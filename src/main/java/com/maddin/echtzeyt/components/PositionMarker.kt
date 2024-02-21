@@ -1,19 +1,10 @@
 package com.maddin.echtzeyt.components
 
-import android.animation.TypeEvaluator
 import android.animation.ValueAnimator
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Point
-import android.location.Location
-import android.location.LocationManager
-import android.os.Build
 import android.view.MotionEvent
-import androidx.core.content.ContextCompat
-import androidx.core.location.LocationManagerCompat
-import androidx.core.util.Consumer
-import com.maddin.transportapi.LocatableStation
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker

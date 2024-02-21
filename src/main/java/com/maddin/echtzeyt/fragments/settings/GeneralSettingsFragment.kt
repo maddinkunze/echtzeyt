@@ -5,6 +5,9 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
 import com.maddin.echtzeyt.R
+import com.maddin.echtzeyt.components.DescriptiveSwitch
+import com.maddin.echtzeyt.components.PullupScrollView
+import com.maddin.echtzeyt.components.PullupScrollView2
 
 class GeneralSettingsFragment : SettingsFragment(R.layout.fragment_settings_general) {
     private lateinit var propAutoDark: BoolProperty
@@ -12,8 +15,8 @@ class GeneralSettingsFragment : SettingsFragment(R.layout.fragment_settings_gene
     override lateinit var settings: Array<SettingsProperty>
 
     override fun onLoadSettings(view: View, context: Context, savedInstanceState: Bundle?) {
-        propAutoDark = BoolProperty("autoDark", view.findViewById(R.id.settingsAutoDarkSwitch), true)
-        propDarkMode = BoolProperty("darkMode", view.findViewById(R.id.settingsDarkModeSwitch), false)
+        propAutoDark = BoolProperty("autoDark", view.findViewById<DescriptiveSwitch>(R.id.settingsAutoDarkSwitch), true)
+        propDarkMode = BoolProperty("darkMode", view.findViewById<DescriptiveSwitch>(R.id.settingsDarkModeSwitch), false)
 
         settings = arrayOf(
             propAutoDark,

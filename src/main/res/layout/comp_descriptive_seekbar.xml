@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
+
+    <com.maddin.echtzeyt.components.LabeledDiscreteSeekBar
+        android:id="@+id/dsk_seekbar"
+        style="@style/Theme.Echtzeyt.Switch"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:labelColor="@color/background"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.4"
+        app:thumbPaddingBottom="3dp"
+        app:thumbPaddingLeft="8dp"
+        app:thumbPaddingRight="8dp"
+        app:thumbPaddingTop="3dp"
+        app:thumbRadius="15dp"
+        app:thumbTextSize="14sp"
+        app:thumbTint="@color/foreground"
+        app:trackHeight="6dp"
+        app:trackTint="@color/backgroundSunken" />
+
+    <TextView
+        android:id="@+id/dsk_txtTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:text="Title"
+        android:textColor="@color/foreground"
+        android:textSize="@dimen/settings_label_size"
+        app:layout_constraintBottom_toBottomOf="@+id/dsk_seekbar"
+        app:layout_constraintEnd_toStartOf="@+id/dsk_seekbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/dsk_txtDescription"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Description"
+        android:textColor="@color/foregroundHint"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toStartOf="@+id/dsk_seekbar"
+        app:layout_constraintStart_toStartOf="@+id/dsk_txtTitle"
+        app:layout_constraintTop_toBottomOf="@+id/dsk_txtTitle" />
+</merge>

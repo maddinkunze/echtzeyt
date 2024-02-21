@@ -47,7 +47,7 @@
     <View
         android:id="@+id/fillerCutout"
         android:layout_width="match_parent"
-        android:layout_height="0.00001px"
+        android:layout_height="0.001px"
         android:alpha="0.6"
         android:background="@drawable/fillercutout"
         app:layout_constraintEnd_toEndOf="parent"
@@ -57,19 +57,17 @@
 
     <com.maddin.echtzeyt.components.StationPullup
         android:id="@+id/pullupStationInfo"
-        android:visibility="gone"
         style="@style/Theme.Echtzeyt.PullupScrollView"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         app:minimumVisibleHeight="80dp"
-        app:backgroundPullup="@drawable/pullup_second"
-        app:backgroundColorPullup="@color/backgroundPullupSecond" />
+        app:variant="second" />
 
     <com.maddin.echtzeyt.components.FloatingButton
         android:id="@+id/btnMapBack"
-        style="@style/Theme.Echtzeyt.Button.Floating.Map"
+        style="@style/Theme.Echtzeyt.Button.Image.Floating.Map"
         android:contentDescription="@string/mapBack"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/fillerCutout"
@@ -77,7 +75,7 @@
 
     <com.maddin.echtzeyt.components.FloatingButton
         android:id="@+id/btnMapLocate"
-        style="@style/Theme.Echtzeyt.Button.Floating.Map"
+        style="@style/Theme.Echtzeyt.Button.Image.Floating.Map"
         android:contentDescription="@string/btnLocateDescription"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/fillerCutout"
@@ -85,7 +83,7 @@
 
     <com.maddin.echtzeyt.components.FloatingButton
         android:id="@+id/btnMapHideMarkers"
-        style="@style/Theme.Echtzeyt.Button.Floating.Map"
+        style="@style/Theme.Echtzeyt.Button.Image.Floating.Map"
         android:contentDescription="@string/btnLocateDescription"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"

@@ -14,7 +14,9 @@
         android:label="@string/appName"
         android:supportsRtl="true"
         android:theme="@style/Theme.Echtzeyt"
-        tools:ignore="DataExtractionRules,RtlEnabled">
+        android:hardwareAccelerated="true"
+        android:enableOnBackInvokedCallback="true"
+        tools:ignore="DataExtractionRules,RtlEnabled,UnusedAttribute">
         <activity android:name=".activities.EchtzeytActivity"
             android:exported="true">
             <intent-filter>

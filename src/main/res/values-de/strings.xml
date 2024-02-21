@@ -41,6 +41,21 @@
         <item>30 Sekunden</item>
         <item>1 Minute</item>
     </string-array>
+    <string name="settingsRealtimeSlowerUpdatesDescription">Weniger Updates, wenn Verbindungen in der fernen Zukunft oder Vergangenheit gesucht werden</string>
+    <string name="settingsRealtimeUseIcons">Liniensymbole verwenden</string>
+    <string name="settingsRealtimeUseIconsDescription">Symbole statt Text nutzen um die Liniennummer anzuzeigen</string>
+    <string name="settingsRealtimeIconsSameWidth">Gleiche Symbolbreite</string>
+    <string name="settingsRealtimeIconsSameWidthDescription">Liniensymbole auf gleiche Breite zwingen</string>
+    <string name="settingsRealtimeTimeAfter">Zeige Uhrzeit ab</string>
+    <string-array name="settingsRealtimeTimeAfterOptionNames">
+        <item>Immer</item>
+        <item>30 Minuten</item>
+        <item>1 Stunde</item>
+        <item>2 Stunden</item>
+        <item>5 Stunden</item>
+        <item>10 Stunden</item>
+        <item>Niemals</item>
+    </string-array>
     <string name="menuSettingsGeneral">Allgemein</string>
     <string name="menuSettingsRealtime">Echtzeit</string>
     <string name="menuSettingsTrips">Verbindungen</string>
@@ -52,9 +67,14 @@
     <string name="btnLikeDescription">Station zu Lesezeichen hinzufügen</string>
     <string name="btnInfoDescription">Mehr Informationen anzeigen</string>
     <string name="btnBookmarksDescription">Lesezeichen anzeigen</string>
-    <string name="updateEmpty">Es scheint so, als würde in nächster Zeit nichts von hier losfahren.</string>
+    <string name="updateEmptyNow">Es scheint so, als würde in nächster Zeit nichts von hier losfahren.</string>
     <string name="updateStationEmpty">Bitte gib den Namen einer Haltestelle ein</string>
     <string name="updateStationInvalid">Die eingegebene Haltestelle konnte nicht gefunden werden</string>
+    <string name="realtimeShowFromNow">Zeige Verbindungen ab jetzt</string>
+    <string name="realtimeShowFromTime">Zeige Verbindungen ab %1$s</string>
+    <string name="tripStationFrom">Von…</string>
+    <string name="tripStationVia">Über…</string>
+    <string name="tripStationTo">Nach…</string>
     <string name="btnMenuDescription">Menü öffnen</string>
     <string name="appNameSettings">Einstellungen</string>
     <string name="appNameLicenses">Lizenzen</string>
@@ -62,7 +82,7 @@
     <string name="btnMessageDescription">Feedback</string>
     <string name="btnAnnouncementDescription">Benachrichtigung</string>
     <string name="txtBookmarksHeading">Gespeicherte Stationen:</string>
-    <string name="txtBookmarksEmpty">Du hast noch keine Favoriten. Füge Favoriten mit dem Stern neben der Suchleiste hinzu! Du kannst die Favoriten als Schnellzugriff nutzen. Tippe einfach auf eine Station in den Favoriten um die Station anzuzeigen.</string>
+    <string name="txtBookmarksEmpty">Du hast noch keine Favoriten. Füge Favoriten mit dem Stern in den Stationsinfos hinzu! Du kannst die Favoriten als Schnellzugriff nutzen. Tippe einfach auf eine Station in den Favoriten um die Station anzuzeigen.</string>
     <string name="contactSubject">Feedback / Fehlermeldung</string>
     <string name="contactBody">Hey,\n\n --- bitte beschreibe describe deine Wünsche/Probleme/… entweder in Deutsch oder Englisch ---\n\n\n ---\nViele Grüße</string>
     <string name="contactBodyError">\n\nDie folgenden Fehler sind aufgetreten:\n\n</string>
@@ -106,7 +126,35 @@
         <li>Einige Icons stammen von <a href="https://svgrepo.com/">SVGRepo</a> (PD, CC0 oder vergleichbare Lizenz)</li>
     </ul></string>
     <string name="licenseAdditionalImplementation" />
+    <string name="dddepDepart">Abfahrt</string>
+    <string name="dddepArrive">Ankunft</string>
+    <string name="dddepNow">Jetzt</string>
+    <string name="dddep15M">In 15 Minuten</string>
+    <string name="dddep1H">In 1 Stunde</string>
+    <string name="dddepSelectTime">Zeit auswählen</string>
+    <string name="dddepSelectDate">Datum auswählen</string>
+    <string name="dddepDBYesterday">Vorgestern</string>
+    <string name="dddepYesterday">Gestern</string>
+    <string name="dddepToday">Heute</string>
+    <string name="dddepTomorrow">Morgen</string>
+    <string name="dddepDATomorrow">Übermorgen</string>
     <string name="_libraryEchtzeytBasedOn">basiert auf\u0020</string>
     <string name="widgetNameSettings">Einstellungen</string>
     <string name="mapNoGpsProviders">Es konnten keine Standortanbieter auf deinem Gerät gefunden werden. Hat dein Gerät GPS Funktionalität?</string>
+    <string name="settingsRealtimeSlowerUpdates">Weniger Zukunfts-Abfragen</string>
+    <string name="settingsRealtimeTimeAfterDescription">Zeige Uhrzeit (20:03) statt Wartezeit (2m 32s) für Abfahrten in ferner Zukunft an</string>
+    <string name="settingsRealtimeTimeAfterPast">Zeige Uhrzeit ab</string>
+    <string name="settingsRealtimeTimeAfterPastDescription">Zeige Uhrzeit (20:03) für vergangene Abfahrten an</string>
+    <string-array name="settingsRealtimeTimeAfterPastOptionNames">
+        <item>Sofort</item>
+        <item>1 Minute</item>
+        <item>2 Minuten</item>
+        <item>5 Minuten</item>
+        <item>10 Minuten</item>
+        <item>30 Minuten</item>
+        <item>Niemals</item>
+    </string-array>
+    <string name="settingsRealtimeHideCancelled">Ausfälle ausblenden</string>
+    <string name="settingsRealtimeNegativeTimes">Negative Wartezeiten anzeigen</string>
+    <string name="updateEmptyTime">Es scheint so, als würde zu der gewählten Zeit nichts von hier losfahren.</string>
 </resources>

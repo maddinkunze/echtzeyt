@@ -2,34 +2,22 @@ package com.maddin.echtzeyt.components
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.res.Resources
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Rect
 import android.graphics.Typeface
-import android.graphics.drawable.Drawable
-import android.os.Parcelable
 import android.util.AttributeSet
-import androidx.annotation.ColorRes
-import androidx.annotation.DrawableRes
 import androidx.appcompat.widget.AppCompatTextView
-import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.ViewCompat
-import androidx.core.view.updatePadding
 import com.maddin.echtzeyt.ECHTZEYT_CONFIGURATION
-import com.maddin.echtzeyt.R
 import com.maddin.echtzeyt.randomcode.LineDrawable
-import com.maddin.transportapi.Direction
-import com.maddin.transportapi.Line
-import com.maddin.transportapi.Vehicle
-import com.maddin.transportapi.VehicleType
+import com.maddin.transportapi.components.Direction
+import com.maddin.transportapi.components.Line
+import com.maddin.transportapi.components.Vehicle
+import com.maddin.transportapi.components.VehicleType
 import kotlin.math.roundToInt
 
 interface VehicleTypeResolver {
     fun getDrawable(type: VehicleType?): LineDrawable
     fun getLineNumber(type: VehicleType?, line: Line) : String {
-        return line.name
+        return line.name ?: ""
     }
     fun getLineName(type: VehicleType?, direction: Direction) : String {
         return direction.name

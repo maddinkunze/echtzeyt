@@ -10,7 +10,6 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.LayerDrawable
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -33,8 +32,6 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DimenRes
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.content.res.AppCompatResources
-import androidx.appcompat.widget.AppCompatDrawableManager
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.graphics.applyCanvas
@@ -56,15 +53,16 @@ import com.maddin.echtzeyt.components.getShadowColors
 import com.maddin.echtzeyt.randomcode.ActivityResultSerializable
 import com.maddin.echtzeyt.randomcode.DynamicDrawable
 import com.maddin.echtzeyt.randomcode.LazyMutable
-import com.maddin.transportapi.LocatableStation
-import com.maddin.transportapi.LocationAreaRect
-import com.maddin.transportapi.LocationLatLon
-import com.maddin.transportapi.Station
+import com.maddin.echtzeyt.randomcode.LazyView
+import com.maddin.transportapi.components.LocationAreaRect
+import com.maddin.transportapi.components.LocationLatLon
+import com.maddin.transportapi.components.LocationLatLonImpl
+import com.maddin.transportapi.components.POI
+import com.maddin.transportapi.endpoints.LocatePOIRequestImpl
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
 import org.osmdroid.events.ZoomEvent
-import org.osmdroid.tileprovider.constants.OpenStreetMapTileProviderConstants
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
@@ -86,44 +84,44 @@ fun Resources.getFloatValue(@DimenRes floatRes: Int):Float{
     return out.float
 }
 
-class MapResultContractSelectStation : ActivityResultSerializable<LocatableStation, LocatableStation>(ECHTZEYT_CONFIGURATION.activityMap) {
+class MapResultContractSelectPOI : ActivityResultSerializable<POI, POI>(ECHTZEYT_CONFIGURATION.activityMap) {
     companion object {
         const val ACTION_SELECT_STATION = "select_station"
         fun appliesToIntent(intent: Intent?): Boolean {
             return intent?.getStringExtra(ACTION) == ACTION_SELECT_STATION
         }
-        fun createResult(station: LocatableStation): Intent {
+        fun createResult(station: POI): Intent {
             return ActivityResultSerializable.createResult(station)
         }
-        fun parseIntent(intent: Intent?): LocatableStation? {
+        fun parseIntent(intent: Intent?): POI? {
             return ActivityResultSerializable.parseIntent(intent)
         }
     }
-    override fun createIntent(context: Context, input: LocatableStation?): Intent {
+    override fun createIntent(context: Context, input: POI?): Intent {
         return super.createIntent(context, input).putExtra(ACTION, ACTION_SELECT_STATION)
     }
 }
 
 @Suppress("MemberVisibilityCanBePrivate")
 open class MapActivity : EchtzeytForegroundActivity(), LocationListener {
-    private val map by lazy { findViewById<MapView>(R.id.mapView) }
-    private val txtCopyright by lazy { findViewById<TextView>(R.id.txtMapCopyright) }
-    private val btnBack by lazy { findViewById<FloatingButton>(R.id.btnMapBack) }
-    private val btnLocate by lazy { findViewById<FloatingButton>(R.id.btnMapLocate) }
+    private val map: MapView by LazyView(R.id.mapView)
+    private val txtCopyright: TextView by LazyView(R.id.txtMapCopyright)
+    private val btnBack: FloatingButton by LazyView(R.id.btnMapBack)
+    private val btnLocate: FloatingButton by LazyView(R.id.btnMapLocate)
 
     // Stuff for locating/searching stations
-    private val shouldSearchForStations by lazy { MapResultContractSelectStation.appliesToIntent(intent) }
+    private val shouldSearchForStations by lazy { MapResultContractSelectPOI.appliesToIntent(intent) }
     private var nextLocateUpdate = -1L
     private val stationsFound = mutableSetOf<String>()
     @Volatile private lateinit var currentLocationArea : BoundingBox
     protected val transportLocateStationAPI by lazy { ECHTZEYT_CONFIGURATION.mapsStationAPI!! }
-    protected var stationSelected: LocatableStation? by LazyMutable { MapResultContractSelectStation.parseIntent(intent) }
+    protected var poiSelected: POI? by LazyMutable { MapResultContractSelectPOI.parseIntent(intent) }
 
-    private val pullupStation: StationPullup by lazy { findViewById(R.id.pullupStationInfo) }
-    private val btnHideMarkers by lazy { findViewById<FloatingButton>(R.id.btnMapHideMarkers) }
+    private val pullupStation: StationPullup by LazyView(R.id.pullupStationInfo)
+    private val btnHideMarkers: FloatingButton by LazyView(R.id.btnMapHideMarkers)
 
     // All sorts of markers and whatnot
-    private val willMarkersBeVisible by lazy { MapResultContractSelectStation.appliesToIntent(intent) }
+    private val willMarkersBeVisible by lazy { MapResultContractSelectPOI.appliesToIntent(intent) }
     private val drawableMarker by lazy { DynamicDrawable(VectorDrawableCompat.create(resources, R.drawable.stationmark, null)!!) }
     private val drawableMarkerSelected by lazy { DynamicDrawable(VectorDrawableCompat.create(resources, R.drawable.stationmark_selected, null)!!) }
     protected val drawableMarkerShadow by lazy {
@@ -272,23 +270,16 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener {
         super.onCreate(savedInstanceState)
 
         initOSM()
-        println("MADDIN101: osm inited")
         initWindow()
-        println("MADDIN101: window inited")
 
         //inflate and create the map
         setContentView(R.layout.activity_map)
 
         initVariables()
-        println("MADDIN101: vars inited")
         initSettings()
-        println("MADDIN101: settings inited")
         initHandlers()
-        println("MADDIN101: handlers inited")
         initThreads()
-        println("MADDIN101: threads inited")
         initMap()
-        println("MADDIN101: map inited")
     }
 
     override fun onStart() {
@@ -300,7 +291,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener {
         val osmconfig = Configuration.getInstance()
         osmconfig.isDebugMapTileDownloader = true
         osmconfig.osmdroidTileCache = File(cacheDir.absoluteFile, "osmdroid")
-        osmconfig.userAgentValue = "echtzeyt/${application.packageName}"
+        osmconfig.userAgentValue = ECHTZEYT_CONFIGURATION.osmdroidUserAgent
     }
 
     @Suppress("DEPRECATION")
@@ -335,7 +326,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener {
         locationMarker.icon = locationMarkerDrawable
 
         if (shouldSearchForStations) {
-            stationSelected?.let { selectStation(it) }
+            poiSelected?.let { selectPOI(it) }
             pullupStation.visibility = View.VISIBLE
         }
 
@@ -400,7 +391,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener {
         btnHideMarkers.setOnClickListener { toggleMarkerVisibility() }
 
         pullupStation.addOnCloseListener { _ -> closePullup() }
-        if (MapResultContractSelectStation.appliesToIntent(intent)) {
+        if (MapResultContractSelectPOI.appliesToIntent(intent)) {
             pullupStation.addOnConfirmListener { _, _ -> finishResult() }
         }
     }
@@ -416,10 +407,10 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener {
         updateWindowInsets()
     }
 
+    private val spaceCutout: View by LazyView(R.id.fillerCutout)
     private fun updateWindowInsets() {
         val statusBarTop = ViewCompat.getRootWindowInsets(window.decorView)?.getInsets(WindowInsetsCompat.Type.statusBars())?.top ?: 0
         val cutoutTop = ViewCompat.getRootWindowInsets(window.decorView)?.displayCutout?.safeInsetTop ?: 0
-        println("MADDIN101: cutout $cutoutTop statusbar $statusBarTop")
         var safeTop = cutoutTop.coerceAtLeast(statusBarTop)
 
         if (safeTop <= 0) { return }
@@ -429,7 +420,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener {
         safeTop -= (rFactor * safeTop).roundToInt().coerceAtMost(rMax)
         if (safeTop <= 0) { return }
 
-        findViewById<View>(R.id.fillerCutout).updateLayoutParams{ height = safeTop }
+        spaceCutout.updateLayoutParams{ height = safeTop }
     }
 
     private fun initResourceIntensiveHandlers() {
@@ -579,12 +570,12 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener {
         if (!checkIfForeground.block(0)) { return }
 
         val areaCenter = currentLocationArea.centerWithDateLine
-        val center = LocationLatLon(areaCenter.latitude, areaCenter.longitude)
+        val center = LocationLatLonImpl(areaCenter.latitude, areaCenter.longitude)
         val width = 2 * currentLocationArea.longitudeSpanWithDateLine
         val height = 2 * currentLocationArea.latitudeSpan
         val area = LocationAreaRect(center, width, height)
-        val stations: List<Station>
-        try { stations = transportLocateStationAPI.locateStations(area).filter { stationsFound.add(it.id) } } catch(e: Exception) { return }
+        val pois: List<POI>
+        try { pois = transportLocateStationAPI.locatePOIs(LocatePOIRequestImpl(location=area)).pois.filter { it.id?.let { id -> stationsFound.add(id.uuid) } ?: false } } catch(e: Exception) { return }
 
         nextLocateUpdate = -1L
 
@@ -592,20 +583,20 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener {
         if (!checkIfForeground.block(0)) { return }
 
         runOnUiThread {
-            for (station in stations) {
-                if (station !is LocatableStation) { continue }
+            for (poi in pois) {
+                poi.location as? LocationLatLon ?: continue
 
-                val marker = StopMarker(map, station, locationMarker)
+                val marker = StopMarker(map, poi, locationMarker)
                 marker.icon = drawableMarker
                 marker.setIcon(drawableMarkerSelected, StopMarker.FLAG_SELECTED)
-                marker.setOnMarkerClickListener { _, _ -> selectStation(station); true }
+                marker.setOnMarkerClickListener { _, _ -> selectPOI(poi); true }
                 marker.setVisible(showMarkers)
                 marker.updateVisibility(markerBB)
-                stationSelected?.let { marker.selectAndDeselectOthers(it) }
+                poiSelected?.let { marker.selectAndDeselectOthers(it) }
                 map.overlayManager.add(marker)
 
                 if (drawableMarkerShadow == null) { continue }
-                val shadowMarker = StopMarker(map, station, null)
+                val shadowMarker = StopMarker(map, poi, null)
                 shadowMarker.icon = drawableMarkerShadow
                 shadowMarker.setOnMarkerClickListener { _, _ -> true }
                 shadowMarker.setVisible(showMarkers)
@@ -617,34 +608,34 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener {
         }
     }
 
-    fun selectStation(station: LocatableStation) {
-        stationSelected = station
-        pullupStation.setStation(station, true)
+    fun selectPOI(poi: POI) {
+        poiSelected = poi
+        pullupStation.setPOI(poi, true)
 
         for (marker in map.overlays) {
             if (marker !is StopMarker) { continue }
-            marker.selectAndDeselectOthers(station)
+            marker.selectAndDeselectOthers(poi)
         }
         map.invalidate()
     }
 
     private fun getStartLatitude() : Double {
-        return stationSelected?.location?.lat ?: resources.getFloatValue(R.dimen.map_lat_start).toDouble()
+        return (poiSelected?.location as? LocationLatLon)?.lat ?: resources.getFloatValue(R.dimen.map_lat_start).toDouble()
     }
 
     private fun getStartLongitude() : Double {
-        return stationSelected?.location?.lon ?: resources.getFloatValue(R.dimen.map_lon_start).toDouble()
+        return (poiSelected?.location as? LocationLatLon)?.lon ?: resources.getFloatValue(R.dimen.map_lon_start).toDouble()
     }
 
     private fun getStartZoom() : Double {
         var zoom = zoomDefault
-        if (stationSelected != null) { zoom = zoomStation }
+        if (poiSelected != null) { zoom = zoomStation }
         return zoom
     }
 
     private fun finishResult() {
         val result = when {
-            MapResultContractSelectStation.appliesToIntent(intent) -> stationSelected?.let { MapResultContractSelectStation.createResult(it) }
+            MapResultContractSelectPOI.appliesToIntent(intent) -> poiSelected?.let { MapResultContractSelectPOI.createResult(it) }
             else -> null
         }
         result?.let { setResult(RESULT_OK, it) }
@@ -770,7 +761,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener {
         mCurrentDialog?.dismiss()
 
         mCurrentDialogType = DIALOG_LOCATION
-        mCurrentDialog = AlertDialog.Builder(this, R.style.Theme_Echtzeyt_AlertDialog)
+        mCurrentDialog = AlertDialog.Builder(this, R.style.Theme_Echtzeyt_Dialog_Alert)
             .setTitle(R.string.mapLocationEnableTitle)
             .setIcon(R.drawable.ic_locate)
             .setMessage(R.string.mapLocationEnableText)
@@ -872,7 +863,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener {
     }
 
     private fun closePullup() {
-        stationSelected = null
+        poiSelected = null
         map.overlays.forEach {
             if (it !is StopMarker) { return@forEach }
             it.deselect()
@@ -912,7 +903,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener {
 
         runOnUiThread {
             mCurrentDialog?.dismiss()
-            mCurrentDialog = AlertDialog.Builder(this, R.style.Theme_Echtzeyt_AlertDialog)
+            mCurrentDialog = AlertDialog.Builder(this, R.style.Theme_Echtzeyt_Dialog_Alert)
                 .setTitle(R.string.mapMobileAllowTitle)
                 .setMessage(R.string.mapMobileAllowText)
                 .setIcon(R.drawable.ic_cellular)

@@ -38,7 +38,7 @@
             android:id="@+id/menutabsMain"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Theme.Echtzeyt.TabLayout"
+            style="@style/Theme.Echtzeyt.TabLayout.Toolbar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/toolbar"
@@ -520,7 +520,7 @@
 
     <com.maddin.echtzeyt.components.FloatingButton
         android:id="@+id/btnMenu"
-        style="@style/Theme.Echtzeyt.Button.Floating"
+        style="@style/Theme.Echtzeyt.Button.Image.Floating"
         android:contentDescription="@string/btnMenuDescription"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -528,7 +528,7 @@
 
     <com.maddin.echtzeyt.components.FloatingInfoButton
         android:id="@+id/btnSettings"
-        style="@style/Theme.Echtzeyt.Button.Floating.Info"
+        style="@style/Theme.Echtzeyt.Button.Image.Floating.Info"
         android:visibility="gone"
         app:icon="@drawable/ic_settings"
         app:layout_constraintBottom_toTopOf="@+id/btnMenu"
@@ -538,7 +538,7 @@
 
     <com.maddin.echtzeyt.components.FloatingInfoButton
         android:id="@+id/btnDonate"
-        style="@style/Theme.Echtzeyt.Button.Floating.Info"
+        style="@style/Theme.Echtzeyt.Button.Image.Floating.Info"
         android:layout_marginEnd="@dimen/smallfloating_margin_side"
         android:layout_marginRight="@dimen/smallfloating_margin_side"
         android:visibility="gone"
@@ -553,7 +553,7 @@
         android:layout_marginEnd="@dimen/smallfloating_margin_side"
         android:layout_marginRight="@dimen/smallfloating_margin_side"
         android:visibility="gone"
-        style="@style/Theme.Echtzeyt.Button.Floating.Info"
+        style="@style/Theme.Echtzeyt.Button.Image.Floating.Info"
         app:icon="@drawable/ic_message"
         app:layout_constraintBottom_toTopOf="@+id/btnDonate"
         app:layout_constraintEnd_toEndOf="parent"
@@ -565,7 +565,7 @@
         android:layout_marginEnd="@dimen/smallfloating_margin_side"
         android:layout_marginRight="@dimen/smallfloating_margin_side"
         android:visibility="gone"
-        style="@style/Theme.Echtzeyt.Button.Floating.Info"
+        style="@style/Theme.Echtzeyt.Button.Image.Floating.Info"
         app:icon="@drawable/ic_announcement"
         app:layout_constraintBottom_toTopOf="@+id/btnMessage"
         app:layout_constraintEnd_toEndOf="parent"

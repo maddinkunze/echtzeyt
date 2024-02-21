@@ -7,72 +7,137 @@
     android:background="@color/background"
     android:paddingTop="@dimen/toolbar_radius">
 
-    <com.maddin.echtzeyt.components.StationSearchbar
-        android:id="@+id/edtSearchFrom"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginRight="16dp"
-        android:background="@drawable/stationsearch_background"
-        app:layout_constraintEnd_toEndOf="parent"
+    <View android:id="@+id/viewSearchesPaddingCompensation"
+        android:layout_width="0dp" android:layout_height="@dimen/layout_padding"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:textInfo="Von:"
-        app:fillUntil="@id/btnMapFrom">
-
-        <com.maddin.echtzeyt.components.AnimatableImageButton
-            android:id="@+id/btnMapFrom"
-            style="@style/Theme.Echtzeyt.Button"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:padding="@dimen/button_padding_small"
-            android:src="@drawable/ic_map"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </com.maddin.echtzeyt.components.StationSearchbar>
-
-    <com.maddin.echtzeyt.components.StationSearchbar
-        android:id="@+id/edtSearchTo"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginRight="16dp"
-        android:background="@drawable/stationsearch_background"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edtSearchFrom"
-        app:textInfo="Nach:"
-        app:fillUntil="@id/btnMapTo" >
-
-        <ImageButton
-            android:id="@+id/btnMapTo"
-            style="@style/Theme.Echtzeyt.Button"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:padding="5dp"
-            android:src="@drawable/ic_map"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </com.maddin.echtzeyt.components.StationSearchbar>
+        app:layout_constraintBottom_toBottomOf="@+id/layoutStationSearches" />
 
     <View
         android:id="@+id/dividerSearch"
+        style="@style/Theme.Echtzeyt.View.Divider"
         android:layout_width="0dp"
-        android:layout_height="1dp"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="6dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
-        android:alpha="0.4"
-        android:background="@color/foreground"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/edtSearchTo" />
+        app:layout_constraintTop_toTopOf="@id/viewSearchesPaddingCompensation" />
+
+    <LinearLayout
+        android:id="@+id/layoutStationSearches"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/layout_padding"
+        android:paddingRight="@dimen/layout_padding"
+        android:paddingTop="@dimen/layout_padding"
+        android:paddingBottom="@dimen/layout_padding"
+        android:orientation="vertical"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" >
+        <com.maddin.echtzeyt.components.POISearchbar
+            android:id="@+id/edtSearchFrom"
+            style="@style/Theme.Echtzeyt.TextView.StationSearch.Trips"
+            app:srcIcon="@drawable/ic_route_start"
+            app:hint="@string/tripStationFrom">
+            <com.maddin.echtzeyt.components.AnimatableImageButton
+                android:id="@+id/btnMapFrom"
+                style="@style/Theme.Echtzeyt.Button.Image.Animatable"
+                app:srcCompat="@drawable/ic_map" />
+            <com.maddin.echtzeyt.components.AnimatableImageButton
+                android:id="@+id/btnReorder"
+                style="@style/Theme.Echtzeyt.Button.Image.Animatable"
+                app:srcCompat="@drawable/ic_switch" />
+        </com.maddin.echtzeyt.components.POISearchbar>
+
+        <com.maddin.echtzeyt.components.POISearchbar
+            android:id="@+id/edtSearchTo"
+            style="@style/Theme.Echtzeyt.TextView.StationSearch.Trips"
+            app:srcIcon="@drawable/ic_route_end"
+            app:hint="@string/tripStationTo" >
+            <com.maddin.echtzeyt.components.AnimatableImageButton
+                android:id="@+id/btnMapTo"
+                style="@style/Theme.Echtzeyt.Button.Image.Animatable"
+                app:srcCompat="@drawable/ic_map" />
+            <com.maddin.echtzeyt.components.AnimatableImageButton
+                style="@style/Theme.Echtzeyt.Button.Image.Animatable"
+                android:visibility="invisible"
+                android:alpha="0"
+                android:importantForAccessibility="no"
+                tools:ignore="UnusedAttribute" />
+        </com.maddin.echtzeyt.components.POISearchbar>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/trip_layoutParameters"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/layout_padding"
+        android:layout_marginStart="@dimen/layout_padding"
+        android:layout_marginEnd="@dimen/layout_padding"
+        android:layout_marginRight="@dimen/layout_padding"
+        android:orientation="vertical"
+        android:paddingTop="6dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dividerSearch">
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.maddin.echtzeyt.components.DropdownButton
+                    android:id="@+id/trip_btnDeparture"
+                    style="@style/Theme.Echtzeyt.Button"
+                    android:text="@string/dddepDepart"
+                    app:iconGravity="end"
+                    app:iconPadding="8dp" />
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <View style="@style/Theme.Echtzeyt.View.Divider" />
+    </LinearLayout>
+
+    <com.maddin.echtzeyt.components.TripsScrollView
+        android:id="@+id/trip_trips"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginLeft="@dimen/layout_padding"
+        android:layout_marginRight="@dimen/layout_padding"
+        android:layout_marginBottom="@dimen/layout_padding"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/trip_layoutParameters" />
+
+    <com.maddin.echtzeyt.components.StationPullup
+        style="@style/Theme.Echtzeyt.PullupScrollView.InMainFragment"
+        android:id="@+id/ft_pullupStation"
+        android:visibility="gone" />
+
+    <com.maddin.echtzeyt.components.TripPullup
+        android:id="@+id/ft_pullupTrip"
+        style="@style/Theme.Echtzeyt.PullupScrollView.InMainFragment"
+        android:visibility="gone" />
+
+    <com.maddin.echtzeyt.components.DepartureDropdown
+        android:id="@+id/trip_layoutFilterDeparture"
+        style="@style/Theme.Echtzeyt.Layout.Dropdown"
+        android:layout_height="0dp"
+        android:layout_marginTop="-3dp"
+        android:paddingBottom="6dp"
+        android:visibility="gone"
+        app:allowedModes="arrive|depart"
+        app:layout_constraintStart_toStartOf="@+id/trip_layoutParameters"
+        app:layout_constraintTop_toBottomOf="@+id/trip_layoutParameters" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

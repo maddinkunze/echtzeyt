@@ -43,7 +43,7 @@
     <string name="btnMessageDescription">Feedback</string>
     <string name="btnAnnouncementDescription">Announcement</string>
     <string name="txtBookmarksHeading">Saved stations:</string>
-    <string name="txtBookmarksEmpty">No favourites yet. Use the star icon next to the search bar to add a station to your favourites. You can use your favourite stations as a quick access. Simply tap on the station you want to check out.</string>
+    <string name="txtBookmarksEmpty">No favourites yet. Use the star icon in the station information dialog to add a station to your favourites. You can use your favourite stations as a quick access. Simply tap on the station you want to check out.</string>
     <string name="settingsSaveContent">Save last station</string>
     <string name="settingsAutoDark">Use default color scheme</string>
     <string name="settingsDarkMode">Dark Mode</string>
@@ -56,6 +56,36 @@
         <item>30 seconds</item>
         <item>1 minute</item>
     </string-array>
+    <string name="settingsRealtimeSlowerUpdates">Fewer future/past updates</string>
+    <string name="settingsRealtimeSlowerUpdatesDescription">Update fewer times when looking at connections far in the future or in the past</string>
+    <string name="settingsRealtimeUseIcons">Use line-icons</string>
+    <string name="settingsRealtimeUseIconsDescription">Show icons to display line numbers instead of plain text</string>
+    <string name="settingsRealtimeIconsSameWidth">Equal line-icon width</string>
+    <string name="settingsRealtimeIconsSameWidthDescription">Force line-icons to be the same width</string>
+    <string name="settingsRealtimeTimeAfter">Show absolute time after</string>
+    <string name="settingsRealtimeTimeAfterDescription">Show absolute time (20:03) instead of waiting time (2m 32s) for departures in the far future</string>
+    <string-array name="settingsRealtimeTimeAfterOptionNames">
+        <item>always</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>2 hours</item>
+        <item>5 hours</item>
+        <item>10 hours</item>
+        <item>never</item>
+    </string-array>
+    <string name="settingsRealtimeTimeAfterPast">Show absolute time after</string>
+    <string name="settingsRealtimeTimeAfterPastDescription">Show absolute time (20:03) for departures in the past</string>
+    <string-array name="settingsRealtimeTimeAfterPastOptionNames">
+        <item>immediately</item>
+        <item>1 minute</item>
+        <item>2 minutes</item>
+        <item>5 minutes</item>
+        <item>10 minutes</item>
+        <item>30 minutes</item>
+        <item>never</item>
+    </string-array>
+    <string name="settingsRealtimeHideCancelled">Hide cancelled connections</string>
+    <string name="settingsRealtimeNegativeTimes">Show negative waiting times</string>
     <string name="settingsMapUseMobileData">Use mobile data to load map</string>
     <string name="menuSettingsGeneral">General</string>
     <string name="menuSettingsRealtime">Realtime</string>
@@ -64,9 +94,15 @@
     <string name="menuSettingsAbout">About</string>
     <string name="updateNotYet">Not updated yet!</string>
     <string name="updateLast">Last updated:</string>
-    <string name="updateEmpty">It seems like nothing is departing from here anytime soon.</string>
+    <string name="updateEmptyNow">It seems like nothing is departing from here anytime soon.</string>
+    <string name="updateEmptyTime">It seems like nothing is departing from here at your selected time.</string>
     <string name="updateStationEmpty">Please enter a station name</string>
     <string name="updateStationInvalid">The station name you\'ve entered could not be found.</string>
+    <string name="realtimeShowFromNow">Show connections from now</string>
+    <string name="realtimeShowFromTime">Show connections from %1$s</string>
+    <string name="tripStationFrom">From…</string>
+    <string name="tripStationVia">Via…</string>
+    <string name="tripStationTo">To…</string>
     <string name="btnMenuDescription">Show menu</string>
     <string name="contactTitle">Give feedback (email)</string>
     <string name="contactEmail" translatable="false" />
@@ -116,6 +152,18 @@
         <li>Some icons from <a href="https://svgrepo.com/">SVGRepo</a> (PD, CC0 or similar license)</li>
     </ul></string>
     <string name="licenseAdditionalImplementation" />
+    <string name="dddepDepart">Depart</string>
+    <string name="dddepArrive">Arrive</string>
+    <string name="dddepNow">Now</string>
+    <string name="dddep15M">In 15 minutes</string>
+    <string name="dddep1H">In 1 hour</string>
+    <string name="dddepSelectTime">Choose time</string>
+    <string name="dddepSelectDate">Choose date</string>
+    <string name="dddepDBYesterday" />
+    <string name="dddepYesterday">Yesterday</string>
+    <string name="dddepToday">Today</string>
+    <string name="dddepTomorrow">Tomorrow</string>
+    <string name="dddepDATomorrow" />
     <string name="_libraryEchtzeytBasedOn">based on\u0020</string>
     <string name="_libraryEchtzeytName" translatable="false">Echtzeyt</string>
     <string name="_libraryEchtzeytVersion" translatable="false" />

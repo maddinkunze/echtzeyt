@@ -12,6 +12,8 @@ import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.maddin.echtzeyt.ECHTZEYT_CONFIGURATION
+import com.maddin.echtzeyt.components.DescriptiveSeekbar
+import com.maddin.echtzeyt.components.DescriptiveSwitch
 import com.maddin.echtzeyt.components.LabeledDiscreteSeekBar
 import com.maddin.echtzeyt.fragments.EchtzeytForegroundFragment
 import com.maddin.echtzeyt.fragments.NamedFragment
@@ -23,9 +25,14 @@ interface SettingsProperty {
     fun save(editor: Editor)
     fun start() {}
     fun stop() {}
+    fun hide()
+    fun show()
 }
 
-open class BoolProperty(protected val settingName: String, protected val switch: SwitchCompat, protected val default: Boolean) : SettingsProperty {
+open class BoolProperty(protected val settingName: String, protected val view: View, protected val switch: SwitchCompat, protected val default: Boolean) : SettingsProperty {
+    constructor(settingName: String, switch: SwitchCompat, default: Boolean) : this(settingName, switch, switch, default)
+    constructor(settingName: String, switchLayout: DescriptiveSwitch, default: Boolean) : this(settingName, switchLayout, switchLayout.switch, default)
+
     private val mOnChangeListeners = mutableListOf<() -> Unit>()
     private var mAcceptInputs = false
     var value = default
@@ -77,9 +84,19 @@ open class BoolProperty(protected val settingName: String, protected val switch:
     fun removeOnChangeListener(listener: () -> Unit) {
         mOnChangeListeners.remove(listener)
     }
+
+    override fun hide() {
+        view.visibility = View.GONE
+    }
+
+    override fun show() {
+        view.visibility = View.VISIBLE
+    }
 }
 
-open class DiscreteSliderProperty(protected val propertyName: String, protected val seekbar: LabeledDiscreteSeekBar, protected val items: IntArray, protected val default: Int) : SettingsProperty {
+open class DiscreteSliderProperty(protected val propertyName: String, protected val view: View, protected val seekbar: LabeledDiscreteSeekBar, protected val items: IntArray, protected val default: Int) : SettingsProperty {
+    constructor(propertyName: String, seekbarLayout: DescriptiveSeekbar, items: IntArray, default: Int) : this(propertyName, seekbarLayout, seekbarLayout.seekbar, items, default)
+
     private var mAcceptInputs = false
     var value = default
         protected set
@@ -124,7 +141,13 @@ open class DiscreteSliderProperty(protected val propertyName: String, protected 
         editor.putInt(propertyName, value)
     }
 
+    override fun hide() {
+        view.visibility = View.GONE
+    }
 
+    override fun show() {
+        view.visibility = View.VISIBLE
+    }
 }
 
 abstract class SettingsFragment : EchtzeytForegroundFragment {

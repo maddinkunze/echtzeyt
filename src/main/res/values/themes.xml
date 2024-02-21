@@ -3,33 +3,54 @@
     <!-- Base application theme. -->
     <style name="Theme.Echtzeyt" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/foreground</item>
-        <item name="colorPrimaryVariant">@color/foreground</item>
-        <item name="colorOnPrimary">@color/foreground</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary</item>
+        <item name="colorOnPrimary">@color/primary</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/background</item>
-        <item name="colorSecondaryVariant">@color/background</item>
-        <item name="colorOnSecondary">@color/background</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorSecondaryVariant">@color/secondary</item>
+        <item name="colorOnSecondary">@color/secondary</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="lollipop">@color/foreground</item>
+        <item name="android:statusBarColor" tools:targetApi="lollipop">@color/primary</item>
         <!-- Customize your theme here. -->
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
 
-    <style name="Theme.Echtzeyt.AlertDialog" parent="ThemeOverlay.AppCompat.Dialog.Alert">
-        <item name="buttonBarPositiveButtonStyle">@style/Theme.Echtzeyt.AlertDialog.PositiveButtonStyle</item>
-        <item name="buttonBarNeutralButtonStyle">@style/Theme.Echtzeyt.AlertDialog.NeutralButtonStyle</item>
-        <item name="buttonBarNegativeButtonStyle">@style/Theme.Echtzeyt.AlertDialog.NegativeButtonStyle</item>
+    <style name="Theme.Echtzeyt.Dialog" parent="ThemeOverlay.AppCompat.Dialog">
+        <item name="buttonBarButtonStyle">@style/Theme.Echtzeyt.Button.Dialog</item>
+        <item name="android:buttonBarButtonStyle">@style/Theme.Echtzeyt.Button.Dialog</item>
+        <item name="android:background">@color/backgroundDialog</item>
+    </style>
+
+    <style name="Theme.Echtzeyt.Dialog.Header.Text" parent="">
+        <item name="android:textColor">@color/foregroundDialogHeader</item>
+    </style>
+    <style name="Theme.Echtzeyt.TimePicker" parent="android:Widget.Material.TimePicker" tools:ignore="NewApi">
+        <item name="android:headerTimeTextAppearance">@style/Theme.Echtzeyt.Dialog.Header.Text</item>
+        <item name="android:numbersBackgroundColor" >@color/backgroundDialogSecond</item>
+        <item name="android:headerBackground">@color/backgroundDialogHeader</item>
+        <item name="android:amPmBackgroundColor">@color/transparent</item>
+        <item name="android:numbersSelectorColor">@color/foreground</item>
+    </style>
+    <style name="Theme.Echtzeyt.Dialog.TimePicker" tools:ignore="NewApi">
+        <item name="android:textColorPrimary">@color/foreground</item>
+        <item name="android:textColorSecondary">@color/foregroundHint</item>
+        <item name="android:timePickerStyle">@style/Theme.Echtzeyt.TimePicker</item>
+    </style>
+
+    <style name="Theme.Echtzeyt.Dialog.DatePicker" tools:ignore="NewApi">
+        <item name="android:textColorPrimary">@color/foreground</item><!-- z: text color of text above header, text color of unselected dates, text color of unselected years, text color of currently selected month, color of next/last month buttons -->
+        <item name="android:textColorPrimaryInverse">@color/foregroundDialogHeader</item><!-- z: text color of currently selected mode (year/date), text color of currently selected date -->
+        <item name="android:textColorSecondary">@color/foregroundHint</item><!-- z: text color of day names (mdmdfss), color of scrollbar in year selection list view -->
+        <item name="android:textColorSecondaryInverse">@color/foregroundDialogHeaderSecond</item><!-- z: text color of currently not selected mode (year/date) -->
+        <item name="android:colorControlActivated">@color/backgroundDialogHeader</item><!-- z: none -->
+        <item name="colorControlActivated">@color/backgroundDialogHeader</item>
+    </style>
+    <style name="Theme.Echtzeyt.Dialog.Alert">
         <item name="android:textColor">@color/foreground</item>
         <item name="android:textColorPrimary">@color/foregroundText</item>
     </style>
-    <style name="Theme.Echtzeyt.AlertDialog.PositiveButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
-        <item name="android:textColor">@color/foreground</item>
-    </style>
-    <style name="Theme.Echtzeyt.AlertDialog.NeutralButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
-        <item name="android:textColor">@color/foreground</item>
-    </style>
-    <style name="Theme.Echtzeyt.AlertDialog.NegativeButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+    <style name="Theme.Echtzeyt.Button.Dialog" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
         <item name="android:textColor">@color/foreground</item>
     </style>
 
@@ -37,19 +58,48 @@
         <item name="android:minHeight">@dimen/toolbar_height</item>
         <item name="android:theme">?attr/actionBarTheme</item>
         <item name="titleMarginStart">6dp</item>
-        <item name="titleTextColor">?attr/colorSecondary</item>
+        <item name="titleTextColor">@color/secondary</item>
     </style>
 
-    <style name="Theme.Echtzeyt.Button">
+    <style name="Theme.Echtzeyt.Button" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:background">@drawable/imagebutton</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="backgroundTint">@null</item>
+        <item name="android:textColor">@color/foreground</item>
+        <item name="android:textSize">14sp</item>
+        <item name="iconSize">14sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:padding">@null</item>
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingRight">8dp</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="android:letterSpacing" tools:ignore="NewApi">0</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="iconTint">@null</item>
+    </style>
+
+    <style name="Theme.Echtzeyt.Button.Image">
         <item name="android:layout_width">@dimen/button_size</item>
         <item name="android:layout_height">@dimen/button_size</item>
         <item name="android:layout_marginLeft">@dimen/button_margin</item>
-        <item name="android:background">@drawable/imagebutton</item>
         <item name="android:padding">@dimen/button_padding</item>
         <item name="android:scaleType">fitCenter</item>
     </style>
 
-    <style name="Theme.Echtzeyt.Button.Floating" parent="Widget.AppCompat.ImageButton">
+    <style name="Theme.Echtzeyt.Button.Image.Animatable">
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_marginLeft">@dimen/button_margin_minimized</item>
+        <item name="preferredHeight">@dimen/button_size</item>
+        <item name="preferredPadding">@dimen/button_padding</item>
+        <item name="preferredMargin">@dimen/button_margin</item>
+        <item name="minimizedMargin">@dimen/button_margin_minimized</item>
+    </style>
+
+    <style name="Theme.Echtzeyt.Button.Image.Floating" parent="Widget.AppCompat.ImageButton">
         <item name="android:layout_width">@dimen/bigfloating_size</item>
         <item name="android:layout_height">@dimen/bigfloating_size</item>
         <item name="android:layout_margin">@dimen/bigfloating_margin</item>
@@ -59,17 +109,16 @@
         <item name="android:padding">@dimen/bigfloating_padding</item>
         <item name="android:scaleType">fitCenter</item>
         <item name="radiusInner">@dimen/bigfloating_radius</item>
-        <item name="shadowBelow">@+id/layoutBookmarks</item>
         <item name="shadowColors">@array/shadowColors</item>
         <item name="shadowSize">@dimen/shadow_size</item>
         <item name="shadowStops">@array/shadowStops</item>
     </style>
 
-    <style name="Theme.Echtzeyt.Button.Floating.Map">
+    <style name="Theme.Echtzeyt.Button.Image.Floating.Map">
         <item name="android:background">@drawable/floatingbutton_second</item>
     </style>
 
-    <style name="Theme.Echtzeyt.Button.Floating.Info" parent="">
+    <style name="Theme.Echtzeyt.Button.Image.Floating.Info" parent="">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginBottom">@dimen/smallfloating_margin_bottom</item>
@@ -81,33 +130,57 @@
         <item name="shadowStops">@array/shadowStops</item>
     </style>
 
+    <style name="Theme.Echtzeyt.Shadow" parent="">
+        <item name="radiusInner">@dimen/bigfloating_radius</item>
+        <item name="shadowColors">@array/shadowColors</item>
+        <item name="shadowSize">@dimen/shadow_size</item>
+        <item name="shadowStops">@array/shadowStops</item>
+    </style>
+
     <style name="Theme.Echtzeyt.TabLayout" parent="Widget.Design.TabLayout">
         <item name="tabTextAppearance">@style/Theme.Echtzeyt.TabLayout.Tab</item>
-        <item name="paddingContent">@dimen/toolbar_radius</item>
-        <item name="android:layout_marginTop">-12dp</item>
         <item name="android:background">@color/transparent</item>
         <item name="tabBackground">@color/transparent</item>
         <item name="tabGravity">center</item>
+        <item name="tabIndicatorColor">@color/foreground</item>
         <item name="tabIndicatorAnimationMode">elastic</item>
-        <item name="tabIndicatorColor">@color/background</item>
         <item name="tabIndicatorGravity">bottom</item>
         <item name="tabIndicatorHeight">4dp</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    <style name="Theme.Echtzeyt.TabLayout.Toolbar">
+        <item name="tabTextAppearance">@style/Theme.Echtzeyt.TabLayout.Toolbar.Tab</item>
+        <item name="android:layout_marginTop">-12dp</item>
+        <item name="tabIndicatorColor">@color/background</item>
         <item name="tabMode">auto</item>
         <item name="android:fadingEdge">horizontal</item>
         <item name="android:fadingEdgeLength">40dp</item>
         <item name="android:requiresFadingEdge">horizontal</item>
+        <item name="paddingContent">@dimen/toolbar_radius</item>
     </style>
     <style name="Theme.Echtzeyt.TabLayout.Tab" parent="TextAppearance.Design.Tab">
         <item name="textAllCaps">false</item>
         <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">14sp</item>
+        <item name="minHeight">0dp</item>
+        <item name="minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="itemMinHeight">0dp</item>
+        <item name="chipMinHeight">0dp</item>
+        <item name="layout_constraintHeight_min">0dp</item>
+        <item name="android:layout_height">3dp</item>
+        <item name="android:padding">0dp</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:textColor">@color/foreground</item>
+    </style>
+    <style name="Theme.Echtzeyt.TabLayout.Toolbar.Tab" parent="Theme.Echtzeyt.TabLayout.Tab">
         <item name="android:textSize">16sp</item>
-        <item name="android:textColor">?attr/colorSecondary</item>
-        <item name="android:paddingLeft">40dp</item>
+        <item name="android:textColor">@color/secondary</item>
     </style>
 
     <style name="Theme.Echtzeyt.PullupScrollView" parent="">
         <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_height">500dp</item>
         <item name="android:clipChildren">false</item>
         <item name="android:fadeScrollbars">true</item>
         <item name="android:overScrollMode">never</item>
@@ -117,16 +190,20 @@
         <item name="android:scrollbarThumbHorizontal">@null</item>
         <item name="android:scrollbarThumbVertical">@null</item>
         <item name="fadeDurationRelative">0.3</item>
+        <item name="minimumVisibleHeight">72dp</item>
+        <item name="layout_constraintStart_toStartOf">parent</item>
+        <item name="layout_constraintEnd_toEndOf">parent</item>
+        <item name="layout_constraintBottom_toBottomOf">parent</item>
     </style>
 
-    <style name="Theme.Echtzeyt.Button.Favorite" parent="">
-        <item name="android:letterSpacing" tools:ignore="NewApi">0</item>
+    <style name="Theme.Echtzeyt.PullupScrollView.InMainFragment">
+        <item name="additionalPaddingBottom">83dp</item>
     </style>
 
     <style name="Theme.Echtzeyt.TextView.StationSearch" parent="">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">@dimen/button_size</item>
-        <!--item name="android:layout_weight">1</item-->
+        <item name="android:layout_weight">1</item>
         <item name="android:background">@color/transparent</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:hint">@string/edtSearchTip</item>
@@ -150,12 +227,122 @@
         <item name="fontFamily">@font/roboto</item>
     </style>
 
-    <style name="Theme.Echtzeyt.TextView.StationSearch.Animated">
-        <item name="android:textSize">19.5sp</item>
+    <style name="Theme.Echtzeyt.TextView.StationSearch.Trips" parent="">
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:paddingTop">2dp</item>
-        <item name="android:paddingBottom">2dp</item>
-        <item name="textSizeFocus">20sp</item>
-        <item name="heightFocus">@dimen/button_size</item>
+        <item name="android:minHeight">36dp</item>
+        <item name="gap">@dimen/button_margin_minimized</item>
+        <item name="textSize">18sp</item>
+        <item name="gapIcon">5dp</item>
+        <item name="preferredHeightButtons">@dimen/button_size</item>
+    </style>
+
+    <style name="Theme.Echtzeyt.View.Divider" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/divider_height</item>
+        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:background">@color/backgroundDivider</item>
+    </style>
+
+    <style name="Theme.Echtzeyt.Layout.Dropdown" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/dropdown</item>
+        <!--item name="android:layout_marginTop">-3dp</item-->
+    </style>
+
+    <style name="Theme.Echtzeyt.Button.Dropdown">
+        <item name="android:gravity">start</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="layout_constraintWidth_min">wrap</item>
+        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:layout_marginLeft">6dp</item>
+        <item name="android:layout_marginRight">6dp</item>
+        <item name="layout_constraintEnd_toEndOf">parent</item>
+        <item name="layout_constraintStart_toStartOf">parent</item>
+        <item name="android:background">@drawable/imagebutton_second</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
+    <style name="Theme.Echtzeyt.Switch" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="switchPadding">@dimen/settings_switch_padding</item>
+        <item name="thumbTint">@color/foreground</item>
+        <item name="trackTint">@color/backgroundSunken</item>
+    </style>
+
+    <style name="Theme.Echtzeyt.Switch.Descriptive" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">@dimen/settings_switch_margin</item>
+        <item name="android:layout_marginLeft">@dimen/settings_switch_margin</item>
+        <item name="android:layout_marginTop">@dimen/settings_switch_margin</item>
+        <item name="android:layout_marginEnd">@dimen/settings_switch_margin</item>
+        <item name="android:layout_marginRight">@dimen/settings_switch_margin</item>
+        <item name="layout_constraintEnd_toEndOf">parent</item>
+        <item name="layout_constraintStart_toStartOf">parent</item>
+        <!-- todo: rename those -->
+        <item name="android:textColor">@color/foreground</item>
+        <item name="android:textSize">@dimen/settings_label_size</item>
+    </style>
+
+    <style name="Theme.Echtzeyt.Seekbar.Descriptive" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">@dimen/settings_switch_margin</item>
+        <item name="android:layout_marginLeft">@dimen/settings_switch_margin</item>
+        <item name="android:layout_marginTop">@dimen/settings_switch_margin</item>
+        <item name="android:layout_marginEnd">@dimen/settings_switch_margin</item>
+        <item name="android:layout_marginRight">@dimen/settings_switch_margin</item>
+    </style>
+
+    <style name="Theme.Echtzeyt.Button.Bookmark" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">12dp</item>
+        <item name="android:layout_marginLeft">12dp</item>
+        <item name="android:layout_marginEnd">12dp</item>
+        <item name="android:layout_marginRight">12dp</item>
+        <item name="android:background">@color/transparent</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:paddingLeft">0dp</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingRight">4dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="android:text">@string/appName</item>
+        <item name="android:textAppearance">@style/Theme.Echtzeyt.Button.Bookmark.Text</item>
+        <item name="android:textColor">@color/foreground</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="backgroundTint">@null</item>
+        <item name="fontFamily">@font/roboto</item>
+        <item name="icon">@drawable/ic_arrow_right_v</item>
+        <item name="iconGravity">end</item>
+        <item name="iconPadding">0dp</item>
+        <item name="iconSize">14sp</item>
+        <item name="iconTint">@null</item>
+    </style>
+
+    <style name="Theme.Echtzeyt.Button.Bookmark.Text" parent="">
+        <item name="android:letterSpacing" tools:ignore="NewApi">0</item>
+    </style>
+
+    <style name="Theme.Echtzeyt.TextView.Pullup.Title" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:layout_marginEnd">16dp</item>
+        <item name="android:layout_marginRight">16dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:text">@string/widgetNoStation</item>
+        <item name="android:textColor">@color/foreground</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
     </style>
 </resources>

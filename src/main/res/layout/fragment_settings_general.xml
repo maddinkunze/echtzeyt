@@ -6,46 +6,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:paddingTop="@dimen/bigfloating_radius">
 
-    <com.google.android.material.switchmaterial.SwitchMaterial
+    <com.maddin.echtzeyt.components.DescriptiveSwitch
         android:id="@+id/settingsAutoDarkSwitch"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/settings_switch_margin"
-        android:layout_marginLeft="@dimen/settings_switch_margin"
-        android:layout_marginTop="@dimen/settings_switch_margin"
-        android:layout_marginEnd="@dimen/settings_switch_margin"
-        android:layout_marginRight="@dimen/settings_switch_margin"
-        android:text="@string/settingsAutoDark"
-        android:textColor="@color/foreground"
-        android:textSize="@dimen/settings_label_size"
+        style="@style/Theme.Echtzeyt.Switch.Descriptive"
+        app:title="@string/settingsAutoDark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:switchPadding="@dimen/settings_switch_padding"
-        app:thumbTint="@color/foreground"
-        app:trackTint="@color/backgroundSunken"
-        app:useMaterialThemeColors="true"
-        tools:ignore="TouchTargetSizeCheck,TextContrastCheck,VisualLintButtonSize" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.switchmaterial.SwitchMaterial
+    <com.maddin.echtzeyt.components.DescriptiveSwitch
         android:id="@+id/settingsDarkModeSwitch"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/settings_switch_margin"
-        android:layout_marginLeft="@dimen/settings_switch_margin"
-        android:layout_marginTop="@dimen/settings_switch_margin"
-        android:layout_marginEnd="@dimen/settings_switch_margin"
-        android:layout_marginRight="@dimen/settings_switch_margin"
-        android:text="@string/settingsDarkMode"
-        android:textColor="@color/foreground"
-        android:textSize="@dimen/settings_label_size"
+        style="@style/Theme.Echtzeyt.Switch.Descriptive"
+        app:title="@string/settingsDarkMode"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/settingsAutoDarkSwitch"
-        app:switchPadding="@dimen/settings_switch_padding"
-        app:thumbTint="@color/foreground"
-        app:trackTint="@color/backgroundSunken"
-        app:useMaterialThemeColors="true"
-        tools:ignore="TouchTargetSizeCheck,TextContrastCheck,VisualLintButtonSize" />
+        app:layout_constraintTop_toBottomOf="@id/settingsAutoDarkSwitch" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

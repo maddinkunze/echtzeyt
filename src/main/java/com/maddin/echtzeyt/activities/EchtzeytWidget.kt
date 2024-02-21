@@ -23,19 +23,24 @@ import android.widget.LinearLayout
 import android.widget.RemoteViews
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.edit
 import androidx.core.content.res.ResourcesCompat
 import com.maddin.echtzeyt.ECHTZEYT_CONFIGURATION
 import com.maddin.echtzeyt.R
 import com.maddin.echtzeyt.components.InstantAutoCompleteTextView
 import com.maddin.echtzeyt.components.LabeledDiscreteSeekBar
-import com.maddin.transportapi.RealtimeInfo
-import com.maddin.transportapi.Station
+import com.maddin.echtzeyt.randomcode.LazyView
+import com.maddin.transportapi.components.POI
+import com.maddin.transportapi.components.Station
+import com.maddin.transportapi.endpoints.RealtimeRequestImpl
+import com.maddin.transportapi.endpoints.RealtimeResponse
+import com.maddin.transportapi.endpoints.SearchPOIRequestImpl
 import java.time.LocalDateTime
 import kotlin.concurrent.thread
 
 
-private data class WidgetInformation(val widgetId: Int, val context: Context, val firstUpdate: Long, var nextUpdate: Long, val deltaUpdate: Long, val durationActive: Long, var nextAlive: Long, var stepsAlive: Int, val stationName: String, var station: Station?)
+private data class WidgetInformation(val widgetId: Int, val context: Context, val firstUpdate: Long, var nextUpdate: Long, val deltaUpdate: Long, val durationActive: Long, var nextAlive: Long, var stepsAlive: Int, val stationName: String, var station: POI?)
 
 
 open class EchtzeytWidget : AppWidgetProvider() {
@@ -209,9 +214,9 @@ open class EchtzeytWidget : AppWidgetProvider() {
         }
 
         if ((widgetInfo.station == null) || (widgetInfo.station!!.name != widgetInfo.stationName)) {
-            var stations = emptyList<Station>()
+            var stations = emptyList<POI>()
             try {
-                stations = transportSearchStationAPI.searchStations(widgetInfo.stationName)
+                stations = transportSearchStationAPI.searchPOIs(SearchPOIRequestImpl(search=widgetInfo.stationName)).pois
             } catch (_: Exception) {}
 
             if (stations.isEmpty()) {
@@ -223,9 +228,9 @@ open class EchtzeytWidget : AppWidgetProvider() {
             widgetInfo.station = stations[0]
         }
 
-        var connections: RealtimeInfo? = null
+        var connections: RealtimeResponse? = null
         try {
-            connections = transportRealtimeAPI.getRealtimeInformation(widgetInfo.station!!)
+            connections = transportRealtimeAPI.getRealtimeInformation(RealtimeRequestImpl(poi=widgetInfo.station!!))
         } catch(_: Exception) {}
 
         if (connections == null) {
@@ -240,9 +245,9 @@ open class EchtzeytWidget : AppWidgetProvider() {
         var txtTimeMinutes = ""
         var txtTimeSeconds = ""
         for (connection in connections.connections) {
-            txtLineNumbers += "${connection.vehicle.line?.name}\n"
-            txtLineNames += "${connection.vehicle.direction?.name}\n"
-            val timeDepart = connection.departsIn()
+            txtLineNumbers += "${connection.vehicle?.line?.name}\n"
+            txtLineNames += "${connection.vehicle?.direction?.name}\n"
+            val timeDepart = connection.departsOrArrivesIn()?.seconds ?: 0
             val departHour = timeDepart.div(3600)
             val departMinute = timeDepart.div(60).mod(60)
             var departMinutePad = 0
@@ -396,6 +401,13 @@ open class EchtzeytWidgetConfigureActivity : AppCompatActivity() {
     private var runEveryOptions = mutableMapOf<Int, String>()
     protected val widgetClass by lazy { ECHTZEYT_CONFIGURATION.widgetRealtimeClass!! }
 
+    private val toolbar: Toolbar by LazyView(R.id.toolbarWidgetConfiguration)
+    private val edtSearch: InstantAutoCompleteTextView by LazyView(R.id.edtWidgetConfigurationSearch)
+    private val focusLayout: LinearLayout by LazyView(R.id.focusableLayoutWidgetConfiguration)
+    private val seekRunUntil: LabeledDiscreteSeekBar by LazyView(R.id.selectRunUntilWidgetConfiguration)
+    private val seekRunEvery: LabeledDiscreteSeekBar by LazyView(R.id.selectRunEveryWidgetConfiguration)
+    private val btnSave: ImageButton by LazyView(R.id.btnWidgetConfigurationSave)
+
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_widget_echtzeyt_configure)
@@ -410,20 +422,19 @@ open class EchtzeytWidgetConfigureActivity : AppCompatActivity() {
         setResult(RESULT_CANCELED)
 
         val settingsTitle = "${resources.getString(R.string.widgetName)} - ${resources.getString(R.string.widgetNameSettings)}"
-        findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbarWidgetConfiguration).title = settingsTitle
+        toolbar.title = settingsTitle
 
         val namesRU = resources.getStringArray(R.array.widgetConfigureRunUntilOptionNames)
         val valuesRU = resources.getIntArray(R.array.widgetConfigureRunUntilOptionValues)
         for (i in valuesRU.indices) { runUntilOptions[valuesRU[i]] = namesRU[i] }
-        findViewById<LabeledDiscreteSeekBar>(R.id.selectRunUntilWidgetConfiguration).setItems(namesRU)
+        seekRunUntil.setItems(namesRU)
 
         val namesRE = resources.getStringArray(R.array.widgetConfigureRunEveryOptionNames)
         val valuesRE = resources.getIntArray(R.array.widgetConfigureRunEveryOptionValues)
         for (i in valuesRU.indices) { runEveryOptions[valuesRE[i]] = namesRE[i] }
-        findViewById<LabeledDiscreteSeekBar>(R.id.selectRunEveryWidgetConfiguration).setItems(namesRE)
+        seekRunEvery.setItems(namesRE)
 
         adapterSearch = ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item)
-        val edtSearch = findViewById<InstantAutoCompleteTextView>(R.id.edtWidgetConfigurationSearch)
         edtSearch.setAdapter(adapterSearch)
 
         widgetId = intent?.extras?.getInt(
@@ -450,14 +461,13 @@ open class EchtzeytWidgetConfigureActivity : AppCompatActivity() {
     }
 
     private fun initHandlers() {
-        findViewById<ImageButton>(R.id.btnWidgetConfigurationSave).setOnClickListener {
+        btnSave.setOnClickListener {
             saveConfiguration()
             val resultValue = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
             setResult(RESULT_OK, resultValue)
             finish()
         }
 
-        val edtSearch = findViewById<InstantAutoCompleteTextView>(R.id.edtWidgetConfigurationSearch)
         edtSearch.addOnTextChangedListener { shouldUpdateSearch = true }
         edtSearch.addOnItemSelectedListener { clearFocus() }
     }
@@ -479,20 +489,18 @@ open class EchtzeytWidgetConfigureActivity : AppCompatActivity() {
         val runUntil = preferences.getInt("runUntil", 120)
         val runEvery = preferences.getInt("runEvery", 5000)
 
-        findViewById<InstantAutoCompleteTextView>(R.id.edtWidgetConfigurationSearch).setText(stationName)
-        val runUntilSelect = findViewById<LabeledDiscreteSeekBar>(R.id.selectRunUntilWidgetConfiguration)
+        edtSearch.setText(stationName)
         val runUntilIndex = runUntilOptions.keys.indexOf(runUntil)
-        runUntilSelect.progress = if (runUntilIndex < 0) { 0 } else { runUntilIndex }
-        val runEverySelect = findViewById<LabeledDiscreteSeekBar>(R.id.selectRunEveryWidgetConfiguration)
+        seekRunUntil.progress = if (runUntilIndex < 0) { 0 } else { runUntilIndex }
         val runEveryIndex = runEveryOptions.keys.indexOf(runEvery)
-        runEverySelect.progress = if (runEveryIndex < 0) { 0 } else { runEveryIndex }
+        seekRunEvery.progress = if (runEveryIndex < 0) { 0 } else { runEveryIndex }
     }
 
     private fun saveConfiguration() {
-        val stationName = findViewById<EditText>(R.id.edtWidgetConfigurationSearch).text.toString()
-        val runUntilIndex = findViewById<LabeledDiscreteSeekBar>(R.id.selectRunUntilWidgetConfiguration).progress.coerceIn(0, runUntilOptions.size-1)
+        val stationName = edtSearch.text.toString()
+        val runUntilIndex = seekRunUntil.progress.coerceIn(0, runUntilOptions.size-1)
         val runUntil = runUntilOptions.keys.toList()[runUntilIndex]
-        val runEveryIndex = findViewById<LabeledDiscreteSeekBar>(R.id.selectRunEveryWidgetConfiguration).progress.coerceIn(0, runEveryOptions.size-1)
+        val runEveryIndex = seekRunEvery.progress.coerceIn(0, runEveryOptions.size-1)
         val runEvery = runEveryOptions.keys.toList()[runEveryIndex]
         preferences.edit {
             putString("station", stationName)
@@ -504,13 +512,12 @@ open class EchtzeytWidgetConfigureActivity : AppCompatActivity() {
     }
 
     private fun ntUpdateSearch() {
-        val edtSearch = findViewById<InstantAutoCompleteTextView>(R.id.edtWidgetConfigurationSearch)
         val stationSearch = edtSearch.text.toString()
 
         try {
-            var stations = emptyList<Station>()
+            var stations = emptyList<POI>()
             if (stationSearch.isNotEmpty()) {
-                stations = transportSearchStationAPI.searchStations(stationSearch)
+                stations = transportSearchStationAPI.searchPOIs(SearchPOIRequestImpl(stationSearch)).pois
             }
 
             Handler(Looper.getMainLooper()).post {
@@ -538,8 +545,6 @@ open class EchtzeytWidgetConfigureActivity : AppCompatActivity() {
     }
 
     private fun clearFocus() {
-        val edtSearch = findViewById<AutoCompleteTextView>(R.id.edtWidgetConfigurationSearch)
-        val focusLayout = findViewById<LinearLayout>(R.id.focusableLayoutWidgetConfiguration)
         edtSearch.dismissDropDown()
         focusLayout.requestFocus()
         (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(focusLayout.windowToken, 0)

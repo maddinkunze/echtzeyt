@@ -6,25 +6,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:paddingTop="@dimen/toolbar_radius">
 
-    <com.google.android.material.switchmaterial.SwitchMaterial
+    <com.maddin.echtzeyt.components.DescriptiveSwitch
         android:id="@+id/settingsMapUseMobileDataSwitch"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/settings_switch_margin"
-        android:layout_marginLeft="@dimen/settings_switch_margin"
-        android:layout_marginTop="@dimen/settings_switch_margin"
-        android:layout_marginEnd="@dimen/settings_switch_margin"
-        android:layout_marginRight="@dimen/settings_switch_margin"
-        android:text="@string/settingsMapUseMobileData"
-        android:textColor="@color/foreground"
-        android:textSize="@dimen/settings_label_size"
+        style="@style/Theme.Echtzeyt.Switch.Descriptive"
+        app:title="@string/settingsMapUseMobileData"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:switchPadding="@dimen/settings_switch_padding"
-        app:thumbTint="@color/foreground"
-        app:trackTint="@color/backgroundSunken"
-        app:useMaterialThemeColors="true"
-        tools:ignore="TouchTargetSizeCheck,TextContrastCheck,VisualLintButtonSize" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

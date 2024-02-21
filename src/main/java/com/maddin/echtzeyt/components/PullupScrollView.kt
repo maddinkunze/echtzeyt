@@ -1,116 +1,172 @@
 package com.maddin.echtzeyt.components
 
-import android.animation.Animator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.ColorStateList
+import android.os.Build
 import android.util.AttributeSet
-import android.view.LayoutInflater
+import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.ScrollView
-import androidx.annotation.IdRes
+import android.widget.ImageButton
+import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.children
+import androidx.core.view.marginTop
+import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.dynamicanimation.animation.FlingAnimation
+import androidx.dynamicanimation.animation.FloatValueHolder
+import androidx.interpolator.view.animation.LinearOutSlowInInterpolator
 import com.maddin.echtzeyt.R
-import kotlin.math.absoluteValue
+import com.maddin.echtzeyt.fragments.EchtzeytPullupFragment
+import com.maddin.echtzeyt.randomcode.DisablingParentScrollChild
+import com.maddin.echtzeyt.randomcode.LazyView
+import java.lang.IllegalArgumentException
 import kotlin.math.roundToInt
 
 
 @Suppress("MemberVisibilityCanBePrivate")
-open class PullupScrollView(context: Context, private val attrs: AttributeSet?, private val defStyleAttr: Int) : ScrollView(context, attrs, defStyleAttr) {
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
-    constructor(context: Context) : this(context, null)
+open class PullupScrollView : FrameLayout, GestureDetector.OnGestureListener, DisablingParentScrollChild {
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes) { getAttributes(attrs, defStyleAttr, defStyleRes) }
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) { getAttributes(attrs, defStyleAttr) }
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) { getAttributes(attrs) }
+    constructor(context: Context) : super(context) { getAttributes() }
 
-    private var mFocus = false
-    private var mCanReceiveFocus = true
-    private var mDeltaTopPosNoticable = 2
-    private var mInitialAnimation = false
+    override val changeParentScrollListeners = mutableListOf<(Boolean) -> Unit>()
+    private val layoutChild by lazy { getChildAt(0) }
+    private val layoutHeader: FrameLayout by LazyView(R.id.pu_layoutHeaderContent)
+    private val layoutContent: FrameLayout by LazyView(R.id.pu_layoutContent)
+    private val btnClose: ImageButton by LazyView(R.id.pu_btnClosePullup)
+    private val btnBack: ImageButton by LazyView(R.id.pu_btnBackPullup)
+    private val viewCloseRing: View by LazyView(R.id.pu_viewClosePullupRing)
+
+    var manager: PullupManager? = null
+
+    companion object {
+        const val VARIANT_FIRST = 1
+        const val VARIANT_SECOND = 2
+    }
+    var variant: Int = VARIANT_FIRST
+        private set(value) {
+            if (field == value) { return }
+            field = value
+
+            val backgroundRes = when (variant) {
+                VARIANT_SECOND -> R.drawable.pullup_second
+                else -> R.drawable.pullup
+            }
+            val backgroundColor = ContextCompat.getColor(context, when (variant) {
+                VARIANT_SECOND -> R.color.backgroundPullupSecond
+                else -> R.color.backgroundPullup
+            })
+            val buttonBackgroundRes = when (variant) {
+                VARIANT_SECOND -> R.drawable.imagebutton_second
+                else -> R.drawable.imagebutton
+            }
+
+            layoutChild.setBackgroundResource(backgroundRes)
+            ViewCompat.setBackgroundTintList(viewCloseRing, ColorStateList(arrayOf(intArrayOf()), intArrayOf(backgroundColor)))
+            this.buttonBackgroundRes = buttonBackgroundRes
+        }
+    var buttonBackgroundRes = R.drawable.imagebutton
+        private set
+
+
+    init {
+        inflate(context, R.layout.comp_pullup_scroll2, this)
+        clipChildren = false
+        if (isInEditMode) { layoutChild.updateLayoutParams { height = 3200 } }
+    }
+
+    private val gestures by lazy { GestureDetector(context, this) }
+    val onClosePullupListeners = mutableListOf<(View) -> Unit>()
+    private var onBackListener: ((View, close: Boolean) -> Unit)? = null
+
+    var minPullupScroll = 0; private set; val minPullupScrollSafe; get() = minPullupScroll.coerceAtMost(pullupScroll)
+    var maxPullupScroll = 0; private set; val maxPullupScrollSafe; get() = maxPullupScroll.coerceAtLeast(pullupScroll)
+    private val stateAnimator = ValueAnimator().apply {
+        addUpdateListener { pullupScroll = (it.animatedValue as Int) }
+        interpolator = LinearOutSlowInInterpolator()
+    }
+    fun updateScrollLimits(animateIntoBounds: Boolean=true) {
+        recalculateScrollLimits()
+
+        val scrollSafe = pullupScroll.coerceIn(minPullupScroll, maxPullupScroll)
+        if (pullupScroll == scrollSafe) { return }
+        scrollTo(scrollSafe, animateIntoBounds)
+    }
+    protected fun recalculateScrollLimits() {
+        val shadowOffset = layoutChild.marginTop
+        minPullupScroll = minimumVisibleHeight + additionalPaddingBottom + shadowOffset - height
+        maxPullupScroll = (getInnerHeight() + shadowOffset - height).coerceAtLeast(minPullupScroll)
+    }
+    protected fun scrollTo(y: Int, animate: Boolean=true) {
+        stateAnimator.cancel()
+        if (animate) {
+            stateAnimator.setIntValues(pullupScroll, y)
+            stateAnimator.start()
+        } else {
+            pullupScroll = y
+        }
+    }
+
+    private fun getInnerHeight(): Int {
+        return getHeaderHeight() + getContentHeight() + (layoutHeader.parent as View).marginTop
+
+    }
+
+    private fun getHeaderHeight(): Int {
+        layoutHeader.measure(
+            MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST),
+            MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST)
+        )
+        return layoutHeader.measuredHeight
+    }
+
+    private fun getContentHeight(): Int {
+        layoutContent.measure(
+            MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST),
+            MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST)
+        )
+        return layoutContent.measuredHeight
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        if (isInEditMode) layoutContent.children.firstOrNull()?.let {
+            layoutContent.minimumHeight = it.measuredHeight
+            layoutChild.minimumHeight = measuredHeight + it.measuredHeight
+        }
+    }
 
     var minimumVisibleHeight = 0
     var additionalPaddingBottom = 0
-    private var mBackgroundPullup = 0
+        set(value) {
+            val paddingBottomRaw = layoutContent.paddingBottom - field
+            field = value
+            layoutContent.updatePadding(bottom=paddingBottomRaw+value)
+            updateScrollLimits(isVisible())
+        }
     var minimumDisplayHeight = 0
     var durationFadeIn = 200
     var durationFadeOut = 200
     var durationFadeInRelative = 0f
     var durationFadeOutRelative = 0f
 
-    init {
-        LayoutInflater.from(context).inflate(R.layout.comp_pullup_scroll, this)
-        getAttributes()
-    }
-
-    val outerLayout: View by lazy { getChildAt(0) }
-    val innerLayout: FrameLayout by lazy { findViewById(R.id.contentLayout) }
-
-    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        super.onLayout(changed, l, t, r, b)
-        if (!changed) { return }
-
-        innerLayout.minimumHeight = minimumDisplayHeight
-        updateVisiblePortion(minimumDisplayHeight)
-    }
-
-    override fun onFinishInflate() {
-        super.onFinishInflate()
-        innerLayout.minimumHeight = minimumDisplayHeight
-        innerLayout.updatePadding(bottom=additionalPaddingBottom)
-        if (visibility == GONE) { mInitialAnimation = true }
-        if (mBackgroundPullup != 0) { innerLayout.setBackgroundResource(mBackgroundPullup) }
-
-        // when in preview mode: get the display height and move the contents to the bottom once
-        if (isInEditMode) { outerLayout.updatePadding(top=resources.displayMetrics.heightPixels-minimumDisplayHeight) }
-    }
-
-    private fun updateVisiblePortion(visible: Int) {
-        updateTopPos(height - visible)
-    }
-
-    private fun updateTopPos(newPos: Int) {
-        if ((newPos-outerLayout.paddingTop).absoluteValue < mDeltaTopPosNoticable) { return }
-
-        outerLayout.updatePadding(top=newPos)
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    override fun onTouchEvent(ev: MotionEvent?): Boolean {
-        if (ev == null) { return super.onTouchEvent(null) }
-        if (!mCanReceiveFocus) { return false }
-
-        // is there any previous action that has to be completed
-        if (mFocus) {
-            if (ev.action == MotionEvent.ACTION_UP) { mFocus = false }
-            if (ev.action == MotionEvent.ACTION_POINTER_UP) { mFocus = false }
-            if (ev.action == MotionEvent.ACTION_CANCEL) { mFocus = false }
-            return super.onTouchEvent(ev)
-        }
-
-        // is the touch event happening outside of the content -> ignore touch event (dont scroll, click, ...)
-        val realY = ev.y + scrollY
-        if (realY < innerLayout.top - getGraceArea()) { return false }
-        if (realY > innerLayout.bottom) { return false }
-
-        // is the touch event inside the content -> allow potential scrolling/clicking/...
-        mFocus = super.onTouchEvent(ev)
-        return mFocus
-    }
-
-    protected fun getGraceArea() : Int {
-        return 50
-    }
-
-    private fun getAttributes() {
-        val styledAttr = context.theme.obtainStyledAttributes(attrs, R.styleable.PullupScrollView, defStyleAttr, 0)
+    private fun getAttributes(attrs: AttributeSet?=null, defStyleAttr: Int=0, defStyleRes: Int=0) {
+        val styledAttr = context.theme.obtainStyledAttributes(attrs, R.styleable.PullupScrollView, defStyleAttr, defStyleRes)
         try {
             minimumVisibleHeight = styledAttr.getDimensionPixelSize(R.styleable.PullupScrollView_minimumVisibleHeight, minimumVisibleHeight)
             additionalPaddingBottom = styledAttr.getDimensionPixelSize(R.styleable.PullupScrollView_additionalPaddingBottom, additionalPaddingBottom)
             minimumDisplayHeight = minimumVisibleHeight + additionalPaddingBottom
 
-            mBackgroundPullup = styledAttr.getResourceId(R.styleable.PullupScrollView_backgroundPullup, mBackgroundPullup)
+            variant = styledAttr.getInt(R.styleable.PullupScrollView_variant, variant)
 
             if (styledAttr.hasValue(R.styleable.PullupScrollView_fadeDuration)) {
                 val durationFade = styledAttr.getInteger(R.styleable.PullupScrollView_fadeDuration, 0)
@@ -132,17 +188,103 @@ open class PullupScrollView(context: Context, private val attrs: AttributeSet?, 
         }
     }
 
+    private var mPullupScroll = 0
+    var pullupScroll: Int
+        set(valueT) {
+            val value = valueT.coerceIn(minPullupScrollSafe, maxPullupScrollSafe)
+            mPullupScroll = value
+            if (value > 0) {
+                scrollY = 0
+                layoutContent.scrollY = value
+            } else {
+                scrollY = value
+                layoutContent.scrollY = 0
+            }
+        }
+        get() = mPullupScroll
+
+    override fun onDown(e: MotionEvent): Boolean { return mCanReceiveFocus }
+
+    override fun onShowPress(e: MotionEvent) {}
+
+    override fun onSingleTapUp(e: MotionEvent): Boolean { return false }
+
+    private var isScrollingY = false
+    override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+        flingAnimation.cancel()
+        if (!mCanReceiveFocus) { return false }
+
+        if (distanceY > 0.3 * distanceX) {
+            if (!isScrollingY) { disableParentScroll() }
+            isScrollingY = true
+        }
+
+        pullupScroll += distanceY.roundToInt()
+
+        return true
+    }
+
+    override fun onLongPress(e: MotionEvent) {}
+
+    private val flingAnimation = FlingAnimation(FloatValueHolder()).addUpdateListener { _, value, _ -> pullupScroll = value.roundToInt() }
+    override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+        enableParentScroll()
+        if (!mCanReceiveFocus) { return false }
+
+        flingAnimation.cancel()
+        flingAnimation.setStartValue(pullupScroll.toFloat())
+        flingAnimation.setStartVelocity(-velocityY)
+        flingAnimation.start()
+
+        return true
+    }
+
+    private var mFocus = false
+    private var mCanReceiveFocus = true
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        val ret = super.dispatchTouchEvent(ev)
+        if (ev == null) { return ret }
+        if (!mCanReceiveFocus) { return false }
+
+        if (ev.action == MotionEvent.ACTION_UP) {
+            isScrollingY = false
+            enableParentScroll()
+        }
+
+        // is there any previous action that has to be completed
+        return if (mFocus) {
+            if (ev.action == MotionEvent.ACTION_UP) { mFocus = false }
+            if (ev.action == MotionEvent.ACTION_POINTER_UP) { mFocus = false }
+            if (ev.action == MotionEvent.ACTION_CANCEL) { mFocus = false }
+            gestures.onTouchEvent(ev)
+        } else {
+            val slop = ev.size/2
+            if (ev.x !in layoutChild.left-slop..layoutChild.right+slop) { return false }
+            if (ev.y in 0f..-scrollY-slop) { return false }
+            mFocus = gestures.onTouchEvent(ev)
+            mFocus
+        }
+    }
+
     fun showPullup() : Long {
+        onBackListener = null
+        btnBack.visibility = View.GONE
+
+        manager?.opened(this)
+
         val durationRaw = durationFadeOut
         var durationAdjusted = durationRaw
-        innerLayout.minimumHeight = minimumDisplayHeight
-        val visibleHeight = minimumDisplayHeight + scrollY.coerceAtMost(height)
-        if (minimumVisibleHeight > 0) {
-            durationAdjusted = (visibleHeight / minimumVisibleHeight) * durationRaw
+        val height = layoutParams.height
+        val visibleHeight = height + scrollY
+        if (height > 0) {
+            durationAdjusted = (visibleHeight / height) * durationRaw
         }
         val duration = ((1-durationFadeOutRelative) * durationRaw + durationFadeOutRelative * durationAdjusted).toLong()
 
-        if (mInitialAnimation) { translationY = visibleHeight.toFloat() }
+        if (!isVisible()) {
+            alpha = 0f
+            translationY = visibleHeight.toFloat()
+        }
         translationY = translationY.coerceAtMost(visibleHeight.toFloat())
         visibility = VISIBLE
 
@@ -153,16 +295,23 @@ open class PullupScrollView(context: Context, private val attrs: AttributeSet?, 
         return duration
     }
 
+    fun showPullupWithBack(callback: ((View, close: Boolean) -> Unit)?) : Long {
+        onBackListener = callback
+        btnBack.visibility = View.VISIBLE
+        return showPullup()
+    }
+
     fun hidePullup() : Long {
+        manager?.closed(this)
+
         val durationRaw = durationFadeOut
         var durationAdjusted = durationRaw
-        val visibleHeight = minimumDisplayHeight + scrollY.coerceAtMost(height)
-        if (minimumDisplayHeight > 0) {
-            durationAdjusted = (visibleHeight / minimumVisibleHeight) * durationRaw
+        val visibleHeight = height + scrollY
+        if (height > 0) {
+            durationAdjusted = (visibleHeight / height) * durationRaw
         }
         val duration = ((1-durationFadeOutRelative) * durationRaw + durationFadeOutRelative * durationAdjusted).toLong()
 
-        innerLayout.minimumHeight = minimumDisplayHeight
         mCanReceiveFocus = false
 
         ViewCompat.animate(this).alpha(0f).translationY(visibleHeight.toFloat()).withEndAction {
@@ -177,90 +326,113 @@ open class PullupScrollView(context: Context, private val attrs: AttributeSet?, 
         return (visibility == VISIBLE) && mCanReceiveFocus
     }
 
-    override fun addView(child: View?) {
-        if (child == null || childCount < 1) {
-            super.addView(child)
-        } else {
-            innerLayout.addView(child)
+    private var initialLayout = true
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+
+        if (!changed) { return }
+        updateScrollLimits(isVisible() && !initialLayout)
+        if (initialLayout) {
+            pullupScroll = minPullupScroll
         }
+        initialLayout = false
     }
 
-    override fun addView(child: View?, index: Int) {
-        if (child == null || childCount < 1) {
-            super.addView(child, index)
-        } else {
-            innerLayout.addView(child, index)
-        }
+    override fun onFinishInflate() {
+        super.onFinishInflate()
+
+        btnClose.setOnClickListener { closePullup() }
+        btnBack.setOnClickListener { backPressed() }
     }
 
-    override fun addView(child: View, index: Int, params: ViewGroup.LayoutParams?) {
-        if (childCount < 1) {
-            super.addView(child, index, params)
-        } else {
-            innerLayout.addView(child, index, params)
-        }
+    private fun closePullup() {
+        hidePullup()
+        onBackListener?.let { it(this, true) }
+        onClosePullupListeners.forEach { it(this) }
     }
 
-    override fun addView(child: View?, params: ViewGroup.LayoutParams?) {
-        if (childCount < 1) {
-            super.addView(child, params)
-        } else {
-            innerLayout.addView(child, params)
-        }
+    fun backPressed() {
+        onBackListener?.let {
+            hidePullup()
+            it(this, false)
+        } ?: closePullup()
+        onBackListener = null
     }
 
-    override fun addView(child: View?, width: Int, height: Int) {
-        if (childCount < 1) {
-            super.addView(child, width, height)
-        } else {
-            innerLayout.addView(child, width, height)
-        }
-    }
-
-    // the component preview in android studio complains if no speakable description is provided
-    // so if we are in edit mode, we return some non-empty garbage for android studio to chew on
     @SuppressLint("GetContentDescriptionOverride")
     override fun getContentDescription(): CharSequence {
         if (isInEditMode) { return "." }
         return super.getContentDescription()
     }
 
-    private var mStateAnimator: Animator? = null
-    protected fun saveState() {
-        mStateAnimator?.cancel()
-        innerLayout.minimumHeight = innerLayout.height
+    fun saveState() {}
+    fun animateFromSavedState() {}
+
+    @Suppress("KotlinConstantConditions")
+    override fun addView(child: View?, index: Int, params: ViewGroup.LayoutParams?) {
+        if (child == null) { return super.addView(child, index, params) }
+
+        if (childCount < 1) {
+            super.addView(child, index, params)
+        } else if (layoutHeader.childCount < 1 || (layoutHeader.getChildAt(0).id == child.id && child.id != 0)) {
+            layoutHeader.removeAllViews()
+            layoutHeader.addView(child, index, params)
+        } else if (layoutContent.childCount < 1 || (layoutContent.getChildAt(0).id == child.id && child.id != 0)) {
+            layoutContent.removeAllViews()
+            layoutContent.addView(child, index, params)
+        } else if (isInEditMode) {
+            layoutHeader.removeAllViews()
+            layoutContent.removeAllViews()
+            addView(child, index, params)
+        } else {
+            throw IllegalArgumentException("You can only add two direct children to a PullupScrollView (Header and Content), tried to add $child (${layoutHeader.getChildAt(0)})")
+        }
     }
 
-    protected fun animateFromSavedState() {
-        val parent = innerLayout.parent as View
-        innerLayout.minimumHeight = minimumDisplayHeight
-        innerLayout.measure(MeasureSpec.makeMeasureSpec(parent.width, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(parent.height, MeasureSpec.AT_MOST))
+    override fun removeView(view: View?) {
+        super.removeView(view)
+        if (view == null) { return }
+        layoutHeader.removeView(view)
+        layoutContent.removeView(view)
+    }
 
-        val heightFrom = innerLayout.height
-        val heightTo = innerLayout.measuredHeight.coerceAtLeast(minimumDisplayHeight)
-        if (heightTo >= heightFrom) { return }
+    override fun removeAllViews() {
+        super.removeAllViews()
+        layoutHeader.removeAllViews()
+        layoutContent.removeAllViews()
+    }
+}
 
-        val durationRaw = durationFadeOut
-        var durationAdjusted = durationRaw
-        val deltaHeight = (heightTo - heightFrom).coerceAtMost(height)
-        if (minimumVisibleHeight > 0) {
-            durationAdjusted = (deltaHeight / minimumVisibleHeight) * durationRaw
-        }
-        val duration = ((1-durationFadeOutRelative) * durationRaw + durationFadeOutRelative * durationAdjusted).toLong()
+class PullupManager(val context: Any) {
+    private var current: PullupScrollView? = null
 
-        val animator = ValueAnimator.ofFloat(heightFrom.toFloat(), heightTo.toFloat())
-        animator.addUpdateListener {
-                v -> innerLayout.minimumHeight = (v.animatedValue as Float).roundToInt()
-        }
-        animator.addListener(object: Animator.AnimatorListener {
-            override fun onAnimationStart(animation: Animator) {}
-            override fun onAnimationEnd(animation: Animator) { innerLayout.minimumHeight = minimumDisplayHeight }
-            override fun onAnimationCancel(animation: Animator) {}
-            override fun onAnimationRepeat(animation: Animator) {}
-        })
-        animator.interpolator = FastOutSlowInInterpolator()
-        animator.duration = duration
-        animator.start()
-        mStateAnimator = animator
+    val onFirstOpenedListeners = mutableListOf<() -> Unit>()
+    val onLastClosedListeners = mutableListOf<() -> Unit>()
+
+    fun onBackPressed() {
+        current?.backPressed()
+    }
+
+    fun opened(opened: PullupScrollView) {
+        val last = current
+        current = opened
+        last?.hidePullup() ?: onFirstOpenedListeners.forEach { it() }
+    }
+
+    fun closed(closed: PullupScrollView) {
+        if ((closed != current) && (current?.isVisible() == true)) { return }
+        current = null
+
+        onLastClosedListeners.forEach { it() }
+    }
+}
+
+open class LazyPullup<T : PullupScrollView>(id: Int, val manager: () -> PullupManager) : LazyView<T>(id) {
+    constructor(id: Int, manager: PullupManager) : this(id, { manager })
+    constructor(id: Int, context: EchtzeytPullupFragment) : this(id, { context.pullupManager })
+
+    override fun init(item: T) {
+        item.manager = manager()
+        super.init(item)
     }
 }

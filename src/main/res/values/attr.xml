@@ -17,14 +17,16 @@
     <declare-styleable name="PullupScrollView">
         <attr name="minimumVisibleHeight" format="dimension" />
         <attr name="additionalPaddingBottom" format="dimension" />
-        <attr name="backgroundPullup" format="reference" />
-        <attr name="backgroundColorPullup" format="color" />
         <attr name="fadeDuration" format="integer" />
         <attr name="fadeInDuration" format="integer" />
         <attr name="fadeOutDuration" format="integer" />
         <attr name="fadeDurationRelative" format="float" />
         <attr name="fadeInDurationRelative" format="float" />
         <attr name="fadeOutDurationRelative" format="float" />
+        <attr name="variant" format="enum">
+            <enum value="1" name="first" />
+            <enum value="2" name="second" />
+        </attr>
     </declare-styleable>
 
 
@@ -40,6 +42,7 @@
         <attr name="shadowColors" />
         <attr name="shadowStops" />
         <attr name="radiusInner" />
+        <attr name="extraOffsetBottom" format="dimension" />
     </declare-styleable>
 
     <declare-styleable name="DropShadowView">
@@ -69,14 +72,44 @@
         <attr name="layout_spacing_vertical" format="dimension" />
     </declare-styleable>
 
+    <declare-styleable name="AnimatableImageButton">
+        <attr name="preferredHeight" format="dimension" />
+        <attr name="preferredPadding" format="dimension" />
+        <attr name="preferredMargin" format="dimension" />
+        <attr name="minimizedMargin" format="dimension" />
+    </declare-styleable>
+
     <declare-styleable name="InstantAutoCompleteTextView">
         <attr name="textSizeFocus" format="dimension" />
         <attr name="heightFocus" format="dimension" />
     </declare-styleable>
 
     <declare-styleable name="StationSearchbar">
-        <attr name="animated" format="boolean" />
-        <attr name="textInfo" format="string" />
-        <attr name="fillUntil" format="reference" />
+        <attr name="srcIcon" format="reference" />
+        <attr name="textSize" format="dimension" />
+        <attr name="gap" format="dimension" />
+        <attr name="preferredHeightButtons" format="dimension" />
+        <attr name="hint" format="string" />
+        <attr name="gapIcon" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="DepartureDropdown">
+        <attr name="allowedModes" format="flags">
+            <flag name="depart" value="1" />
+            <flag name="arrive" value="2" />
+        </attr>
+    </declare-styleable>
+
+    <attr name="title" format="string" />
+    <attr name="description" format="string" />
+
+    <declare-styleable name="DescriptiveSwitch">
+        <attr name="title" />
+        <attr name="description" />
+    </declare-styleable>
+
+    <declare-styleable name="DescriptiveSeekbar">
+        <attr name="title" />
+        <attr name="description" />
     </declare-styleable>
 </resources>

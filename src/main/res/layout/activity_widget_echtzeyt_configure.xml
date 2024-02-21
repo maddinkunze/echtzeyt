@@ -22,17 +22,11 @@
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarWidgetConfiguration"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/toolbar"
-        android:minHeight="@dimen/toolbar_height"
-        android:theme="?attr/actionBarTheme"
+        style="@style/Theme.Echtzeyt.Toolbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:title="@string/widgetNameSettings"
-        app:titleMarginStart="6dp"
-        app:titleTextColor="?attr/colorSecondary" />
+        app:title="@string/widgetNameSettings" />
 
     <ImageButton
         android:id="@+id/btnWidgetConfigurationSave"

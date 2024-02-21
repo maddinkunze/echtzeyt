@@ -8,26 +8,25 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.view.MotionEvent
 import com.maddin.echtzeyt.randomcode.DynamicDrawable
-import com.maddin.transportapi.LocatableStation
-import com.maddin.transportapi.Station
+import com.maddin.transportapi.components.LocationLatLon
+import com.maddin.transportapi.components.POI
+import com.maddin.transportapi.components.Station
 import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
-import org.osmdroid.util.PointL
-import org.osmdroid.util.RectL
 import org.osmdroid.views.MapView
 import org.osmdroid.views.Projection
 import org.osmdroid.views.overlay.Marker
 import kotlin.math.roundToInt
 
 open class StopMarker : Marker {
-    constructor(mapView: MapView, station: LocatableStation, positionMarker: PositionMarker?) : super(mapView) {
-        mStation = station
+    constructor(mapView: MapView, poi: POI, positionMarker: PositionMarker?) : super(mapView) {
+        mPoi = poi
         mMap = mapView
         mPositionMarker = positionMarker
         initialize()
     }
-    constructor(mapView: MapView, station: LocatableStation, positionMarker: PositionMarker?, context: Context) : super(mapView, context) {
-        mStation = station
+    constructor(mapView: MapView, poi: POI, positionMarker: PositionMarker?, context: Context) : super(mapView, context) {
+        mPoi = poi
         mMap = mapView
         mPositionMarker = positionMarker
         initialize()
@@ -37,7 +36,7 @@ open class StopMarker : Marker {
         const val FLAG_SELECTED = 1
     }
 
-    private val mStation: LocatableStation
+    private val mPoi: POI
     private val mMap: MapView
     private var mSelected = false
 
@@ -55,7 +54,7 @@ open class StopMarker : Marker {
     }
 
     private fun initialize() {
-        position = GeoPoint(mStation.location.lat, mStation.location.lon)
+        (mPoi.location as? LocationLatLon)?.let { position = GeoPoint(it.lat, it.lon) }
     }
 
     fun select() {
@@ -63,8 +62,8 @@ open class StopMarker : Marker {
         setIconAccordingToState()
     }
 
-    fun selectAndDeselectOthers(station: Station) {
-        mSelected = (station.id == mStation.id)
+    fun selectAndDeselectOthers(poi: POI) {
+        mSelected = (poi.id == mPoi.id)
         setIconAccordingToState()
     }
 

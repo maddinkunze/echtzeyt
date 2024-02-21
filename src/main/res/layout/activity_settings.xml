@@ -38,7 +38,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/toolbarSettings"
-            style="@style/Theme.Echtzeyt.TabLayout"
+            style="@style/Theme.Echtzeyt.TabLayout.Toolbar"
             tools:ignore="SpeakableTextPresentCheck" />
 
         <androidx.appcompat.widget.Toolbar
@@ -54,7 +54,7 @@
 
     <com.maddin.echtzeyt.components.FloatingButton
         android:id="@+id/btnSettingsSave"
-        style="@style/Theme.Echtzeyt.Button.Floating"
+        style="@style/Theme.Echtzeyt.Button.Image.Floating"
         android:contentDescription="@string/btnSettingsDescription"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

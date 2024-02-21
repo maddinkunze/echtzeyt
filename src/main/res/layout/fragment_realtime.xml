@@ -7,10 +7,10 @@
     android:background="@color/background"
     android:paddingTop="@dimen/toolbar_radius">
 
-    <com.maddin.echtzeyt.components.StationSearchbar
+    <com.maddin.echtzeyt.components.POISearchbar
         android:id="@+id/edtSearch"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/button_size"
         android:layout_marginStart="@dimen/layout_padding"
         android:layout_marginLeft="@dimen/layout_padding"
         android:layout_marginTop="@dimen/layout_padding"
@@ -18,64 +18,70 @@
         android:layout_marginRight="@dimen/layout_padding"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:fillUntil="@+id/btnMap"
-        app:animated="false" >
+        app:layout_constraintTop_toTopOf="parent" >
 
         <ImageButton
             android:id="@+id/btnMap"
-            style="@style/Theme.Echtzeyt.Button"
+            style="@style/Theme.Echtzeyt.Button.Image"
             android:contentDescription="@string/btnSearchOnMapDescription"
-            android:layout_marginEnd="@dimen/button_margin"
-            android:layout_marginRight="@dimen/button_margin"
             app:srcCompat="@drawable/ic_map"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/btnInfo"
             tools:ignore="TouchTargetSizeCheck" />
 
         <ImageButton
             android:id="@+id/btnInfo"
-            style="@style/Theme.Echtzeyt.Button"
+            style="@style/Theme.Echtzeyt.Button.Image"
             android:contentDescription="@string/btnInfoDescription"
-            android:layout_marginEnd="@dimen/button_margin"
-            android:layout_marginRight="@dimen/button_margin"
             app:srcCompat="@drawable/ic_info"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/spaceSearchbarMargin"
             tools:ignore="TouchTargetSizeCheck" />
 
-    </com.maddin.echtzeyt.components.StationSearchbar>
+    </com.maddin.echtzeyt.components.POISearchbar>
 
     <View
         android:id="@+id/dividerSearch"
+        style="@style/Theme.Echtzeyt.View.Divider"
         android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="6dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:alpha="0.4"
-        android:background="@color/foreground"
+        android:layout_marginStart="@dimen/layout_padding"
+        android:layout_marginLeft="@dimen/layout_padding"
+        android:layout_marginEnd="@dimen/layout_padding"
+        android:layout_marginRight="@dimen/layout_padding"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/edtSearch" />
 
-    <TextView
-        android:id="@+id/txtEmpty"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/layoutRealtimeParameters"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:gravity="center_horizontal"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:text="@string/updateNotYet"
-        android:textColor="@color/foregroundText"
+        android:layout_marginLeft="@dimen/layout_padding"
+        android:layout_marginStart="@dimen/layout_padding"
+        android:layout_marginEnd="@dimen/layout_padding"
+        android:layout_marginRight="@dimen/layout_padding"
+        android:orientation="vertical"
+        android:paddingTop="6dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/scrollLayoutScroll" />
+        app:layout_constraintTop_toBottomOf="@+id/dividerSearch">
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.maddin.echtzeyt.components.DropdownButton
+                    android:id="@+id/btnDeparture"
+                    style="@style/Theme.Echtzeyt.Button"
+                    android:text="@string/dddepDepart"
+                    app:iconGravity="end"
+                    app:iconPadding="8dp" />
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <View style="@style/Theme.Echtzeyt.View.Divider" />
+    </LinearLayout>
 
     <com.maddin.echtzeyt.components.BottomFadeEdgeScrollView
         android:id="@+id/scrollLayoutScroll"
@@ -92,15 +98,51 @@
         app:layout_constraintBottom_toTopOf="@+id/txtLastUpdated"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dividerSearch">
+        app:layout_constraintTop_toBottomOf="@+id/layoutRealtimeParameters">
 
         <LinearLayout
-            android:id="@+id/layoutScroll"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingTop="2dp"
-            android:paddingBottom="44dp" />
+            android:paddingBottom="44dp">
+
+
+            <Button
+                android:id="@+id/realtime_btnShowConnectionsNow"
+                style="@style/Theme.Echtzeyt.Button"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:visibility="gone"
+                android:text="@string/realtimeShowFromNow" />
+
+            <TextView
+                android:id="@+id/txtEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="center_horizontal"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:text="@string/updateNotYet"
+                android:textColor="@color/foregroundText" />
+
+            <LinearLayout
+                android:id="@+id/realtime_layoutConnections"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <Button
+                android:id="@+id/realtime_btnShowConnectionsFrom"
+                style="@style/Theme.Echtzeyt.Button"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="2dp"
+                android:text="@string/realtimeShowFromTime"
+                android:visibility="gone" />
+        </LinearLayout>
     </com.maddin.echtzeyt.components.BottomFadeEdgeScrollView>
 
     <TextView
@@ -123,16 +165,9 @@
 
     <com.maddin.echtzeyt.components.StationPullup
         android:id="@+id/pullupStationInfo"
-        style="@style/Theme.Echtzeyt.PullupScrollView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-        app:additionalPaddingBottom="83dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:minimumVisibleHeight="80dp" />
+        style="@style/Theme.Echtzeyt.PullupScrollView.InMainFragment"
+        android:clipChildren="false"
+        android:visibility="gone" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layoutBookmarks"
@@ -228,10 +263,22 @@
 
     <com.maddin.echtzeyt.components.FloatingButton
         android:id="@+id/btnBookmarks"
-        style="@style/Theme.Echtzeyt.Button.Floating"
+        style="@style/Theme.Echtzeyt.Button.Image.Floating"
         android:contentDescription="@string/btnBookmarksDescription"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/ic_bookmark" />
+        app:srcCompat="@drawable/ic_bookmark"
+        app:shadowBelow="@+id/layoutBookmarks" />
+
+    <com.maddin.echtzeyt.components.DepartureDropdown
+        android:id="@+id/layoutFilterDeparture"
+        style="@style/Theme.Echtzeyt.Layout.Dropdown"
+        android:layout_height="0dp"
+        android:layout_marginTop="-3dp"
+        android:paddingBottom="6dp"
+        android:visibility="gone"
+        app:allowedModes="depart"
+        app:layout_constraintStart_toStartOf="@+id/layoutRealtimeParameters"
+        app:layout_constraintTop_toBottomOf="@+id/layoutRealtimeParameters" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,7 +3,7 @@ package com.maddin.echtzeyt.components
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
-import android.text.InputType
+import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -12,34 +12,35 @@ import android.widget.ArrayAdapter
 import androidx.annotation.LayoutRes
 import androidx.core.app.ActivityCompat
 import com.maddin.echtzeyt.R
-import com.maddin.transportapi.SearchStationAPI
-import com.maddin.transportapi.Station
+import com.maddin.transportapi.components.POI
+import com.maddin.transportapi.endpoints.SearchPOIAPI
+import com.maddin.transportapi.endpoints.SearchPOIRequestImpl
 
-class StationAdapter(context: Context, @LayoutRes resId: Int) : ArrayAdapter<String>(context, resId) {
-    private val mStations = mutableListOf<Station>()
-    fun getStationAt(pos: Int) : Station? {
-        return mStations.getOrNull(pos)
+class POIAdapter(context: Context, @LayoutRes resId: Int) : ArrayAdapter<String>(context, resId) {
+    private val mPOIs = mutableListOf<POI>()
+    fun getStationAt(pos: Int) : POI? {
+        return mPOIs.getOrNull(pos)
     }
 
-    fun add(station: Station) {
-        mStations.add(station)
-        super.add(station.name)
+    fun add(poi: POI) {
+        mPOIs.add(poi)
+        super.add(poi.name)
     }
 
     override fun clear() {
         super.clear()
-        mStations.clear()
+        mPOIs.clear()
     }
 }
 
-class StationSearchTextView : InstantAutoCompleteTextView {
+class POISearchTextView : InstantAutoCompleteTextView {
     constructor(context: Context, attr: AttributeSet?, defStyleAttr: Int) : super(context, attr, defStyleAttr)
     constructor(context: Context, attr: AttributeSet?) : super(context, attr)
     constructor(context: Context) : super(context)
 
-    lateinit var searchStationAPI: SearchStationAPI
+    lateinit var searchPOIAPI: SearchPOIAPI
     val onItemSelectedListeners = mutableListOf<() -> Unit>()
-    private val adapterSearch by lazy { StationAdapter(context, R.layout.support_simple_spinner_dropdown_item) }
+    private val adapterSearch by lazy { POIAdapter(context, R.layout.support_simple_spinner_dropdown_item) }
     private val activity by lazy {
         var c = context
         while (c is ContextWrapper) {
@@ -49,11 +50,18 @@ class StationSearchTextView : InstantAutoCompleteTextView {
         null
     }
 
-    private var mCurrentStation: Station? = null
-    var currentStation: Station?
-        get() = mCurrentStation
-        set(value) {
-            mCurrentStation = value
+    private val inputMethodManager by lazy { ActivityCompat.getSystemService(activity?:context, InputMethodManager::class.java) }
+
+    private var mCurrentPOI: POI? = null
+        @Synchronized get
+        @Synchronized set
+    private var mLastSelectedStation: String = ""
+        @Synchronized get
+        @Synchronized set
+    var currentPOI: POI?
+        @Synchronized get() = mCurrentPOI
+        @Synchronized set(value) {
+            mCurrentPOI = value
             if (value?.name == currentStationSearch) { return }
             currentStationSearch = value?.name ?: ""
             post { super.setText(currentStationSearch) }
@@ -70,7 +78,7 @@ class StationSearchTextView : InstantAutoCompleteTextView {
         // Listener when the main search input changes
         addOnTextChangedListener { text ->
             val search = text.toString()
-            if (search == currentStation?.name) { clearFocus(); return@addOnTextChangedListener }
+            if (search == currentPOI?.name) { clearFocus(); return@addOnTextChangedListener }
 
             currentStationSearch = search
             shouldUpdateSearch = true
@@ -80,14 +88,14 @@ class StationSearchTextView : InstantAutoCompleteTextView {
         addOnItemSelectedListener { clearFocus(); onItemSelected() }
         onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                mCurrentStation = adapterSearch.getStationAt(position)
+                mCurrentPOI = adapterSearch.getStationAt(position)
                 clearFocus()
                 onItemSelected()
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
         setOnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
-            mCurrentStation = adapterSearch.getStationAt(position)
+            mCurrentPOI = adapterSearch.getStationAt(position)
             clearFocus()
             onItemSelected()
         }
@@ -100,28 +108,29 @@ class StationSearchTextView : InstantAutoCompleteTextView {
     fun ntUpdateSearch() {
         if (!shouldUpdateSearch) { return }
         try {
-            var stations = emptyList<Station>()
+            var pois = emptyList<POI>()
             if (currentStationSearch.isNotEmpty()) {
-                stations = searchStationAPI.searchStations(currentStationSearch)
+                pois = searchPOIAPI.searchPOIs(SearchPOIRequestImpl(currentStationSearch)).pois
             }
 
             activity?.runOnUiThread {
                 adapterSearch.clear()
-                if (stations.isEmpty()) {
-                    mCurrentStation = null
+                if (pois.isEmpty()) {
+                    mCurrentPOI = null
                     adapterSearch.notifyDataSetChanged()
                     dismissDropDown()
                     onItemSelected()
                     return@runOnUiThread
                 }
 
-                for (station in stations) {
-                    if (station.name == currentStationSearch) {
-                        mCurrentStation = station
+                for (poi in pois) {
+                    if (poi.name == currentStationSearch) {
+                        mCurrentPOI = poi
                         clearFocus()
                         onItemSelected()
-                        return@runOnUiThread }
-                    adapterSearch.add(station)
+                        return@runOnUiThread
+                    }
+                    adapterSearch.add(poi)
                 }
 
                 adapterSearch.notifyDataSetChanged()
@@ -136,6 +145,8 @@ class StationSearchTextView : InstantAutoCompleteTextView {
     }
 
     private fun onItemSelected() {
+        if (mLastSelectedStation.isNotEmpty() && mLastSelectedStation == mCurrentPOI?.id?.uuid) { return }
+        mLastSelectedStation = mCurrentPOI?.id?.uuid ?: ""
         for (listener in onItemSelectedListeners) { listener() }
     }
 
@@ -145,9 +156,15 @@ class StationSearchTextView : InstantAutoCompleteTextView {
         shouldUpdateSearch = true
     }
 
+    override fun requestFocus(direction: Int, previouslyFocusedRect: Rect?): Boolean {
+        val gotFocus = super.requestFocus(direction, previouslyFocusedRect)
+        if (gotFocus) { inputMethodManager?.showSoftInput(this, 0) }
+        return gotFocus
+    }
+
     override fun clearFocus() {
         super.clearFocus()
         dismissDropDown()
-        ActivityCompat.getSystemService(activity?:context, InputMethodManager::class.java)?.hideSoftInputFromWindow(windowToken, 0)
+        inputMethodManager?.hideSoftInputFromWindow(windowToken, 0)
     }
 }

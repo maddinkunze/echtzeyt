@@ -3,71 +3,83 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:paddingTop="@dimen/toolbar_radius">
 
-    <com.google.android.material.switchmaterial.SwitchMaterial
+    <com.maddin.echtzeyt.components.DescriptiveSwitch
         android:id="@+id/settingsSaveContentSwitch"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/settings_switch_margin"
-        android:layout_marginLeft="@dimen/settings_switch_margin"
-        android:layout_marginTop="@dimen/settings_switch_margin"
-        android:layout_marginEnd="@dimen/settings_switch_margin"
-        android:layout_marginRight="@dimen/settings_switch_margin"
-        android:text="@string/settingsSaveContent"
-        android:textColor="@color/foreground"
-        android:textSize="@dimen/settings_label_size"
+        style="@style/Theme.Echtzeyt.Switch.Descriptive"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:switchPadding="@dimen/settings_switch_padding"
-        app:thumbTint="@color/foreground"
-        app:trackTint="@color/backgroundSunken"
-        app:useMaterialThemeColors="true"
-        tools:ignore="TouchTargetSizeCheck,TextContrastCheck,VisualLintButtonSize" />
+        app:title="@string/settingsSaveContent" />
 
-    <LinearLayout
-        android:id="@+id/settingsUpdateEveryLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/settings_switch_margin"
-        android:layout_marginLeft="@dimen/settings_switch_margin"
-        android:layout_marginTop="@dimen/settings_switch_margin"
-        android:layout_marginEnd="@dimen/settings_switch_margin"
-        android:layout_marginRight="@dimen/settings_switch_margin"
-        android:orientation="horizontal"
+    <com.maddin.echtzeyt.components.DescriptiveSeekbar
+        android:id="@+id/settingsUpdateEverySelect"
+        style="@style/Theme.Echtzeyt.Seekbar.Descriptive"
+        app:layout_constraintTop_toBottomOf="@id/settingsSaveContentSwitch"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/settingsSaveContentSwitch">
+        app:title="@string/settingsUpdateInterval" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/settingsUpdateInterval"
-            android:textColor="@color/foreground"
-            android:textSize="@dimen/settings_label_size" />
+    <com.maddin.echtzeyt.components.DescriptiveSwitch
+        android:id="@+id/settingsRealtimeSlowerUpdates"
+        style="@style/Theme.Echtzeyt.Switch.Descriptive"
+        app:title="@string/settingsRealtimeSlowerUpdates"
+        app:description="@string/settingsRealtimeSlowerUpdatesDescription"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/settingsUpdateEverySelect" />
 
-        <Space
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
+    <com.maddin.echtzeyt.components.DescriptiveSwitch
+        android:id="@+id/settingsRealtimeUseIconsSwitch"
+        style="@style/Theme.Echtzeyt.Switch.Descriptive"
+        app:title="@string/settingsRealtimeUseIcons"
+        app:description="@string/settingsRealtimeUseIconsDescription"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/settingsRealtimeSlowerUpdates" />
 
-        <com.maddin.echtzeyt.components.LabeledDiscreteSeekBar
-            android:id="@+id/settingsUpdateEverySelect"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="3"
-            app:labelColor="@color/background"
-            app:thumbPaddingBottom="3dp"
-            app:thumbPaddingLeft="8dp"
-            app:thumbPaddingRight="8dp"
-            app:thumbPaddingTop="3dp"
-            app:thumbRadius="15dp"
-            app:thumbTextSize="14sp"
-            app:thumbTint="@color/foreground"
-            app:trackHeight="6dp"
-            app:trackTint="@color/backgroundSunken" />
-    </LinearLayout>
+    <com.maddin.echtzeyt.components.DescriptiveSwitch
+        android:id="@+id/settingsRealtimeIconsSameWidthSwitch"
+        style="@style/Theme.Echtzeyt.Switch.Descriptive"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/settingsRealtimeUseIconsSwitch"
+        app:title="@string/settingsRealtimeIconsSameWidth"
+        app:description="@string/settingsRealtimeIconsSameWidthDescription" />
+
+    <com.maddin.echtzeyt.components.DescriptiveSeekbar
+        android:id="@+id/settingsRealtimeTimeAfterSelect"
+        style="@style/Theme.Echtzeyt.Seekbar.Descriptive"
+        app:title="@string/settingsRealtimeTimeAfter"
+        app:description="@string/settingsRealtimeTimeAfterDescription"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/settingsRealtimeIconsSameWidthSwitch" />
+
+    <com.maddin.echtzeyt.components.DescriptiveSeekbar
+        android:id="@+id/settingsRealtimeTimeAfterPastSelect"
+        style="@style/Theme.Echtzeyt.Seekbar.Descriptive"
+        app:title="@string/settingsRealtimeTimeAfterPast"
+        app:description="@string/settingsRealtimeTimeAfterPastDescription"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/settingsRealtimeTimeAfterSelect" />
+
+    <com.maddin.echtzeyt.components.DescriptiveSwitch
+        android:id="@+id/settingsRealtimeHideCancelledSwitch"
+        style="@style/Theme.Echtzeyt.Switch.Descriptive"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/settingsRealtimeTimeAfterPastSelect"
+        app:title="@string/settingsRealtimeHideCancelled" />
+
+    <com.maddin.echtzeyt.components.DescriptiveSwitch
+        android:id="@+id/settingsRealtimeNegativeTimesSwitch"
+        style="@style/Theme.Echtzeyt.Switch.Descriptive"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/settingsRealtimeHideCancelledSwitch"
+        app:title="@string/settingsRealtimeNegativeTimes" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

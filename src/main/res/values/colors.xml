@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="primary">@color/foreground</color>
+    <color name="secondary">@color/background</color>
+
     <color name="background">#DDDDDD</color>
     <color name="backgroundTint">#EEEEEE</color>
     <color name="backgroundButton">@color/backgroundTint</color>
@@ -12,9 +15,13 @@
     <color name="backgroundHighlight">@color/backgroundSunken</color>
     <color name="backgroundHighlightSecond">#C4C4C4</color>
     <color name="backgroundWidgetToolbar">@color/foreground</color>
+    <color name="backgroundDivider">#608800AE</color>
     <color name="backgroundPullup">#E8E8E8</color>
     <color name="backgroundPullupSecond">#F4F4F4</color>
     <color name="backgroundNotification">#FDEBDC</color>
+    <color name="backgroundDialog">@color/backgroundTint</color>
+    <color name="backgroundDialogSecond">@color/background</color>
+    <color name="backgroundDialogHeader">@color/foreground</color>
     <color name="backgroundStationmarker">#FFFFFF</color>
     <color name="backgroundPositionmarker">@color/backgroundStationmarker</color>
     <color name="foreground">#8800AE</color>
@@ -22,6 +29,8 @@
     <color name="foregroundText">#606060</color>
     <color name="foregroundWidget">@color/backgroundTint</color>
     <color name="foregroundNotification">#1A1A1A</color>
+    <color name="foregroundDialogHeader">@color/backgroundTint</color>
+    <color name="foregroundDialogHeaderSecond">@color/foregroundHint</color>
     <color name="foregroundStationmarker">@color/foreground</color>
     <color name="foregroundPositionmarker">@color/foregroundStationmarker</color>
     <color name="error">#915A5A</color>
@@ -48,7 +57,10 @@
 
     <color name="lineBackgroundDefault">#C0C0C0</color>
     <color name="lineForegroundDefault">#606060</color>
-    <color name="lineBackgroundWalk">@color/transparent</color>
+    <color name="lineForegroundHintLight">#404040</color>
+    <color name="lineForegroundHintDark">#C0C0C0</color>
+    <color name="lineForegroundHintAuto">@color/lineForegroundHintLight</color>
+    <color name="lineBackgroundWalk">#D0D0D0D0</color>
     <color name="lineForegroundWalk">@color/lineForegroundDefault</color>
     <color name="lineBackgroundWalkRun">@color/lineBackgroundWalk</color>
     <color name="lineForegroundWalkRun">@color/lineForegroundWalk</color>
@@ -58,6 +70,8 @@
     <color name="lineForegroundBus">#F0F0F0</color>
     <color name="lineBackgroundBusNight">@color/lineBackgroundBus</color>
     <color name="lineForegroundBusNight">#E3BF59</color>
+    <color name="lineBackgroundBusTrainReplacement">@color/lineBackgroundDefault</color>
+    <color name="lineForegroundBusTrainReplacement">@color/lineForegroundDefault</color>
     <color name="lineBackgroundTram">#782435</color>
     <color name="lineForegroundTram">@color/lineForegroundBus</color>
     <color name="lineBackgroundSubway">#32328C</color>

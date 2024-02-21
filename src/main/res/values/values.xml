@@ -3,8 +3,8 @@
     <dimen name="button_size">44dp</dimen>
     <dimen name="button_radius">8dp</dimen>
     <dimen name="button_margin">10dp</dimen>
+    <dimen name="button_margin_minimized">6dp</dimen>
     <dimen name="button_padding">8dp</dimen>
-    <dimen name="button_padding_small">5sp</dimen>
 
     <dimen name="stationsearch_text_size">20sp</dimen>
 
@@ -21,6 +21,8 @@
     <dimen name="notification_margin_x">@dimen/bigfloating_margin</dimen>
     <dimen name="notification_margin_y">16dp</dimen>
 
+    <dimen name="divider_height">1dp</dimen>
+
     <dimen name="smallfloating_size">48dp</dimen>
     <dimen name="smallfloating_padding">9dp</dimen>
     <dimen name="smallfloating_padding_text_x">10dp</dimen>
@@ -34,6 +36,7 @@
     <dimen name="smallfloating_gradient_end">88dp</dimen> <!-- sf_gradient_right + sf_gradient_width, where does the gradient end -->
 
     <dimen name="realtimeinfo_textsize">18sp</dimen>
+    <dimen name="realtimeinfo_textsize_icon">14sp</dimen>
     <dimen name="realtimeinfo_padding">1.2dp</dimen>
 
     <dimen name="stationmarker_width">100dp</dimen> <!-- maximum width, it will be scaled down by the classes in StopMarker.kt -->

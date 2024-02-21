@@ -8,6 +8,7 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.maddin.echtzeyt.R
+import com.maddin.echtzeyt.randomcode.LazyView
 import com.maddin.echtzeyt.randomcode.applyRandomId
 
 class FloatingInfoButton(context: Context, private val attrs: AttributeSet?, private val defStyleAttr: Int) : LinearLayout(context, attrs, defStyleAttr), DropShadowView {
@@ -24,8 +25,8 @@ class FloatingInfoButton(context: Context, private val attrs: AttributeSet?, pri
     override var mShadowBelow = 0
     override var mShadowAboveIndex = 0
 
-    val text: TextView by lazy { findViewById(R.id.flib_label) }
-    val button: ImageButton by lazy { findViewById(R.id.flib_button) }
+    val text: TextView by LazyView(R.id.flib_label)
+    val button: ImageButton by LazyView(R.id.flib_button)
 
     init {
         applyRandomId()

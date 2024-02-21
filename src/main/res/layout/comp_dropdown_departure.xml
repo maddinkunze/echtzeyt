@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:parentTag="com.maddin.echtzeyt.components.DropdownLayout">
+
+    <com.maddin.echtzeyt.components.MenuTabLayout
+        android:id="@+id/departure_tabs"
+        style="@style/Theme.Echtzeyt.TabLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/departure_tabDepart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dddepDepart" />
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/departure_tabArrive"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dddepArrive" />
+
+    </com.maddin.echtzeyt.components.MenuTabLayout>
+
+    <Button
+        android:id="@+id/departure_btnNow"
+        style="@style/Theme.Echtzeyt.Button.Dropdown"
+        android:text="@string/dddepNow"
+        app:layout_constraintTop_toBottomOf="@+id/departure_tabs" />
+
+    <Button
+        android:id="@+id/departure_btn15Min"
+        style="@style/Theme.Echtzeyt.Button.Dropdown"
+        android:text="@string/dddep15M"
+        app:layout_constraintTop_toBottomOf="@+id/departure_btnNow" />
+
+    <Button
+        android:id="@+id/departure_btn1H"
+        style="@style/Theme.Echtzeyt.Button.Dropdown"
+        android:text="@string/dddep1H"
+        app:layout_constraintTop_toBottomOf="@+id/departure_btn15Min" />
+
+    <Button
+        android:id="@+id/departure_btnSelectTime"
+        style="@style/Theme.Echtzeyt.Button.Dropdown"
+        android:text="@string/dddepSelectTime"
+        app:icon="@drawable/ic_arrow_right_v"
+        app:iconGravity="end"
+        app:layout_constraintTop_toBottomOf="@+id/departure_btn1H" />
+</merge>

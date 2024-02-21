@@ -3,7 +3,6 @@ package com.maddin.echtzeyt
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import android.graphics.drawable.Icon
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
@@ -21,15 +20,18 @@ import com.maddin.echtzeyt.fragments.settings.GeneralSettingsFragment
 import com.maddin.echtzeyt.fragments.settings.MapSettingsFragment
 import com.maddin.echtzeyt.fragments.settings.RealtimeSettingsFragment
 import com.maddin.echtzeyt.fragments.settings.TripSettingsFragment
-import com.maddin.echtzeyt.randomcode.IconLineDrawable
 import com.maddin.echtzeyt.randomcode.LazyMutable
-import com.maddin.echtzeyt.randomcode.LineDrawable
-import com.maddin.transportapi.LocationStationAPI
-import com.maddin.transportapi.RealtimeAPI
-import com.maddin.transportapi.SearchStationAPI
-import com.maddin.transportapi.Station
-import com.maddin.transportapi.StationAPI
-import com.maddin.transportapi.VehicleTypes
+import com.maddin.transportapi.components.POI
+import com.maddin.transportapi.endpoints.RealtimeAPI
+import com.maddin.transportapi.endpoints.LocatePOIAPI
+import com.maddin.transportapi.endpoints.POIAPI
+import com.maddin.transportapi.endpoints.SearchPOIAPI
+import com.maddin.transportapi.endpoints.TripSearchAPI
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 var ECHTZEYT_CONFIGURATION = EchtzeytConfiguration()
 
@@ -53,28 +55,29 @@ class EchtzeytConfiguration {
 
     private lateinit var mPreferences: SharedPreferences
 
-    var realtimeStationAPI: SearchStationAPI? = null
+    var realtimeStationAPI: SearchPOIAPI? = null
     var realtimeRealtimeAPI: RealtimeAPI? = null
     var realtimeSupport = false
     var realtimeFragment by LazyMutable { if (realtimeSupport) RealtimeFragment::class.java else null }
     var realtimeSettingsFragment by LazyMutable { if (realtimeSupport) RealtimeSettingsFragment::class.java else null }
 
-    var widgetRealtimeStationAPI: SearchStationAPI? = null
+    var widgetRealtimeStationAPI: SearchPOIAPI? = null
     var widgetRealtimeRealtimeAPI: RealtimeAPI? = null
     var widgetRealtimeSupport = false
     var widgetRealtimeClass by LazyMutable { if (!widgetRealtimeSupport) { return@LazyMutable null }; EchtzeytWidget::class.java }
 
-    var mapsStationAPI: LocationStationAPI? = null
+    var mapsStationAPI: LocatePOIAPI? = null
     var mapsSupport = true
     var mapsSupportLocateStations = false
     var mapsSettingsFragment by LazyMutable { if (mapsSupport) MapSettingsFragment::class.java else null }
 
-    var tripsStationAPI: SearchStationAPI? = null
+    var tripsStationAPI: SearchPOIAPI? = null
+    var tripsTripSearchAPI: TripSearchAPI? = null
     var tripSupport = false
     var tripFragment by LazyMutable { if (tripSupport) TripsFragment::class.java else null }
     var tripSettingsFragment by LazyMutable { if (tripSupport) TripSettingsFragment::class.java else null }
 
-    var pullupStationAPI: StationAPI? = null
+    var pullupStationAPI: POIAPI? = null
 
     var customFragmentsView = mutableListOf<NamedFragment>()
     var customFragmentsSettings = mutableListOf<NamedFragment>()
@@ -96,8 +99,22 @@ class EchtzeytConfiguration {
     val onFavoriteStationsChangedListeners = mutableListOf<() -> Unit>()
 
     var osmdroidUserAgent = getUserAgent(null)
-    lateinit var application: Application  // it is bad practice to access this variable, but it may be needed in some very special cases
+    lateinit var application: Application  // it is bad practice to access this variable directly, but it may be needed in some very special cases -> public getter
         private set
+
+    var prefRealtimeSaveStation = "saveContent"
+    var prefRealtimeLastStation = "station"
+    var prefFavoriteStations = "stations"
+    var prefRealtimeUseIcons = "realtimeIcons"
+    var prefRealtimeIconsSameWidth = "realtimeIconsSameWidth"
+    var prefRealtimeUpdateEvery = "updateEvery"
+    var prefRealtimeTimeAfter = "realtimeTimeAfter"
+    var prefRealtimeTimeAfterPast = "realtimeTimeAfterPast"
+    var prefRealtimeSlowerUpdates = "realtimeSlowerUpdates"
+    var prefRealtimeHideCancelled = "realtimeHideCancelled"
+    var prefRealtimeNegativeTimes = "realtimeNegativeTimes"
+
+    var confAllowSlowerUpdated = true
 
     var LOG_TAG = "Echtzeyt.LOG"
 
@@ -107,56 +124,31 @@ class EchtzeytConfiguration {
     fun load(api: Any?) {
         isLoaded = true
 
-        realtimeStationAPI = api as? SearchStationAPI?
+        realtimeStationAPI = api as? SearchPOIAPI?
         realtimeRealtimeAPI = api as? RealtimeAPI?
         realtimeSupport = (realtimeStationAPI != null) && (realtimeRealtimeAPI != null)
 
-        tripsStationAPI = api as? SearchStationAPI?
-        tripSupport = (tripsStationAPI != null)
+        tripsStationAPI = api as? SearchPOIAPI?
+        tripsTripSearchAPI = api as? TripSearchAPI?
+        tripSupport = (tripsStationAPI != null) && (tripsTripSearchAPI != null)
 
-        widgetRealtimeStationAPI = api as? SearchStationAPI?
+        widgetRealtimeStationAPI = api as? SearchPOIAPI?
         widgetRealtimeRealtimeAPI = api as? RealtimeAPI?
         widgetRealtimeSupport = (widgetRealtimeStationAPI != null) && (widgetRealtimeRealtimeAPI != null)
 
-        mapsStationAPI = api as? LocationStationAPI?
+        mapsStationAPI = api as? LocatePOIAPI?
         mapsSupportLocateStations = (mapsStationAPI != null)
 
-        pullupStationAPI = api as? StationAPI?
+        pullupStationAPI = api as? POIAPI?
     }
 
     fun initApplication(application: Application) {
         this.application = application
         osmdroidUserAgent = getUserAgent(application)
-        addDefaultVehicleTypeBadges()
-    }
-
-    fun addDefaultVehicleTypeBadges() {
-        (vehicleTypeResolver as? DefaultVehicleTypeResolver)?.let {
-            it.defaultDrawable = LineDrawable(application, R.color.lineBackgroundDefault, R.color.lineForegroundDefault)
-            it.add(VehicleTypes.BUS, drawable=IconLineDrawable(application, R.color.lineBackgroundBus, R.color.lineForegroundBus, R.drawable.ic_bus))
-            it.add(VehicleTypes.TRAM, drawable=IconLineDrawable(application, R.color.lineBackgroundTram, R.color.lineForegroundTram, R.drawable.ic_tram).apply { iconSize = 0.8 })
-            it.add(VehicleTypes.SUBWAY, drawable=LineDrawable(application, R.color.lineBackgroundSubway, R.color.lineForegroundSubway).apply { radius = 0.4 })
-            it.add(VehicleTypes.TRAIN_SUBURBAN, drawable=IconLineDrawable(application, R.color.lineBackgroundSuburban, R.color.lineForegroundSuburban, R.drawable.ic_suburban).apply { radius = 0.5 })
-            it.add(VehicleTypes.CABLECAR, drawable=IconLineDrawable(application, R.color.lineBackgroundCablecar, R.color.lineForegroundCablecar, R.drawable.ic_cablecar))
-            it.add(VehicleTypes.TRAIN, drawable=IconLineDrawable(application, R.color.lineBackgroundTrain, R.color.lineForegroundTrain, R.drawable.ic_train))
-            it.add(VehicleTypes.BUS_NIGHT, drawable=IconLineDrawable(application, R.color.lineBackgroundBusNight, R.color.lineForegroundBusNight, R.drawable.ic_bus))
-            it.add(VehicleTypes.PLANE, drawable=IconLineDrawable(application, R.color.lineBackgroundPlane, R.color.lineForegroundPlane, R.drawable.ic_plane))
-            it.add(VehicleTypes.HELICOPTER, drawable=IconLineDrawable(application, R.color.lineBackgroundHelicopter, R.color.lineForegroundHelicopter, R.drawable.ic_helicopter))
-            it.add(VehicleTypes.BIKE, drawable=IconLineDrawable(application, R.color.lineBackgroundBike, R.color.lineForegroundBike, R.drawable.ic_bike))
-            it.add(VehicleTypes.FERRY, drawable=IconLineDrawable(application, R.color.lineBackgroundFerry, R.color.lineForegroundFerry, R.drawable.ic_boat))
-            it.add(VehicleTypes.ESCALATOR, drawable=IconLineDrawable(application, R.color.lineBackgroundEscalator, R.color.lineForegroundEscalator, R.drawable.ic_escalator))
-            it.add(VehicleTypes.SCOOTER, drawable=IconLineDrawable(application, R.color.lineBackgroundScooter, R.color.lineForegroundScooter, R.drawable.ic_scooter))
-            it.add(VehicleTypes.SEGWAY, drawable=IconLineDrawable(application, R.color.lineBackgroundSegway, R.color.lineForegroundSegway, R.drawable.ic_segway))
-            it.add(VehicleTypes.WALK, drawable=IconLineDrawable(application, R.color.lineBackgroundWalk, R.color.lineForegroundWalk, R.drawable.ic_walk))
-            it.add(VehicleTypes.WALK_RUN, drawable=IconLineDrawable(application, R.color.lineBackgroundWalkRun, R.color.lineForegroundWalkRun, R.drawable.ic_run))
-            it.add(VehicleTypes.WALK_LONG, drawable=IconLineDrawable(application, R.color.lineBackgroundWalkLong, R.color.lineForegroundWalkLong, R.drawable.ic_hike))
-            it.add(VehicleTypes.STAIRS, drawable=IconLineDrawable(application, R.color.lineBackgroundStairs, R.color.lineForegroundStairs, R.drawable.ic_stairs).apply { iconSize = 0.8 })
-        }
     }
 
     fun check() : Boolean {
-        if (!isLoaded) { return false }
-        return true
+        return isLoaded
     }
 
     fun preferences(context: Context): SharedPreferences {
@@ -177,57 +169,138 @@ class EchtzeytConfiguration {
         return "${BuildConfig.LIBRARY_PACKAGE_NAME}/${BuildConfig.LIBRARY_VERSION_NAME} (library)"
     }
 
-    fun getFavoriteStations(): Set<String> {
-        return mPreferences.getStringSet("savedStations", emptySet()) ?: emptySet()
+    fun getFavoritePOIs(): Set<String> {
+        return mPreferences.getStringSet(prefFavoriteStations, emptySet()) ?: emptySet()
     }
 
-    fun addFavoriteStation(station: Station) {
-        val stations = getFavoriteStations().toMutableSet()
-        if (!stations.add(station.name)) { return }
+    fun addFavoritePOI(poi: POI) {
+        val stations = getFavoritePOIs().toMutableSet()
+        if (!stations.add(poi.name)) { return }
         mPreferences.edit {
-            remove("savedStations")
+            remove(prefFavoriteStations)
             apply()
-            putStringSet("savedStations", stations)
+            putStringSet(prefFavoriteStations, stations)
             apply()
         }
         for (listener in onFavoriteStationsChangedListeners) { listener() }
     }
 
-    fun removeFavoriteStation(station: Station) {
-        val stations = getFavoriteStations().toMutableSet()
-        if (!stations.remove(station.name)) { return }
+    fun removeFavoritePOI(poi: POI) {
+        val stations = getFavoritePOIs().toMutableSet()
+        if (!stations.remove(poi.name)) { return }
         mPreferences.edit {
-            remove("savedStations")
+            remove(prefFavoriteStations)
             apply()
-            putStringSet("savedStations", stations)
+            putStringSet(prefFavoriteStations, stations)
             apply()
         }
         for (listener in onFavoriteStationsChangedListeners) { listener() }
     }
 
-    fun toggleFavoriteStation(station: Station) {
-        if (isFavoriteStation(station)) {
-            removeFavoriteStation(station)
+    fun toggleFavoritePOI(poi: POI) {
+        if (isFavoritePOI(poi)) {
+            removeFavoritePOI(poi)
         } else {
-            addFavoriteStation(station)
+            addFavoritePOI(poi)
         }
     }
 
-    fun isFavoriteStation(station: Station): Boolean {
-        return station.name in getFavoriteStations()
+    fun isFavoritePOI(poi: POI): Boolean {
+        return poi.name in getFavoritePOIs()
     }
 
     fun shouldSaveLastRealtimeStation(): Boolean {
-        return mPreferences.getBoolean("saveStation", true)
+        return mPreferences.getBoolean(prefRealtimeSaveStation, true)
     }
 
-    fun getLastRealtimeStationName(): String {
+    fun setSaveLastRealtimePOI(shouldSave: Boolean) {
+        mPreferences.edit { putBoolean(prefRealtimeSaveStation, shouldSave) }
+    }
+
+    fun getLastRealtimePOIName(): String {
         if (!shouldSaveLastRealtimeStation()) { return "" }
-        return mPreferences.getString("station", "") ?: ""
+        return mPreferences.getString(prefRealtimeLastStation, "") ?: ""
     }
 
-    fun setCurrentRealtimeStation(station: Station?) {
+    fun setCurrentRealtimePOI(poi: POI?) {
         if (!shouldSaveLastRealtimeStation()) { return }
-        mPreferences.edit { putString("station", station?.name ?: "") }
+        mPreferences.edit { putString(prefRealtimeLastStation, poi?.name ?: "") }
+    }
+
+    fun useIconsInRealtimeView(): Boolean {
+        return mPreferences.getBoolean(prefRealtimeUseIcons, true)
+    }
+
+    fun iconsRealtimeViewSameWidth(): Boolean {
+        return mPreferences.getBoolean(prefRealtimeIconsSameWidth, false)
+    }
+
+    fun getRealtimeShowTimeAfter(): Int {
+        return mPreferences.getInt(prefRealtimeTimeAfter, 300)
+    }
+
+    fun getRealtimeShowTimeAfterPast(): Int {
+        return mPreferences.getInt(prefRealtimeTimeAfterPast, 300)
+    }
+
+    fun getRealtimeUpdateInterval(): Long {
+        return mPreferences.getInt(prefRealtimeUpdateEvery, 5000).toLong()
+    }
+
+    fun shouldSlowDownRealtimeUpdates(): Boolean {
+        return supportsSlowedDownRealtimeUpdates() && mPreferences.getBoolean(prefRealtimeSlowerUpdates, true)
+    }
+
+    fun supportsSlowedDownRealtimeUpdates(): Boolean {
+        // slow down on future requests can only be enabled if the api supports past/future requests
+        return confAllowSlowerUpdated && (realtimeRealtimeAPI?.supportsRealtimeFeature(RealtimeAPI.FEATURE_REALTIME_FUTURE or RealtimeAPI.FEATURE_REALTIME_FUTURE) == true)
+    }
+
+    fun shouldHideCancelledRealtimeConnections(): Boolean {
+        return mPreferences.getBoolean(prefRealtimeHideCancelled, false)
+    }
+
+    fun shouldShowNegativeRealtimeWaitingTimes(): Boolean {
+        return mPreferences.getBoolean(prefRealtimeNegativeTimes, false)
+    }
+
+
+
+    var strDBYesterday by LazyMutable { application.resources.getString(R.string.dddepDBYesterday) }
+    var strYesterday by LazyMutable { application.resources.getString(R.string.dddepYesterday) }
+    var strNow by LazyMutable { application.resources.getString(R.string.dddepNow) }
+    var strTomorrow by LazyMutable { application.resources.getString(R.string.dddepTomorrow) }
+    var strDATomorrow by LazyMutable { application.resources.getString(R.string.dddepDATomorrow) }
+
+    var formatterTimeShort: DateTimeFormatter by LazyMutable { DateTimeFormatter.ofPattern("HH:mm") }
+    var formatterTimeLong: DateTimeFormatter by LazyMutable { DateTimeFormatter.ofPattern("HH:mm:ss") }
+    var formatterDateShort: DateTimeFormatter by LazyMutable { DateTimeFormatter.ofPattern("EEE dd.MM") }
+    var formatterDateLong: DateTimeFormatter by LazyMutable { DateTimeFormatter.ofPattern("EEE dd.MM.yyyy") }
+
+    fun formatDateTime(dateTime: LocalDateTime?, showSeconds: Boolean=false): String {
+        if (dateTime == null) { return strNow }
+        var dateF = formatDate(dateTime.toLocalDate())
+        if (dateF.isNotBlank()) { dateF = "$dateF, " }
+        val timeF = formatTime(dateTime.toLocalTime(), showSeconds)
+        return dateF + timeF
+    }
+
+    fun formatDate(date: LocalDate): String {
+        val dateNow = LocalDate.now()
+        when (ChronoUnit.DAYS.between(dateNow, date)) {
+            -2L -> if (strDBYesterday.isNotBlank()) return strDBYesterday
+            -1L -> return strYesterday
+            0L -> return ""
+            1L -> return strTomorrow
+            2L -> if (strDATomorrow.isNotBlank()) return strDATomorrow
+        }
+        if (date.year == dateNow.year) {
+            return formatterDateShort.format(date)
+        }
+        return formatterDateLong.format(date)
+    }
+
+    fun formatTime(time: LocalTime, showSeconds: Boolean=true): String {
+        return (if (showSeconds) formatterTimeLong else formatterTimeShort).format(time)
     }
 }

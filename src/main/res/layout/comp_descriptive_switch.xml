@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/dsw_switch"
+        style="@style/Theme.Echtzeyt.Switch"
+        android:layout_height="wrap_content"
+        android:minHeight="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:showText="false" />
+
+    <TextView
+        android:id="@+id/dsw_txtTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:text="Title"
+        android:textColor="@color/foreground"
+        android:textSize="@dimen/settings_label_size"
+        app:layout_constraintBottom_toBottomOf="@+id/dsw_switch"
+        app:layout_constraintEnd_toStartOf="@+id/dsw_switch"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/dsw_txtDescription"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Description"
+        android:textColor="@color/foregroundHint"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toStartOf="@+id/dsw_switch"
+        app:layout_constraintStart_toStartOf="@+id/dsw_txtTitle"
+        app:layout_constraintTop_toBottomOf="@+id/dsw_txtTitle" />
+</merge>

@@ -16,11 +16,6 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.Lifecycle
-import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import com.maddin.echtzeyt.BuildConfig
@@ -29,9 +24,10 @@ import com.maddin.echtzeyt.R
 import com.maddin.echtzeyt.components.FloatingInfoButton
 import com.maddin.echtzeyt.components.MenuTabLayout
 import com.maddin.echtzeyt.fragments.MenuViewPagerAdapter
-import com.maddin.echtzeyt.fragments.echtzeyt.RealtimeFragment
 import com.maddin.echtzeyt.fragments.reduceDragSensitivity
+import com.maddin.echtzeyt.randomcode.ActivityViewpagerScrollable
 import com.maddin.echtzeyt.randomcode.ClassifiedException
+import com.maddin.echtzeyt.randomcode.LazyView
 import org.json.JSONObject
 import java.net.URL
 import java.util.*
@@ -115,32 +111,22 @@ abstract class EchtzeytForegroundActivity: AppCompatActivity() {
 
 }
 
-class TestAdapterM(fragmentManager: FragmentManager, lifecycle: Lifecycle) : FragmentStateAdapter(fragmentManager, lifecycle) {
-    private val fragments = arrayOf<Fragment>(
-        RealtimeFragment()
-    )
-
-    override fun getItemCount(): Int {
-        return fragments.size
-    }
-
-    override fun createFragment(position: Int): Fragment {
-        return fragments[position]
-    }
-
-}
 
 @Suppress("MemberVisibilityCanBePrivate")
-open class EchtzeytActivity : EchtzeytForegroundActivity() {
+open class EchtzeytActivity : EchtzeytForegroundActivity(), ActivityViewpagerScrollable {
     private var nextUpdateNotifications = 0L
 
     // Elements/Views
-    private val btnMenu by lazy { findViewById<ImageButton>(R.id.btnMenu) }
-    private val btnSettings by lazy { findViewById<FloatingInfoButton>(R.id.btnSettings) }
-    private val btnDonate by lazy { findViewById<FloatingInfoButton>(R.id.btnDonate) }
-    private val btnMessage by lazy { findViewById<FloatingInfoButton>(R.id.btnMessage) }
-    private val btnNotification by lazy { findViewById<FloatingInfoButton>(R.id.btnAnnouncement) }
-    private val btnNotificationClose by lazy { findViewById<ImageButton>(R.id.notificationButtonClose) }
+    private val btnMenu: ImageButton by LazyView(R.id.btnMenu)
+    private val btnSettings: FloatingInfoButton by LazyView(R.id.btnSettings)
+    private val btnDonate: FloatingInfoButton by LazyView(R.id.btnDonate)
+    private val btnMessage: FloatingInfoButton by LazyView(R.id.btnMessage)
+    private val btnNotification: FloatingInfoButton by LazyView(R.id.btnAnnouncement)
+    private val btnNotificationClose: ImageButton by LazyView(R.id.notificationButtonClose)
+
+    private val menu: MenuTabLayout by LazyView(R.id.menutabsMain)
+    override val viewpager: ViewPager2 by LazyView(R.id.fragmentsMain)
+    private val viewpagerAdapter by lazy { MenuViewPagerAdapter(supportFragmentManager, lifecycle, ECHTZEYT_CONFIGURATION.fragmentsView) }
 
     // Menu variables
     private var menuOpened = false
@@ -187,22 +173,6 @@ open class EchtzeytActivity : EchtzeytForegroundActivity() {
         initHandlers()
         initApp()
         initThreads()
-
-        // PLAYGROUND:
-        val pager = findViewById<ViewPager2>(R.id.fragmentsMain)
-        pager.reduceDragSensitivity()
-        val menu = findViewById<MenuTabLayout>(R.id.menutabsMain)
-        val adapter = MenuViewPagerAdapter(supportFragmentManager, lifecycle, ECHTZEYT_CONFIGURATION.fragmentsView)
-        pager.adapter = adapter
-
-        if (adapter.itemCount < 2) {
-            pager.isUserInputEnabled = false
-            menu.visibility = View.GONE
-        }
-
-        TabLayoutMediator(menu, pager) { tab, position ->
-            tab.setText(adapter.getFragmentNameResource(position))
-        }.attach()
     }
 
     override fun onResume() {
@@ -225,6 +195,11 @@ open class EchtzeytActivity : EchtzeytForegroundActivity() {
         for (menuItem in menuItems) {
             menuItem.alpha = 0f
         }
+
+        viewpager.reduceDragSensitivity()
+        viewpager.adapter = viewpagerAdapter
+        if (viewpagerAdapter.itemCount < 2) { viewpager.isUserInputEnabled = false; menu.visibility = View.GONE }
+        TabLayoutMediator(menu, viewpager) { tab, position -> tab.setText(viewpagerAdapter.getFragmentNameResource(position)) }.attach()
     }
     private fun initSettings() {
         // Dark mode
@@ -261,16 +236,16 @@ open class EchtzeytActivity : EchtzeytForegroundActivity() {
         thread(start=true, isDaemon=true) {
             while (true) {
                 ntCheckIfInForeground()
-                if (checkIfForeground.block(15000)) { continue }
+                if (!checkIfForeground.block(15000)) { continue }
 
                 val time = System.currentTimeMillis()
                 if (time > nextUpdateNotifications) { ntUpdateNotifications() }
-                Thread.sleep(50)
+                Thread.sleep(500)
             }
         }
     }
     private fun initApp() {
-        findViewById<View>(R.id.notificationWindow).alpha = 0f
+        viewNotification.alpha = 0f
     }
 
     /*
@@ -283,11 +258,11 @@ open class EchtzeytActivity : EchtzeytForegroundActivity() {
             1 -> { menuVisible[3] = true }  // Notification
             0 -> {                          // No error but also no notification
                 menuVisible[3] = false
-                runOnUiThread { findViewById<View>(R.id.btnAnnouncement).visibility = View.GONE }
+                runOnUiThread { btnNotification.visibility = View.GONE }
             }
            -1 -> {                          // Error
                menuVisible[3] = false
-               runOnUiThread { findViewById<View>(R.id.btnAnnouncement).visibility = View.GONE }
+               runOnUiThread { btnNotification.visibility = View.GONE }
                delayNextCheck = 10 * 1000 // Something went wrong, check again in 10 seconds
            }
         }
@@ -310,6 +285,11 @@ open class EchtzeytActivity : EchtzeytForegroundActivity() {
         }
         return -1
     }
+
+    private val viewNotification: View by LazyView(R.id.notificationWindow)
+    private val txtNotificationTitle: TextView by LazyView(R.id.notificationTitleText)
+    private val txtNotificationText: TextView by LazyView(R.id.notificationText)
+
     @Suppress("DEPRECATION")
     private fun ntShowNotificationInternal() : Int {
         if (!currentNotification!!.has("title")) { return -1 }
@@ -329,13 +309,11 @@ open class EchtzeytActivity : EchtzeytForegroundActivity() {
         }
 
         runOnUiThread {
-            findViewById<TextView>(R.id.notificationTitleText).text = nTitle
-            findViewById<TextView>(R.id.notificationText).text = nTextFormatted
+            txtNotificationTitle.text = nTitle
+            txtNotificationText.text = nTextFormatted
 
-            val notificationWindow = findViewById<View>(R.id.notificationWindow)
-            notificationWindow.visibility = View.VISIBLE
-
-            notificationWindow.animate().alpha(1f).setDuration(100).start()
+            viewNotification.visibility = View.VISIBLE
+            viewNotification.animate().alpha(1f).setDuration(100).start()
         }
 
         return 1
@@ -349,10 +327,9 @@ open class EchtzeytActivity : EchtzeytForegroundActivity() {
             R.string.notificationToastOtherError, Toast.LENGTH_SHORT).show(); return }
     }
     private fun closeNotification() {
-        val notificationWindow = findViewById<View>(R.id.notificationWindow)
         runOnUiThread {
-            ViewCompat.animate(notificationWindow).alpha(0f).setDuration(100).withEndAction {
-                notificationWindow.visibility = View.GONE
+            ViewCompat.animate(viewNotification).alpha(0f).setDuration(100).withEndAction {
+                viewNotification.visibility = View.GONE
             }.start()
         }
 
@@ -388,7 +365,7 @@ open class EchtzeytActivity : EchtzeytForegroundActivity() {
         }
 
         // If errors occurred, ask the user whether or not he wants to report it
-        AlertDialog.Builder(this, R.style.Theme_Echtzeyt_AlertDialog)
+        AlertDialog.Builder(this, R.style.Theme_Echtzeyt_Dialog_Alert)
             .setTitle(R.string.sendLogsTitle)
             .setMessage(R.string.sendLogsText)
             .setIcon(R.drawable.ic_error)

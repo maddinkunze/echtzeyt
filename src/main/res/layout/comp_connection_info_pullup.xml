@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="HardcodedText"
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
+
+    <View
+        android:id="@+id/cip_viewStart"
+        android:layout_width="16sp"
+        android:layout_height="16sp"
+        android:background="@drawable/connection_stop_start"
+        app:layout_constraintBottom_toBottomOf="@+id/cip_txtStart"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/cip_txtStart" />
+
+    <View
+        android:id="@+id/cip_viewEnd"
+        android:layout_width="16sp"
+        android:layout_height="16sp"
+        android:background="@drawable/connection_stop_end"
+        app:layout_constraintBottom_toBottomOf="@+id/cip_txtEnd"
+        app:layout_constraintStart_toStartOf="@+id/cip_viewStart"
+        app:layout_constraintTop_toTopOf="@+id/cip_txtEnd" />
+
+    <View
+        android:layout_width="3.2sp"
+        android:layout_height="0dp"
+        android:layout_marginTop="6.4sp"
+        android:layout_marginBottom="6.4sp"
+        android:background="@drawable/connection_time"
+        app:layout_constraintBottom_toBottomOf="@+id/cip_viewEnd"
+        app:layout_constraintEnd_toEndOf="@+id/cip_viewStart"
+        app:layout_constraintStart_toStartOf="@+id/cip_viewStart"
+        app:layout_constraintTop_toTopOf="@+id/cip_viewStart" />
+
+    <TextView
+        android:id="@+id/cip_txtStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:layout_marginLeft="6dp"
+        android:text="12:34"
+        app:layout_constraintBottom_toBottomOf="@+id/cip_txtStationStart"
+        app:layout_constraintStart_toEndOf="@+id/cip_viewStart"
+        app:layout_constraintTop_toTopOf="@+id/cip_txtStationStart" />
+
+    <TextView
+        android:id="@+id/cip_txtStartReal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="12:35"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="@+id/cip_txtStart"
+        app:layout_constraintTop_toBottomOf="@+id/cip_txtStart"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/cip_txtEnd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="13:37"
+        app:layout_constraintBottom_toBottomOf="@+id/cip_txtStationEnd"
+        app:layout_constraintStart_toStartOf="@+id/cip_txtStart"
+        app:layout_constraintTop_toTopOf="@+id/cip_txtStationEnd" />
+
+    <TextView
+        android:id="@+id/cip_txtEndReal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="13:39"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="@+id/cip_txtEnd"
+        app:layout_constraintTop_toBottomOf="@+id/cip_txtEnd"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/cip_txtStationStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:text="Station 1"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toStartOf="@+id/cip_txtPlatformStart"
+        app:layout_constraintHeight_min="wrap"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toEndOf="@+id/cip_txtStart"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/cip_txtStationEnd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:text="Station 2"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toStartOf="@+id/cip_txtPlatformEnd"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toEndOf="@+id/cip_txtEnd"
+        app:layout_constraintTop_toBottomOf="@+id/cip_layoutStops" />
+
+    <com.maddin.echtzeyt.components.VehicleTypeTextView
+        android:id="@+id/cip_txtVehicleType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toStartOf="@id/cip_txtPlatformStartReal"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toStartOf="@+id/cip_txtStationStart"
+        app:layout_constraintTop_toBottomOf="@id/cip_txtStationStart" />
+
+    <LinearLayout
+        android:id="@+id/cip_layoutNotes"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/cip_txtPlatformStartReal"
+        app:layout_constraintStart_toStartOf="@+id/cip_txtStationStart"
+        app:layout_constraintTop_toBottomOf="@id/cip_txtVehicleType" />
+
+    <LinearLayout
+        android:id="@+id/cip_layoutStopsShow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="@+id/cip_txtStationStart"
+        app:layout_constraintTop_toBottomOf="@+id/cip_layoutNotes">
+
+        <TextView
+            android:id="@+id/cip_txtStops"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="7 Stops" />
+
+        <ImageView
+            android:layout_width="14sp"
+            android:layout_height="14sp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:background="@null"
+            android:importantForAccessibility="no"
+            android:minHeight="0dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_arrow_down_v"
+            tools:ignore="UnusedAttribute" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/cip_layoutStops"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="@+id/cip_txtPlatformStart"
+        app:layout_constraintStart_toStartOf="@+id/cip_txtStart"
+        app:layout_constraintTop_toBottomOf="@id/cip_layoutStopsShow" />
+
+    <TextView
+        android:id="@+id/cip_txtPlatformStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="8dp"
+        android:text="Platform 1"
+        app:layout_constraintBottom_toBottomOf="@+id/cip_txtStationStart"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/cip_txtStationStart" />
+
+    <TextView
+        android:id="@+id/cip_txtPlatformStartReal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Platform 2"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@+id/cip_txtPlatformStart"
+        app:layout_constraintTop_toBottomOf="@+id/cip_txtPlatformStart"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/cip_txtPlatformEnd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="8dp"
+        android:text="Platform 5"
+        app:layout_constraintBottom_toBottomOf="@+id/cip_txtStationEnd"
+        app:layout_constraintEnd_toEndOf="@+id/cip_txtPlatformStart"
+        app:layout_constraintTop_toTopOf="@+id/cip_txtStationEnd" />
+
+    <TextView
+        android:id="@+id/cip_txtPlatformEndReal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Platform 6"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@+id/cip_txtPlatformEnd"
+        app:layout_constraintTop_toBottomOf="@+id/cip_txtPlatformEnd"
+        tools:visibility="visible" />
+
+</merge>

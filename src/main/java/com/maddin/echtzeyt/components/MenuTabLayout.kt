@@ -3,6 +3,7 @@ package com.maddin.echtzeyt.components
 import android.content.Context
 import android.graphics.Typeface
 import android.util.AttributeSet
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.get
@@ -11,7 +12,7 @@ import com.google.android.material.tabs.TabLayout
 import com.maddin.echtzeyt.R
 
 val TabLayout.Tab.textView: TextView
-    get() { return view[1] as TextView }
+    get() { return (view[1] as? TextView) ?: (view[1] as ViewGroup)[0] as TextView }
 
 class MenuTabLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : TabLayout(context, attrs, defStyleAttr), TabLayout.OnTabSelectedListener {
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
