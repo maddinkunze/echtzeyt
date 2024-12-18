@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
@@ -21,14 +22,13 @@ import com.maddin.echtzeyt.activities.MapResultContractSelectPOI
 import com.maddin.echtzeyt.components.DepartureDropdown
 import com.maddin.echtzeyt.components.DropdownButton
 import com.maddin.echtzeyt.components.LazyPullup
-import com.maddin.echtzeyt.components.PullupManager
 import com.maddin.echtzeyt.components.RealtimeInfo
 import com.maddin.echtzeyt.components.StationPullup
 import com.maddin.echtzeyt.components.POISearchbar
-import com.maddin.echtzeyt.fragments.EchtzeytForegroundFragment
 import com.maddin.echtzeyt.fragments.EchtzeytPullupFragment
 import com.maddin.echtzeyt.randomcode.ClassifiedException
 import com.maddin.echtzeyt.randomcode.LazyView
+import com.maddin.echtzeyt.randomcode.SafePOI
 import com.maddin.transportapi.components.POI
 import com.maddin.transportapi.endpoints.RealtimeAPI
 import com.maddin.transportapi.components.RealtimeConnection
@@ -49,6 +49,7 @@ class RealtimeFragment : EchtzeytPullupFragment(R.layout.fragment_realtime) {
     private val btnBookmarks: ImageButton by LazyView(R.id.btnBookmarks)
     private val layoutBookmarks: View by LazyView(R.id.layoutBookmarks)
     private val btnDeparture: DropdownButton by LazyView(R.id.btnDeparture)
+    private val layoutFilterButtons: View by LazyView(R.id.layoutRealtimeParameters)
     private val layoutDeparture: DepartureDropdown by LazyView(R.id.layoutFilterDeparture)
     private val layoutConnections: LinearLayout by LazyView(R.id.realtime_layoutConnections)
     private val btnShowConnectionsNow: Button by LazyView(R.id.realtime_btnShowConnectionsNow)
@@ -98,16 +99,24 @@ class RealtimeFragment : EchtzeytPullupFragment(R.layout.fragment_realtime) {
     }
     private fun initSettings() {
         // Save last station?
-        edtSearch.setText(ECHTZEYT_CONFIGURATION.getLastRealtimePOIName())
+        val lastPOI = ECHTZEYT_CONFIGURATION.getLastRealtimePOI()
+        lastPOI.poi?.let {
+            edtSearch.currentPOI = it
+        } ?: lastPOI.search?.let {
+            edtSearch.setText(it)
+        }
     }
     private fun initHandlers() {
         // When the search has selected a new station, update connections and pullup etc
         edtSearch.onItemSelectedListeners.add { commitToStation(edtSearch.currentPOI, updateSearch=false) }
 
+        var isAnyFilterVisible = false
+
         // Set listeners for departure filter
         if (apiSupportsDifferentTimeThanNow()) {
             layoutDeparture.setListeners(btnDeparture, layoutsFilter)
             layoutDeparture.onChangedListeners.add { updateConnections() }
+            isAnyFilterVisible = true
         } else {
             layoutDeparture.visibility = View.GONE
             btnDeparture.visibility = View.GONE
@@ -115,6 +124,10 @@ class RealtimeFragment : EchtzeytPullupFragment(R.layout.fragment_realtime) {
 
         // Set listeners for the "show connections from now" button
         btnShowConnectionsNow.setOnClickListener { layoutDeparture.resetDateTimeToNow() }
+
+        if (!isAnyFilterVisible) {
+            layoutFilterButtons.visibility = View.GONE
+        }
 
         // Open map (for selecting a station) when the map button is clicked
         btnMap.setOnClickListener { openStationMap() }
@@ -230,8 +243,10 @@ class RealtimeFragment : EchtzeytPullupFragment(R.layout.fragment_realtime) {
             }
 
             val request = RealtimeRequestImpl(poi=currentPOI)
-            if (apiSupportsDifferentTimeThanNow()) { request.time = layoutDeparture.dateTime }
-            connections = transportRealtimeAPI.getRealtimeInformation(request).connections
+            if (apiSupportsDifferentTimeThanNow() && !layoutDeparture.isNow()) { request.time = layoutDeparture.dateTime }
+            val response = transportRealtimeAPI.getRealtimeInformation(request)
+            response.exceptions?.forEach { Log.w(ECHTZEYT_CONFIGURATION.LOG_TAG, "MADDIN101: rte", it) }
+            connections = response.connections
         } catch (e: Exception) {
             activity?.runOnUiThread {
                 txtLastUpdated.setTextColor(resources.getColor(R.color.error))
@@ -256,7 +271,7 @@ class RealtimeFragment : EchtzeytPullupFragment(R.layout.fragment_realtime) {
         }
 
         val noFutureApi = !apiSupportsDifferentTimeThanNow()
-        val timeLastConnection = views.lastOrNull()?.connection?.stop?.departureActual
+        val timeLastConnection = views.lastOrNull()?.connection?.stop?.estimateDepartureActual()
 
         val lineNumberWidths = mutableMapOf<View, Int>()
         var maxMinWidth = 0
@@ -414,7 +429,9 @@ class RealtimeFragment : EchtzeytPullupFragment(R.layout.fragment_realtime) {
         if (updateSearch) { edtSearch.currentPOI = poi }
         if (updatePullup) { poi?.let { pullupStation.setPOI(it) } }
         if (updateConnections) { updateConnections() }
-        ECHTZEYT_CONFIGURATION.setCurrentRealtimePOI(poi)
+
+        val search = edtSearch.getText().toString()
+        ECHTZEYT_CONFIGURATION.setCurrentRealtimePOI(SafePOI(search, poi))
     }
 
     private fun commitToStation(stationName: String) {

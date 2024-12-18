@@ -75,6 +75,8 @@
     <string name="tripStationFrom">Von…</string>
     <string name="tripStationVia">Über…</string>
     <string name="tripStationTo">Nach…</string>
+    <string name="tripNoOfStations">%1$s Zwischenhalte</string>
+    <string name="tripInstructions">Wegbeschreibung</string>
     <string name="btnMenuDescription">Menü öffnen</string>
     <string name="appNameSettings">Einstellungen</string>
     <string name="appNameLicenses">Lizenzen</string>

@@ -138,43 +138,30 @@
         app:layout_constraintStart_toStartOf="@+id/cip_txtStationStart"
         app:layout_constraintTop_toBottomOf="@id/cip_txtVehicleType" />
 
-    <LinearLayout
-        android:id="@+id/cip_layoutStopsShow"
+    <com.maddin.echtzeyt.components.DropdownButton
+        android:id="@+id/cip_btnStopsShow"
+        style="@style/Theme.Echtzeyt.Button.Dropdown"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_marginStart="@null"
+        android:layout_marginLeft="@null"
         android:layout_marginTop="8dp"
-        android:orientation="horizontal"
+        android:background="@color/transparent"
+        android:text="7 stops"
+        app:iconGravity="textEnd"
+        app:layout_constraintEnd_toEndOf="@null"
         app:layout_constraintStart_toStartOf="@+id/cip_txtStationStart"
-        app:layout_constraintTop_toBottomOf="@+id/cip_layoutNotes">
-
-        <TextView
-            android:id="@+id/cip_txtStops"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="7 Stops" />
-
-        <ImageView
-            android:layout_width="14sp"
-            android:layout_height="14sp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:background="@null"
-            android:importantForAccessibility="no"
-            android:minHeight="0dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_arrow_down_v"
-            tools:ignore="UnusedAttribute" />
-    </LinearLayout>
+        app:layout_constraintTop_toBottomOf="@+id/cip_layoutNotes"
+        tools:ignore="TouchTargetSizeCheck" />
 
     <LinearLayout
         android:id="@+id/cip_layoutStops"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="@+id/cip_txtPlatformStart"
-        app:layout_constraintStart_toStartOf="@+id/cip_txtStart"
-        app:layout_constraintTop_toBottomOf="@id/cip_layoutStopsShow" />
+        app:layout_constraintStart_toStartOf="@+id/cip_viewStart"
+        app:layout_constraintTop_toBottomOf="@id/cip_btnStopsShow" />
 
     <TextView
         android:id="@+id/cip_txtPlatformStart"

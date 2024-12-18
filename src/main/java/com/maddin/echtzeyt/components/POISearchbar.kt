@@ -119,6 +119,8 @@ class POISearchbar : ConstraintLayout {
         mEdtSearch.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
     }
 
+    fun getText() = mEdtSearch.text
+
     fun setIcon(@DrawableRes resId: Int) {
         if (resId == 0) {
             mViewIcon.visibility = View.GONE

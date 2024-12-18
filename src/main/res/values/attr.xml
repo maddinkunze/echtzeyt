@@ -95,6 +95,7 @@
 
     <declare-styleable name="DepartureDropdown">
         <attr name="allowedModes" format="flags">
+            <!-- If you change/add a flag value here, you should also change/add it within the DepartureDropdown.DepartureMode enum class -->
             <flag name="depart" value="1" />
             <flag name="arrive" value="2" />
         </attr>

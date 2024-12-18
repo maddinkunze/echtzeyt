@@ -16,8 +16,6 @@ import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.RemoteViews
@@ -31,8 +29,8 @@ import com.maddin.echtzeyt.R
 import com.maddin.echtzeyt.components.InstantAutoCompleteTextView
 import com.maddin.echtzeyt.components.LabeledDiscreteSeekBar
 import com.maddin.echtzeyt.randomcode.LazyView
+import com.maddin.transportapi.components.LineMOT
 import com.maddin.transportapi.components.POI
-import com.maddin.transportapi.components.Station
 import com.maddin.transportapi.endpoints.RealtimeRequestImpl
 import com.maddin.transportapi.endpoints.RealtimeResponse
 import com.maddin.transportapi.endpoints.SearchPOIRequestImpl
@@ -245,8 +243,9 @@ open class EchtzeytWidget : AppWidgetProvider() {
         var txtTimeMinutes = ""
         var txtTimeSeconds = ""
         for (connection in connections.connections) {
-            txtLineNumbers += "${connection.vehicle?.line?.name}\n"
-            txtLineNames += "${connection.vehicle?.direction?.name}\n"
+            val lineMOT = (connection.modeOfTransport as? LineMOT)
+            txtLineNumbers += "${lineMOT?.symbol}\n"
+            txtLineNames += "${lineMOT?.direction}\n"
             val timeDepart = connection.departsOrArrivesIn()?.seconds ?: 0
             val departHour = timeDepart.div(3600)
             val departMinute = timeDepart.div(60).mod(60)

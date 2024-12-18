@@ -700,7 +700,8 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener {
         val lp = locationProviderMain ?: return
 
         if (force) {
-            LocationManagerCompat.getCurrentLocation(lc, lp, null, ContextCompat.getMainExecutor(this)) { onLocationChanged(it, goto) }
+            val cs: android.os.CancellationSignal? = null
+            LocationManagerCompat.getCurrentLocation(lc, lp, cs, ContextCompat.getMainExecutor(this)) { onLocationChanged(it, goto) }
             return
         }
 

@@ -26,9 +26,10 @@ import com.maddin.echtzeyt.ECHTZEYT_CONFIGURATION
 import com.maddin.echtzeyt.R
 import com.maddin.echtzeyt.randomcode.IconLineDrawable
 import com.maddin.echtzeyt.randomcode.LineDrawable
+import com.maddin.transportapi.components.LineMOT
+import com.maddin.transportapi.components.ManualMOTType
 import com.maddin.transportapi.components.Trip
 import com.maddin.transportapi.components.TripConnection
-import com.maddin.transportapi.components.VehicleTypes
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.math.absoluteValue
@@ -131,10 +132,9 @@ class ConnectionInfo : View {
     fun setConnection(connection: TripConnection) {
         this.connection = connection
 
-        val isDefaultWalkType = (connection.vehicle?.type is VehicleTypes) && (connection.vehicle?.type?.isSubtypeOf(
-            VehicleTypes.WALK) == true)
+        val isManualMOTType = connection.modeOfTransport?.motType is ManualMOTType
 
-        drawable = ECHTZEYT_CONFIGURATION.vehicleTypeResolver.getDrawable(connection.vehicle?.type)
+        drawable = ECHTZEYT_CONFIGURATION.motTypeResolver.getDrawable(connection.modeOfTransport?.motType)
         iconLine = (drawable as? IconLineDrawable)?.icon?.mutate()
         iconLine?.let { DrawableCompat.setTint(it, drawable.textColor) }
         paintBackground.color = drawable.backColor
@@ -145,20 +145,27 @@ class ConnectionInfo : View {
         primaryTextElements.clear()
         secondaryTextElements.clear()
 
-        if (!isDefaultWalkType) {
-            connection.vehicle?.line?.let {
-                val lineShort = ECHTZEYT_CONFIGURATION.vehicleTypeResolver.getLineNumber(connection.vehicle?.type, it)
-                val lineLong = it.name ?: lineShort
-                if (lineLong.isBlank()) { return@let }
-                primaryTextElements.add(ResizeableTextElement(lineShort, lineLong, paintTextLineNumber))
+        if (!isManualMOTType) {
+            val lineMOT = connection.modeOfTransport as? LineMOT
+            val lineShort = lineMOT?.line?.let { ECHTZEYT_CONFIGURATION.motTypeResolver.getLineNumber(connection.modeOfTransport?.motType, it, lineMOT.variant) }
+            val lineLong = lineMOT?.symbol ?: lineShort
+            if (!lineLong.isNullOrBlank()) {
+                primaryTextElements.add(
+                    if (lineShort == null) { TextElement(lineLong, paintTextLineNumber) }
+                    else { ResizeableTextElement(lineShort, lineLong, paintTextLineNumber) }
+                )
             }
-            connection.vehicle?.direction?.name?.let { primaryTextElements.add(TextElement(it, paintTextLineName)) }
+            lineMOT?.direction?.let {
+                primaryTextElements.add(TextElement(it, paintTextLineName)) }
 
-            secondaryTextElements.add(TextElement("${connection.stops.size} stops", paintTextInfo))
+            val stopsBetween = (connection.stops.size - 2).coerceAtLeast(0)
+            if (stopsBetween > 0) {
+                secondaryTextElements.add(TextElement(resources.getString(R.string.tripNoOfStations).format(stopsBetween), paintTextInfo))
+            }
         }
         connection.duration?.let { d -> secondaryTextElements.add(TextElement(formatDuration(d.seconds), paintTextInfo, iconTime)) }
 
-        fadeOutBottom = !isDefaultWalkType
+        fadeOutBottom = !isManualMOTType
         updateGradient()
     }
 

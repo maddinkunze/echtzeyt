@@ -19,6 +19,7 @@ import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.maddin.echtzeyt.ECHTZEYT_CONFIGURATION
 import com.maddin.echtzeyt.R
 import com.maddin.echtzeyt.randomcode.LazyView
+import com.maddin.transportapi.components.LineMOT
 import com.maddin.transportapi.components.RealtimeConnection
 import kotlin.math.absoluteValue
 
@@ -131,13 +132,14 @@ class RealtimeInfo(context: Context, val connection: RealtimeConnection, odd: Bo
         val useIcons = ECHTZEYT_CONFIGURATION.useIconsInRealtimeView()
         txtLineNumber.visibility = if (useIcons) GONE else VISIBLE
         txtLineNumberIcon.visibility = if (useIcons) VISIBLE else GONE
-        val vehicle = connection.vehicle
-        if (useIcons && vehicle != null) {
-            txtLineNumberIcon.setVehicle(vehicle, onlyNumber=true)
+        val mot = connection.modeOfTransport
+        val lineMOT = mot as? LineMOT
+        if (useIcons && mot != null) {
+            txtLineNumberIcon.setVehicle(mot, onlyNumber=true)
         } else {
-            txtLineNumber.text = vehicle?.line?.name ?: ""
+            txtLineNumber.text = lineMOT?.symbol ?: ""
         }
-        txtLineName.text = vehicle?.direction?.name ?: ""
+        txtLineName.text = lineMOT?.direction ?: ""
 
         var departsIn = connection.departsOrArrivesIn()?.seconds ?: 0
         val showAbsoluteTimeAfter = ECHTZEYT_CONFIGURATION.getRealtimeShowTimeAfter()
@@ -155,7 +157,7 @@ class RealtimeInfo(context: Context, val connection: RealtimeConnection, odd: Bo
         txtDepTime.visibility = if (showAbsoluteTime) VISIBLE else GONE
 
         if (showAbsoluteTime) {
-            txtDepTime.text = ECHTZEYT_CONFIGURATION.formatDateTime(connection.stop.departureActual)
+            txtDepTime.text = ECHTZEYT_CONFIGURATION.formatDateTime(connection.stop.estimateDepartureActual())
         } else {
             departsIn = departsIn.absoluteValue
             val depSecs = departsIn % 60

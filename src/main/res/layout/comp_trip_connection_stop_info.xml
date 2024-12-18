@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
+
+    <View
+        android:id="@+id/cip_viewStop"
+        android:layout_width="16sp"
+        android:layout_height="16sp"
+        android:background="@drawable/connection_stop"
+        app:layout_constraintBottom_toBottomOf="@+id/cip_txtStop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/cip_txtStop" />
+
+    <TextView
+        android:id="@+id/cip_txtStop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:layout_marginLeft="6dp"
+        android:text="12:34"
+        app:layout_constraintBottom_toBottomOf="@+id/cip_txtStationStop"
+        app:layout_constraintStart_toEndOf="@+id/cip_viewStop"
+        app:layout_constraintTop_toTopOf="@+id/cip_txtStationStop" />
+
+    <TextView
+        android:id="@+id/cip_txtStationStop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:text="Station 1"
+        android:textSize="18sp"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toStartOf="@+id/cip_txtPlatformStop"
+        app:layout_constraintHeight_min="wrap"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toEndOf="@+id/cip_txtStop"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/cip_txtPlatformStop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="8dp"
+        android:text="Platform 1"
+        app:layout_constraintBottom_toBottomOf="@+id/cip_txtStationStop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/cip_txtStationStop" />
+</merge>

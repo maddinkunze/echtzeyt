@@ -3,8 +3,8 @@
     <path android:fillColor="#00000000"
         android:pathData="M150,480l200,0l0,-80l-55,0l0,-190l-145,0l0,80l55,0l0,110l-55,0l0,80"
         android:strokeColor="@color/foreground" android:strokeLineCap="round"
-        android:strokeLineJoin="round" android:strokeWidth="37"/>
+        android:strokeLineJoin="round" android:strokeWidth="35"/>
     <path android:fillColor="#00000000"
         android:pathData="M190,74a55,55 0,1 0,110 0a55,55 0,1 0,-110 0z"
-        android:strokeColor="@color/foreground" android:strokeWidth="35"/>
+        android:strokeColor="@color/foreground" android:strokeWidth="33"/>
 </vector>

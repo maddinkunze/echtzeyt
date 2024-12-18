@@ -4,7 +4,6 @@ import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
-import android.os.Build
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
@@ -12,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageButton
-import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.children
@@ -32,7 +30,6 @@ import kotlin.math.roundToInt
 
 @Suppress("MemberVisibilityCanBePrivate")
 open class PullupScrollView : FrameLayout, GestureDetector.OnGestureListener, DisablingParentScrollChild {
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes) { getAttributes(attrs, defStyleAttr, defStyleRes) }
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) { getAttributes(attrs, defStyleAttr) }
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) { getAttributes(attrs) }
@@ -79,7 +76,7 @@ open class PullupScrollView : FrameLayout, GestureDetector.OnGestureListener, Di
 
 
     init {
-        inflate(context, R.layout.comp_pullup_scroll2, this)
+        inflate(context, R.layout.comp_pullup_scroll, this)
         clipChildren = false
         if (isInEditMode) { layoutChild.updateLayoutParams { height = 3200 } }
     }
@@ -118,7 +115,6 @@ open class PullupScrollView : FrameLayout, GestureDetector.OnGestureListener, Di
 
     private fun getInnerHeight(): Int {
         return getHeaderHeight() + getContentHeight() + (layoutHeader.parent as View).marginTop
-
     }
 
     private fun getHeaderHeight(): Int {
@@ -132,13 +128,18 @@ open class PullupScrollView : FrameLayout, GestureDetector.OnGestureListener, Di
     private fun getContentHeight(): Int {
         layoutContent.measure(
             MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST),
-            MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST)
+            MeasureSpec.makeMeasureSpec(height, MeasureSpec.UNSPECIFIED)
         )
         return layoutContent.measuredHeight
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        layoutContent.measure(
+            widthMeasureSpec,
+            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+        )
+
         if (isInEditMode) layoutContent.children.firstOrNull()?.let {
             layoutContent.minimumHeight = it.measuredHeight
             layoutChild.minimumHeight = measuredHeight + it.measuredHeight
@@ -314,7 +315,7 @@ open class PullupScrollView : FrameLayout, GestureDetector.OnGestureListener, Di
 
         mCanReceiveFocus = false
 
-        ViewCompat.animate(this).alpha(0f).translationY(visibleHeight.toFloat()).withEndAction {
+        animate().alpha(0f).translationY(visibleHeight.toFloat()).withEndAction {
             if (alpha > 0.001) { return@withEndAction }
             visibility = GONE
         }.setDuration(duration).start()
@@ -360,7 +361,7 @@ open class PullupScrollView : FrameLayout, GestureDetector.OnGestureListener, Di
     }
 
     @SuppressLint("GetContentDescriptionOverride")
-    override fun getContentDescription(): CharSequence {
+    override fun getContentDescription(): CharSequence? {
         if (isInEditMode) { return "." }
         return super.getContentDescription()
     }
@@ -368,9 +369,8 @@ open class PullupScrollView : FrameLayout, GestureDetector.OnGestureListener, Di
     fun saveState() {}
     fun animateFromSavedState() {}
 
-    @Suppress("KotlinConstantConditions")
     override fun addView(child: View?, index: Int, params: ViewGroup.LayoutParams?) {
-        if (child == null) { return super.addView(child, index, params) }
+        if (child == null) { return super.addView(null, index, params) }
 
         if (childCount < 1) {
             super.addView(child, index, params)

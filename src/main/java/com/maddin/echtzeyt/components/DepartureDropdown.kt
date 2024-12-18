@@ -27,6 +27,7 @@ import com.maddin.echtzeyt.ECHTZEYT_CONFIGURATION
 import com.maddin.echtzeyt.R
 import com.maddin.echtzeyt.randomcode.LazyMutable
 import com.maddin.echtzeyt.randomcode.LazyView
+import com.maddin.transportapi.endpoints.TripSearchRequest
 import java.lang.IllegalArgumentException
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -93,16 +94,16 @@ class DepartureDropdown : DropdownLayout, OnTimeSetListener, OnDateSetListener {
     private val strDepart by lazy { resources.getString(R.string.dddepDepart) }
     private val strChooseDate by lazy { resources.getString(R.string.dddepSelectDate) }
 
-    companion object {
-        const val MODE_DEPARTURE = 1
-        const val MODE_ARRIVAL = 2
-        val MODES_ALL = intArrayOf(MODE_DEPARTURE, MODE_ARRIVAL)
+    enum class DepartureMode(val xmlFlag: Int, val timeSpec: TripSearchRequest.TimeSpec) {
+        // If you change/add a xmlFlag here, you should also change/add it within the attr.xml file
+        DEPARTURE(1, TripSearchRequest.TimeSpec.DEPARTURE),
+        ARRIVAL(2, TripSearchRequest.TimeSpec.ARRIVAL)
     }
 
-    var mode: Int
+    var mode: DepartureMode
         get() = mMode
         set(value) { mMode = value; onModeUpdated() }
-    private var mMode: Int = MODE_DEPARTURE
+    private var mMode: DepartureMode = DepartureMode.DEPARTURE
     var dateTime: LocalDateTime
         get() { return mDateTime ?: LocalDateTime.now() }
         set(value) { mDateTime = value; onDateTimeUpdated() }
@@ -121,7 +122,7 @@ class DepartureDropdown : DropdownLayout, OnTimeSetListener, OnDateSetListener {
         }
     }
 
-    private var mAllowedModes = MODES_ALL.fold(0, Int::or)
+    private var mAllowedModes = DepartureMode.entries.toList()
 
     var onModeChangedListeners = mutableListOf<() -> Unit>()
     var onDateTimeChangedListeners = mutableListOf<() -> Unit>()
@@ -134,14 +135,15 @@ class DepartureDropdown : DropdownLayout, OnTimeSetListener, OnDateSetListener {
     private fun getAttributes(context: Context, attrs: AttributeSet?=null, defStyleAttr: Int=0, defStyleRes: Int=0) {
         val styledAttr = context.obtainStyledAttributes(attrs, R.styleable.DepartureDropdown, defStyleAttr, defStyleRes)
         try {
-            mAllowedModes = styledAttr.getInt(R.styleable.DepartureDropdown_allowedModes, mAllowedModes)
+            val allowedModesI = styledAttr.getInt(R.styleable.DepartureDropdown_allowedModes, 0)
+            mAllowedModes = DepartureMode.entries.filter { allowedModesI.and(it.xmlFlag) > 0 }
         } catch (_: Throwable) {
             styledAttr.recycle()
         }
 
         // force all lazy tabs to load
         mTabDepart; mTabArrive
-        setExclusivelyAllowedModes(mAllowedModes)
+        setExclusivelyAllowedModes(*mAllowedModes.toTypedArray())
     }
 
     override fun onAttachedToWindow() {
@@ -150,14 +152,14 @@ class DepartureDropdown : DropdownLayout, OnTimeSetListener, OnDateSetListener {
         updateButton()
     }
 
-    private fun getModeTab(mode: Int): Tab {
+    private fun getModeTab(mode: DepartureMode): Tab {
         return when (mode) {
-            MODE_ARRIVAL -> mTabArrive
-            else -> mTabDepart
+            DepartureMode.DEPARTURE -> mTabDepart
+            DepartureMode.ARRIVAL -> mTabArrive
         }
     }
 
-    fun disallowModes(vararg modes: Int) {
+    fun disallowModes(vararg modes: DepartureMode) {
         for (mode in modes) {
             val tab = getModeTab(mode)
             if (tab.parent == null) { continue }
@@ -170,13 +172,13 @@ class DepartureDropdown : DropdownLayout, OnTimeSetListener, OnDateSetListener {
         mTabs.visibility = if (mTabs.tabCount > 1) VISIBLE else GONE
     }
 
-    private fun setExclusivelyAllowedModes(flagsModes: Int) {
-        val disallowedModes = mutableListOf<Int>()
-        for (mode in MODES_ALL) {
-            if (mode and flagsModes != 0) { continue }
+    private fun setExclusivelyAllowedModes(vararg modes: DepartureMode) {
+        val disallowedModes = mutableListOf<DepartureMode>()
+        for (mode in DepartureMode.entries) {
+            if (mode in modes) { continue }
             disallowedModes.add(mode)
         }
-        disallowModes(*disallowedModes.toIntArray())
+        disallowModes(*disallowedModes.toTypedArray())
     }
 
     fun setExclusivelyAllowedModes(vararg modes: Int) {
@@ -194,8 +196,8 @@ class DepartureDropdown : DropdownLayout, OnTimeSetListener, OnDateSetListener {
         mTabs.addOnTabSelectedListener(object: OnTabSelectedListener {
             override fun onTabSelected(tab: Tab?) {
                 mMode = when (tab) {
-                    mTabDepart -> MODE_DEPARTURE
-                    mTabArrive -> MODE_ARRIVAL
+                    mTabDepart -> DepartureMode.DEPARTURE
+                    mTabArrive -> DepartureMode.ARRIVAL
                     else -> return
                 }
                 onModeUpdated(updateTabs=false)
@@ -244,8 +246,8 @@ class DepartureDropdown : DropdownLayout, OnTimeSetListener, OnDateSetListener {
     @SuppressLint("SetTextI18n")
     private fun updateButton() {
         val deparr = when (mMode) {
-            MODE_ARRIVAL -> strArrive
-            else -> strDepart
+            DepartureMode.DEPARTURE -> strDepart
+            DepartureMode.ARRIVAL -> strArrive
         }
         val time = ECHTZEYT_CONFIGURATION.formatDateTime(mDateTime)
         mButton?.text = "$deparr: $time"

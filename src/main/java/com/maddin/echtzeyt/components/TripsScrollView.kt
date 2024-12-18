@@ -46,7 +46,7 @@ import kotlin.math.roundToLong
 // this scale gesture detector is kind of inspired by androids default ScaleGestureDetector (see https://android.googlesource.com/platform/frameworks/base/+/68c65e58b4f4daf79c9ffab518a826a506799db2/core/java/android/view/ScaleGestureDetector.java)
 // however due to the minimum span being gigantic (intended behaviour, obviously) and no way of changing it (see https://issuetracker.google.com/issues/37131665), i was forced to reimplement it
 // i used the reimplementation to add some other features (i.e. independent scaleX and scaleY factors)
-@Suppress("MemberVisibilityCanBePrivate")
+@Suppress("MemberVisibilityCanBePrivate", "unused")
 class BetterScaleGestureDetector(private val mContext: Context, private val mListener: OnBetterScaleGestureListener) {
     interface OnBetterScaleGestureListener {
         fun onScaleStart(detector: BetterScaleGestureDetector, event: MotionEvent)
@@ -831,9 +831,10 @@ class TripsScrollView : FrameLayout, OnGestureListener, BetterScaleGestureDetect
     private var redrawInterval = 1000L
     private fun recalculateRedrawIntervals() {
         // recalculate redraw interval to ensure smooth animation of the "now" indicator
+        // generally, it should update 1.8 times between noticeable distances to ensure a smooth animation
         // the now indicator itself should only be able to at most request 20 redraws per second (so every 50ms)
         // but it should also force a redraw after a long period (30s)
-        redrawInterval = (1000f * (deltaYNoticeable / currentHeightPerSecond)).roundToLong().coerceIn(50, 30000)
+        redrawInterval = ((1000f / 1.8f) * (deltaYNoticeable / currentHeightPerSecond)).roundToLong().coerceIn(50, 30000)
     }
 
     private fun updateUnitSizes(widthPerUnit: Float?=null, heightPerSecond: Float?=null, invalidate: Boolean=true) {

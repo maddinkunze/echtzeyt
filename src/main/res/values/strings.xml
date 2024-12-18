@@ -103,6 +103,8 @@
     <string name="tripStationFrom">From…</string>
     <string name="tripStationVia">Via…</string>
     <string name="tripStationTo">To…</string>
+    <string name="tripNoOfStations">%1$s Stations</string>
+    <string name="tripInstructions">Instructions</string>
     <string name="btnMenuDescription">Show menu</string>
     <string name="contactTitle">Give feedback (email)</string>
     <string name="contactEmail" translatable="false" />

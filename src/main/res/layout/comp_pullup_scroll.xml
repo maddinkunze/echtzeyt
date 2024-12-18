@@ -1,36 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center_horizontal"
+    android:layout_marginTop="@dimen/shadow_size"
+    android:background="@drawable/pullup"
+    android:maxWidth="500dp"
+    tools:parentTag="com.maddin.echtzeyt.components.PullupScrollView">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clipChildren="false"
-        android:clipToPadding="false">
-
-        <com.maddin.echtzeyt.components.DropShadow
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginBottom="@dimen/shadow_size"
-            app:layout_constraintBottom_toBottomOf="@+id/contentLayout"
-            app:layout_constraintEnd_toEndOf="@+id/contentLayout"
-            app:layout_constraintStart_toStartOf="@+id/contentLayout"
-            app:layout_constraintTop_toTopOf="@+id/contentLayout"
-            app:radiusInner="@dimen/pullup_radius"
-            app:shadowColors="@array/shadowColors"
-            app:shadowSize="@dimen/shadow_size"
-            app:shadowStops="@array/shadowStops" />
-
-    <FrameLayout
-        android:id="@+id/contentLayout"
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/pullup"
+    <com.maddin.echtzeyt.components.DropShadow
+        style="@style/Theme.Echtzeyt.Shadow"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:extraOffsetBottom="@dimen/pullup_radius"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:radiusInner="@dimen/pullup_radius" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</merge>
+    <LinearLayout
+        android:id="@+id/pu_layoutHeader"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginRight="20dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/pu_btnBackPullup"
+            style="@style/Theme.Echtzeyt.Button.Image"
+            android:layout_marginStart="0dp"
+            android:layout_marginLeft="@null"
+            android:layout_marginEnd="@dimen/button_margin"
+            android:layout_marginRight="@null"
+            android:background="@drawable/imagebutton_second"
+            android:contentDescription="@string/btnLikeDescription"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_back"
+            tools:ignore="TouchTargetSizeCheck"
+            tools:visibility="visible" />
+
+
+        <FrameLayout
+            android:id="@+id/pu_layoutHeaderContent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/pu_layoutContent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pu_layoutHeader" />
+
+    <View
+        android:id="@+id/pu_viewClosePullupRing"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="@dimen/pullup_close_margin"
+        android:layout_marginLeft="@dimen/pullup_close_margin"
+        android:layout_marginTop="@dimen/pullup_close_margin"
+        android:layout_marginEnd="@dimen/pullup_close_margin"
+        android:layout_marginRight="@dimen/pullup_close_margin"
+        android:layout_marginBottom="@dimen/pullup_close_margin"
+        android:background="@drawable/roundbuttonring"
+        android:backgroundTint="@color/backgroundPullup"
+        android:importantForAccessibility="no"
+        app:layout_constraintBottom_toBottomOf="@+id/pu_btnClosePullup"
+        app:layout_constraintEnd_toEndOf="@+id/pu_btnClosePullup"
+        app:layout_constraintStart_toStartOf="@+id/pu_btnClosePullup"
+        app:layout_constraintTop_toTopOf="@+id/pu_btnClosePullup"
+        tools:ignore="UnusedAttribute" />
+
+    <ImageButton
+        android:id="@+id/pu_btnClosePullup"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:background="@drawable/closebutton"
+        android:contentDescription="@string/btnClose"
+        android:padding="2dp"
+        android:scaleType="centerInside"
+        app:layout_constraintBottom_toTopOf="@id/pu_layoutHeader"
+        app:layout_constraintEnd_toEndOf="@id/pu_layoutHeader"
+        app:layout_constraintStart_toEndOf="@id/pu_layoutHeader"
+        app:layout_constraintTop_toTopOf="@id/pu_layoutHeader"
+        app:srcCompat="@drawable/ic_close"
+        app:tint="@color/backgroundPullup"
+        tools:ignore="TouchTargetSizeCheck" />
+</androidx.constraintlayout.widget.ConstraintLayout>

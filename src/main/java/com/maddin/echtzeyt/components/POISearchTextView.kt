@@ -107,6 +107,7 @@ class POISearchTextView : InstantAutoCompleteTextView {
 
     fun ntUpdateSearch() {
         if (!shouldUpdateSearch) { return }
+
         try {
             var pois = emptyList<POI>()
             if (currentStationSearch.isNotEmpty()) {
@@ -124,7 +125,7 @@ class POISearchTextView : InstantAutoCompleteTextView {
                 }
 
                 for (poi in pois) {
-                    if (poi.name == currentStationSearch) {
+                    if (poi.name == currentStationSearch || (pois.size == 1 && !hasFocus())) {
                         mCurrentPOI = poi
                         clearFocus()
                         onItemSelected()
@@ -134,7 +135,7 @@ class POISearchTextView : InstantAutoCompleteTextView {
                 }
 
                 adapterSearch.notifyDataSetChanged()
-                post { showSuggestions() }
+                post { if (!hasFocus()) { return@post }; showSuggestions() }
             }
         } catch (e: Exception) {
             //val classification = classifyExceptionDefault(e)

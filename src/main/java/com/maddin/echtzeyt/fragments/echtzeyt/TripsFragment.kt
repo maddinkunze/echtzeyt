@@ -2,6 +2,7 @@ package com.maddin.echtzeyt.fragments.echtzeyt
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
@@ -31,6 +32,8 @@ import com.maddin.transportapi.components.Connection
 import com.maddin.transportapi.components.POI
 import com.maddin.transportapi.components.Station
 import com.maddin.transportapi.components.Trip
+import com.maddin.transportapi.endpoints.RealtimeAPI
+import com.maddin.transportapi.endpoints.TripSearchAPI
 import com.maddin.transportapi.endpoints.TripSearchRequestImpl
 import kotlin.concurrent.thread
 
@@ -55,6 +58,8 @@ class TripsFragment : EchtzeytPullupFragment(R.layout.fragment_trips),
 
     val pullupTrip: TripPullup by LazyPullup(R.id.ft_pullupTrip, this)
     val pullupStation: StationPullup by LazyPullup(R.id.ft_pullupStation, this)
+
+    protected val transportTripsAPI by lazy { ECHTZEYT_CONFIGURATION.tripsTripSearchAPI!! }
 
     private var shouldUpdateTrips = false
         @Synchronized set
@@ -131,7 +136,15 @@ class TripsFragment : EchtzeytPullupFragment(R.layout.fragment_trips),
                     continue
                 }
                 val request = TripSearchRequestImpl(waypoints=stops)
-                val response = ECHTZEYT_CONFIGURATION.tripsTripSearchAPI!!.searchTrips(request)
+                if (apiSupportsDifferentTimeThanNow()) {
+                    val diffTime = !layoutDeparture.isNow()
+                    val diffMode = layoutDeparture.mode != DepartureDropdown.DepartureMode.DEPARTURE
+                    if (diffTime || diffMode) {
+                        request.time = layoutDeparture.dateTime
+                        request.timeSpec = layoutDeparture.mode.timeSpec
+                    }
+                }
+                val response = transportTripsAPI.searchTrips(request)
                 val trips = response.trips
 
                 activity?.runOnUiThread {
@@ -163,9 +176,11 @@ class TripsFragment : EchtzeytPullupFragment(R.layout.fragment_trips),
             if (focused) { return@add }
             deleteStationSearchIfNeeded()
         }
-        btnMap.setOnClickListener {
-            mEdtInvokedMap = edtSearch
-            activityMapLauncher.launch(edtSearch.currentPOI)
+        if (ECHTZEYT_CONFIGURATION.mapsSupportLocateStations) {
+            btnMap.setOnClickListener {
+                mEdtInvokedMap = edtSearch
+                activityMapLauncher.launch(edtSearch.currentPOI)
+            }
         }
         edtSearch.onItemSelectedListeners.add { shouldUpdateTrips = true }
     }
@@ -287,5 +302,9 @@ class TripsFragment : EchtzeytPullupFragment(R.layout.fragment_trips),
 
     override fun showTripPullup(trip: Trip, connection: Connection?) {
         pullupTrip.setTrip(trip, connection, true)
+    }
+
+    protected fun apiSupportsDifferentTimeThanNow(): Boolean {
+        return transportTripsAPI.supportsSearchTripFeature(TripSearchAPI.FEATURE_SEARCH_TRIP_CUSTOM_ARRIVAL or TripSearchAPI.FEATURE_SEARCH_TRIP_CUSTOM_DEPARTURE)
     }
 }

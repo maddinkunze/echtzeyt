@@ -5,13 +5,14 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
+import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.Fragment
 import com.maddin.echtzeyt.activities.EchtzeytActivity
 import com.maddin.echtzeyt.activities.EchtzeytWidget
 import com.maddin.echtzeyt.activities.MapActivity
 import com.maddin.echtzeyt.activities.SettingsActivity
-import com.maddin.echtzeyt.components.DefaultVehicleTypeResolver
-import com.maddin.echtzeyt.components.VehicleTypeResolver
+import com.maddin.echtzeyt.components.DefaultMOTTypeResolver
+import com.maddin.echtzeyt.components.MOTTypeResolver
 import com.maddin.echtzeyt.fragments.NamedFragment
 import com.maddin.echtzeyt.fragments.echtzeyt.RealtimeFragment
 import com.maddin.echtzeyt.fragments.echtzeyt.TripsFragment
@@ -21,6 +22,7 @@ import com.maddin.echtzeyt.fragments.settings.MapSettingsFragment
 import com.maddin.echtzeyt.fragments.settings.RealtimeSettingsFragment
 import com.maddin.echtzeyt.fragments.settings.TripSettingsFragment
 import com.maddin.echtzeyt.randomcode.LazyMutable
+import com.maddin.echtzeyt.randomcode.SafePOI
 import com.maddin.transportapi.components.POI
 import com.maddin.transportapi.endpoints.RealtimeAPI
 import com.maddin.transportapi.endpoints.LocatePOIAPI
@@ -32,6 +34,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import java.util.Locale
 
 var ECHTZEYT_CONFIGURATION = EchtzeytConfiguration()
 
@@ -95,7 +98,7 @@ class EchtzeytConfiguration {
     ).plus(customFragmentsSettings)
      .plus(NamedFragment(R.string.menuSettingsAbout, aboutSettingsFragment)) } // the about settings fragment should always come last
 
-    var vehicleTypeResolver: VehicleTypeResolver = DefaultVehicleTypeResolver()
+    var motTypeResolver: MOTTypeResolver = DefaultMOTTypeResolver()
     val onFavoriteStationsChangedListeners = mutableListOf<() -> Unit>()
 
     var osmdroidUserAgent = getUserAgent(null)
@@ -115,6 +118,8 @@ class EchtzeytConfiguration {
     var prefRealtimeNegativeTimes = "realtimeNegativeTimes"
 
     var confAllowSlowerUpdated = true
+
+    var locale: Locale? = null
 
     var LOG_TAG = "Echtzeyt.LOG"
 
@@ -145,6 +150,7 @@ class EchtzeytConfiguration {
     fun initApplication(application: Application) {
         this.application = application
         osmdroidUserAgent = getUserAgent(application)
+        locale = ConfigurationCompat.getLocales(application.resources.configuration).get(0)
     }
 
     fun check() : Boolean {
@@ -217,14 +223,16 @@ class EchtzeytConfiguration {
         mPreferences.edit { putBoolean(prefRealtimeSaveStation, shouldSave) }
     }
 
-    fun getLastRealtimePOIName(): String {
-        if (!shouldSaveLastRealtimeStation()) { return "" }
-        return mPreferences.getString(prefRealtimeLastStation, "") ?: ""
+    fun getLastRealtimePOI(): SafePOI {
+        if (!shouldSaveLastRealtimeStation()) { return SafePOI(null, null) }
+        val search = mPreferences.getString(prefRealtimeLastStation, null)
+        val poi = null
+        return SafePOI(search, poi)
     }
 
-    fun setCurrentRealtimePOI(poi: POI?) {
+    fun setCurrentRealtimePOI(safePOI: SafePOI) {
         if (!shouldSaveLastRealtimeStation()) { return }
-        mPreferences.edit { putString(prefRealtimeLastStation, poi?.name ?: "") }
+        mPreferences.edit { putString(prefRealtimeLastStation, safePOI.poi?.name ?: "") }
     }
 
     fun useIconsInRealtimeView(): Boolean {
@@ -302,5 +310,13 @@ class EchtzeytConfiguration {
 
     fun formatTime(time: LocalTime, showSeconds: Boolean=true): String {
         return (if (showSeconds) formatterTimeLong else formatterTimeShort).format(time)
+    }
+
+    fun handleExceptions(context: Context, exceptions: List<Exception>) {
+
+    }
+
+    fun handleExceptions(context: Context) {
+
     }
 }
