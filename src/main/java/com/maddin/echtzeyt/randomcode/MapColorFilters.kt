@@ -3,7 +3,6 @@ package com.maddin.echtzeyt.randomcode
 import android.graphics.ColorFilter
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
-import org.osmdroid.views.MapView
 import java.lang.IndexOutOfBoundsException
 
 /*class Matrix4x4(private val values: FloatArray) {
@@ -255,6 +254,6 @@ val FILTER_OSM_LIGHT by lazy {
     ))
 }
 
-fun setMapColorFilter(map: MapView, filter: ColorFilter) {
+/*fun setMapColorFilter(map: MapView, filter: ColorFilter) {
     map.overlayManager.tilesOverlay.setColorFilter(filter)
-}
+}*/

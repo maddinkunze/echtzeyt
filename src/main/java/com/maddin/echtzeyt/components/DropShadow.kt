@@ -41,10 +41,10 @@ typealias Gradient = Map<Float, Int>
 
 private val paintRemove by lazy { val p = Paint(); p.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR); p }
 
-fun createShadowBitmap(widthOrig: Int, heightOrig: Int, radiusOrig: Int, shadowSize: Int, stops: Gradient) : Bitmap? {
+fun createShadowBitmap(widthOrig: Int, heightOrig: Int, radiusOrig: Int, shadowSize: Int, stops: Gradient) : Bitmap {
     val widthNew = widthOrig + 2 * shadowSize
     val heightNew = heightOrig + 2 * shadowSize
-    if (widthNew <= 0 || heightNew <= 0) { return null }
+    if (widthNew <= 0 || heightNew <= 0) { return Bitmap.createBitmap(0, 0, Bitmap.Config.ARGB_8888) }
 
     val bitmap = Bitmap.createBitmap(widthNew, heightNew, Bitmap.Config.ARGB_8888)
 

@@ -11,7 +11,7 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.applyCanvas
-import org.osmdroid.views.overlay.Marker
+//import org.osmdroid.views.overlay.Marker
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
