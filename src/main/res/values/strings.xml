@@ -169,4 +169,8 @@
     <string name="_libraryEchtzeytBasedOn">based on\u0020</string>
     <string name="_libraryEchtzeytName" translatable="false">Echtzeyt</string>
     <string name="_libraryEchtzeytVersion" translatable="false" />
+
+    <string name="urlMapDownload" translatable="false">https://lol</string>
+    <item name="fileMapRaw" type="raw">@raw/chemnitz</item>
+    <string name="fileMapExtracted" translatable="false">extracted.map</string>
 </resources>

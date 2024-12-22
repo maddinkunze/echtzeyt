@@ -3,27 +3,17 @@
     version="1" xmlns="http://opensciencemap.org/rendertheme"
     xsi:schemaLocation="http://opensciencemap.org/rendertheme https://raw.githubusercontent.com/mapsforge/vtm/master/resources/rendertheme.xsd">
 
-    <!--###### TRANSFORM tags ######-->
-    <tag-transform k="roof:colour" k-lib="roof:colour" v="blue" v-lib="#4e7ee0" />
-    <tag-transform k="roof:colour" k-lib="roof:colour" v="green" v-lib="#3ed889" />
-    <tag-transform k="roof:colour" k-lib="roof:colour" v="red" v-lib="#ad4340" />
-    <tag-transform k="roof:colour" k-lib="roof:colour" v="yellow" v-lib="#e5d522" />
-    <tag-transform k="building:colour" k-lib="building:colour" v="blue" v-lib="#416fcc" />
-    <tag-transform k="building:colour" k-lib="building:colour" v="green" v-lib="#38c459" />
-    <tag-transform k="building:colour" k-lib="building:colour" v="red" v-lib="#cc3733" />
-    <tag-transform k="building:colour" k-lib="building:colour" v="yellow" v-lib="#f4e216" />
-
     <!--###### TEXT styles ######-->
 
     <!--default label-->
     <style-text caption="true" dy="20" fill="#2d51bc" font-family="medium" id="caption-small-blue"
         k="name" size="14" stroke="#ffffff" stroke-width="2.0" />
     <!--roads-->
-    <style-text fill="#808080" id="road" k="name" priority="2" size="10" stroke="#80eeeeee"
-        stroke-width="2.0" />
+    <style-text fill="#808080" id="road" k="name" priority="2" size="10" stroke="#fffcfa"
+        stroke-width="2.0" font-family="thin" />
     <!--major roads-->
     <style-text style="bold" fill="#404040" id="major-road" k="name" priority="1" size="10"
-        stroke="#80eeeeee" stroke-width="2.0" />
+        stroke="#fffcfa" stroke-width="2.0" />
     <!--references-->
     <style-text style="bold" fill="#606060" id="ref" k="ref" priority="2" size="12" stroke="#80ffffff"
         stroke-width="2.0" />
@@ -45,6 +35,9 @@
 
     <!-- Avoid patterns and textures because of old GPU issues -->
     <!--<style-area id="tex1" src="assets:textures/rough.png" />-->
+
+    <style-area fade="10" fill="#ff0000" id="grass" />
+    <style-area fade="10" fill="#FFA600" id="forest" />
 
     <!-- meadow|garden -->
     <style-area fade="10" fill="#c9dc91" id="greens" />
@@ -72,7 +65,7 @@
     <!-- src="assets:textures/wood.png" -->
     <!-- <style-area id="wood" fill="#d1dbc7" fade="8" blend="11" blend-fill="#9ac56e" /> -->
     <!-- <style-area id="wood" use="park" fill="#9ac56e" fade="8" /> -->
-    <style-area blend="11" blend-fill="#83aa5b" fade="8" fill="#b3d095" id="wood" use="park" />
+    <style-area blend="11" blend-fill="#83aa5b" fade="8" fill="#b3d095" id="wood" use="forest" />
     <!-- <style-line id="wood" fix="true" cap="butt" width="1.0" stroke="#9ac56e" /> -->
 
     <!-- de:Kleingartengebiet -->
@@ -169,7 +162,7 @@
             </m>
 
             <m v="meadow|conservation">
-                <area fade="11" use="greens" />
+                <area fade="11" use="grass" />
             </m>
 
             <m v="residential|commercial|retail|farmyard">
@@ -177,15 +170,15 @@
             </m>
         </m>
         <m k="natural" v="grassland|scrub">
-            <area use="darkgreen" />
+            <area use="grass" />
         </m>
 
         <m k="landuse">
             <m v="farmland|farm|orchard|vineyard|greenhouse_horticulture|plant_nursery">
-                <area use="farmland" />
+                <area use="grass" />
             </m>
             <m v="quarry">
-                <area use="quarry" />
+                <area use="grass" />
             </m>
             <!-- <m v="farmyard|retail|commercial|industrial;retail">
               <area use="residential" />
@@ -242,20 +235,20 @@
             <m k="landuse" zoom-min="11">
                 <!-- how about 'leisure' for this one? -->
                 <m v="cemetery">
-                    <area use="park" />
+                    <area use="grass" />
                     <m zoom-min="14">
                         <line use="park" />
                     </m>
                 </m>
             </m>
             <m k="landuse" v="village_green|recreation_ground">
-                <area use="greens" />
+                <area use="grass" />
             </m>
             <m k="landuse" v="allotments" zoom-min="12">
                 <area use="allotments" />
             </m>
             <m k="leisure" v="park|common|green|golf_course" zoom-min="11">
-                <area use="park" />
+                <area use="grass" />
                 <m zoom-min="14">
                     <line use="park" />
                 </m>
@@ -269,7 +262,7 @@
 
             <m k="landuse|natural" v="forest|wood">
                 <m zoom-min="8">
-                    <area use="wood" />
+                    <area use="forest" />
                 </m>
             </m>
 
@@ -277,11 +270,11 @@
             <!-- http://wiki.openstreetmap.org/wiki/Proposed_features/conservation,
               often serves as background for leisure=nature_reserve -->
             <m k="landuse" v="grass">
-                <area use="lightgreen" />
+                <area use="grass" />
             </m>
 
             <m k="leisure" v="garden">
-                <area use="greens" />
+                <area use="grass" />
             </m>
 
             <!-- amenity -->

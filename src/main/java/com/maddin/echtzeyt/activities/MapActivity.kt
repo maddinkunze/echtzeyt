@@ -346,9 +346,10 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
     fun initMap() {
         // Set tile source
         val tileSource = MapFileTileSource()
-        val mapFile = File(cacheDir, "chemnitz.map")
+        val mapFile = File(cacheDir, resources.getString(R.string.fileMapExtracted))
         if (!mapFile.exists()) {
-            val inputStream = resources.openRawResource(R.raw.chemnitz)
+            println("MADDIN101: extracting map")
+            val inputStream = resources.openRawResource(R.raw.fileMapRaw)
             val outputStream = mapFile.outputStream()
             val buffer = ByteArray(8192)
             var read: Int
@@ -832,6 +833,8 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
         }
         if (connManager != null && !connManager.isActiveNetworkMetered) { return } // dont show the dialog when we are not on a metered connection
 
+        if (true) { return } // TODO: do we need to ask for mobile data connection? maybe for downloading map updates?
+
         mAskForMobileDataCount--
         mAskForMobileDataNext = now + mAskForMobileDataAgainAfter
         mCurrentDialogType = DIALOG_MOBILE_DATA
@@ -842,8 +845,8 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
                 .setTitle(R.string.mapMobileAllowTitle)
                 .setMessage(R.string.mapMobileAllowText)
                 .setIcon(R.drawable.ic_cellular)
-                //.setPositiveButton(R.string.mapMobileAllowPermanent) { _, _ -> map.setUseDataConnection(true); preferences.edit { putBoolean("mapUseMobileData", true) } }
-                //.setNeutralButton(R.string.mapMobileAllowTemporary) { _, _ -> map.setUseDataConnection(true) }
+                .setPositiveButton(R.string.mapMobileAllowPermanent) { _, _ -> /*map.setUseDataConnection(true);*/ preferences.edit { putBoolean("mapUseMobileData", true) } }
+                .setNeutralButton(R.string.mapMobileAllowTemporary) { _, _ -> /*map.setUseDataConnection(true)*/ }
                 .setNegativeButton(R.string.mapMobileAllowNo) { _, _ -> preferences.edit { putBoolean("mapUseMobileData", false) } }
                 .setCancelable(true)
                 .setOnDismissListener { mCurrentDialogType = 0; mAskForMobileDataNext = System.currentTimeMillis() + mAskForMobileDataAgainAfter }
