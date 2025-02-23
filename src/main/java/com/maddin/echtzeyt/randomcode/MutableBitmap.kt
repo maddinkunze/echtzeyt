@@ -9,16 +9,20 @@ import android.opengl.GLES20
 import android.opengl.GLUtils
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.scale
+import kotlinx.coroutines.runInterruptible
 import org.oscim.backend.canvas.Bitmap as VTMBitmap
 import org.oscim.utils.IOUtils
 import java.io.ByteArrayOutputStream
+import java.util.Queue
+import java.util.concurrent.BlockingQueue
+import kotlin.concurrent.thread
 import kotlin.math.roundToInt
 
 abstract class MutableBitmap(private val initialWidth: Int, private val initialHeight: Int) : VTMBitmap {
     private var mBitmap: Bitmap? = null
     private val mPaint = Paint()
     private val bitmap: Bitmap
-        get() {
+        get() = synchronized(this) {
             var bitmap = mBitmap
             var forceRedraw = shouldRedraw
             if (bitmap == null || bitmap.isRecycled || sizeChanged) {
@@ -46,25 +50,35 @@ abstract class MutableBitmap(private val initialWidth: Int, private val initialH
 
     override fun getWidth() = mWidth
     fun setWidth(width: Int) {
-        if (width == mWidth) { return }
-        mWidth = width
-        sizeChanged = true
+        synchronized(this) {
+            if (width == mWidth) { return }
+            mWidth = width
+            sizeChanged = true
+        }
     }
 
     override fun getHeight() = mHeight
     fun setHeight(height: Int) {
-        if (height == mHeight) { return }
-        mHeight = height
-        sizeChanged = true
+        synchronized(this) {
+            if (height == mHeight) { return }
+            mHeight = height
+            sizeChanged = true
+        }
     }
 
     override fun scaleTo(width: Int, height: Int) {
         this.width = width
         this.height = height
+        markForUpdate()
     }
 
     fun setScale(scale: Double) {
         scaleTo((initialWidth*scale).roundToInt(), (initialHeight*scale).roundToInt())
+    }
+
+    fun markForUpdate() {
+        if (QUEUE.contains(this)) { return }
+        QUEUE.put(this)
     }
 
     override fun getPixels(): IntArray {
@@ -79,8 +93,8 @@ abstract class MutableBitmap(private val initialWidth: Int, private val initialH
         val bitmap = bitmap
         if (bitmap.isRecycled) return
 
-        val format: Int = GLUtils.getInternalFormat(bitmap)
-        val type: Int = GLUtils.getType(bitmap)
+        val format = GLUtils.getInternalFormat(bitmap)
+        val type = GLUtils.getType(bitmap)
 
         if (replace) {
             GLUtils.texSubImage2D(GLES20.GL_TEXTURE_2D, 0, 0, 0, bitmap, format, type)
@@ -109,6 +123,15 @@ abstract class MutableBitmap(private val initialWidth: Int, private val initialH
     }
 
     protected abstract fun asResizedBitmap(): Bitmap
+
+    companion object {
+        protected val QUEUE = java.util.concurrent.LinkedBlockingQueue<MutableBitmap>()
+        init {
+            thread(start=true, isDaemon=true) {
+                QUEUE.take().bitmap
+            }
+        }
+    }
 }
 
 class DynamicBitmap(private val bitmap: Bitmap) : MutableBitmap(bitmap.width, bitmap.height) {

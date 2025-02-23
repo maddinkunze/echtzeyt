@@ -71,7 +71,7 @@ class EchtzeytConfiguration {
 
     var mapsStationAPI: LocatePOIAPI? = null
     var mapsSupport = true
-    var mapsSupportLocateStations = false
+    var mapsSupportLocateStations = true
     var mapsSettingsFragment by LazyMutable { if (mapsSupport) MapSettingsFragment::class.java else null }
 
     var tripsStationAPI: SearchPOIAPI? = null
@@ -79,6 +79,7 @@ class EchtzeytConfiguration {
     var tripSupport = false
     var tripFragment by LazyMutable { if (tripSupport) TripsFragment::class.java else null }
     var tripSettingsFragment by LazyMutable { if (tripSupport) TripSettingsFragment::class.java else null }
+    var mapsSupportShowTrip = true
 
     var pullupStationAPI: POIAPI? = null
 

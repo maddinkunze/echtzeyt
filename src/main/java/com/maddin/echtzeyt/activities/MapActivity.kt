@@ -1,7 +1,5 @@
 package com.maddin.echtzeyt.activities
 
-//import com.maddin.echtzeyt.components.PositionMarker
-//import com.maddin.echtzeyt.components.StopMarker
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
@@ -50,19 +48,29 @@ import com.maddin.echtzeyt.components.getShadowColors
 import com.maddin.echtzeyt.randomcode.ActivityResultSerializable
 import com.maddin.echtzeyt.randomcode.DrawableBitmap
 import com.maddin.echtzeyt.randomcode.DynamicBitmap
+import com.maddin.echtzeyt.randomcode.InstanceData
 import com.maddin.echtzeyt.randomcode.LazyMutable
 import com.maddin.echtzeyt.randomcode.LazyView
+import com.maddin.echtzeyt.randomcode.MarkerModel
+import com.maddin.echtzeyt.randomcode.ModelLayer
+import com.maddin.echtzeyt.randomcode.ModelSubLayer
+import com.maddin.echtzeyt.randomcode.ModelSetupLayer
+import com.maddin.echtzeyt.randomcode.unpackResourceIntoCache
 import com.maddin.transportapi.components.LocationAreaRect
 import com.maddin.transportapi.components.LocationLatLon
 import com.maddin.transportapi.components.LocationLatLonImpl
 import com.maddin.transportapi.components.POI
+import com.maddin.transportapi.components.Trip
 import com.maddin.transportapi.endpoints.LocatePOIRequestImpl
 import com.maddin.transportapi.utils.sameAs
 import org.oscim.android.MapView
+import org.oscim.backend.canvas.Paint
 import org.oscim.core.BoundingBox
 import org.oscim.core.GeoPoint
 import org.oscim.core.MapPosition
 import org.oscim.event.Event
+import org.oscim.layers.GroupLayer
+import org.oscim.layers.PathLayer
 import org.oscim.layers.marker.ItemizedLayer
 import org.oscim.layers.marker.MarkerInterface
 import org.oscim.layers.marker.MarkerItem
@@ -71,10 +79,11 @@ import org.oscim.layers.tile.buildings.BuildingLayer
 import org.oscim.layers.tile.vector.labeling.LabelLayer
 import org.oscim.map.Map.UpdateListener
 import org.oscim.theme.StreamRenderTheme
+import org.oscim.theme.styles.LineStyle
 import org.oscim.tiling.source.mapfile.MapFileTileSource
-import java.io.File
 import kotlin.concurrent.thread
 import kotlin.math.absoluteValue
+import kotlin.math.ceil
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
@@ -87,11 +96,15 @@ fun Resources.getFloatValue(@DimenRes floatRes: Int):Float{
     return out.float
 }
 
+enum class MapContractActions {
+    SELECT_STATION,
+    SHOW_TRIP
+}
+
 class MapResultContractSelectPOI : ActivityResultSerializable<POI, POI>(ECHTZEYT_CONFIGURATION.activityMap) {
     companion object {
-        const val ACTION_SELECT_STATION = "select_station"
         fun appliesToIntent(intent: Intent?): Boolean {
-            return intent?.getStringExtra(ACTION) == ACTION_SELECT_STATION
+            return intent?.getStringExtra(ACTION) == MapContractActions.SELECT_STATION.name
         }
         fun createResult(station: POI): Intent {
             return ActivityResultSerializable.createResult(station)
@@ -101,7 +114,21 @@ class MapResultContractSelectPOI : ActivityResultSerializable<POI, POI>(ECHTZEYT
         }
     }
     override fun createIntent(context: Context, input: POI?): Intent {
-        return super.createIntent(context, input).putExtra(ACTION, ACTION_SELECT_STATION)
+        return super.createIntent(context, input).putExtra(ACTION, MapContractActions.SELECT_STATION.name)
+    }
+}
+
+class MapContractShowTrip :  ActivityResultSerializable<Trip, Nothing>(ECHTZEYT_CONFIGURATION.activityMap) {
+    companion object {
+        fun appliesToIntent(intent: Intent?): Boolean {
+            return intent?.getStringExtra(ACTION) == MapContractActions.SHOW_TRIP.name
+        }
+        fun parseIntent(intent: Intent?): Trip? {
+            return ActivityResultSerializable.parseIntent(intent)
+        }
+    }
+    override fun createIntent(context: Context, input: Trip?): Intent {
+        return super.createIntent(context, input).putExtra(ACTION, MapContractActions.SHOW_TRIP.name)
     }
 }
 
@@ -112,14 +139,15 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
     private val btnBack: FloatingButton by LazyView(R.id.btnMapBack)
     private val btnLocate: FloatingButton by LazyView(R.id.btnMapLocate)
 
-    private val map by lazy { mapView.map() }
+    protected val map: org.oscim.map.Map by lazy { mapView.map() }
+    protected lateinit var tileLayer: org.oscim.layers.tile.vector.VectorTileLayer
 
     // Stuff for locating/searching stations
     private val shouldSearchForStations by lazy { MapResultContractSelectPOI.appliesToIntent(intent) }
     private var nextLocateUpdate = -1L
     private val stationsFound = mutableSetOf<String>()
     protected val transportLocateStationAPI by lazy { ECHTZEYT_CONFIGURATION.mapsStationAPI!! }
-    protected var poiSelected: POI? by LazyMutable { MapResultContractSelectPOI.parseIntent(intent) }
+    protected var poiSelected: POI? by LazyMutable { if (shouldSearchForStations) MapResultContractSelectPOI.parseIntent(intent) else null }
 
     private val pullupStation: StationPullup by LazyView(R.id.pullupStationInfo)
     private val btnHideMarkers: FloatingButton by LazyView(R.id.btnMapHideMarkers)
@@ -128,7 +156,9 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
     private val willMarkersBeVisible by lazy { MapResultContractSelectPOI.appliesToIntent(intent) }
     private val stationMarkerWidth by lazy { resources.getDimensionPixelSize(R.dimen.stationmarker_width) }
     private val stationMarkerHeight by lazy { resources.getDimensionPixelSize(R.dimen.stationmarker_height) }
+    private val drawableMarkerA by lazy { VectorDrawableCompat.create(resources, R.drawable.stationmark, theme)!! }
     private val drawableMarker by lazy { DrawableBitmap(VectorDrawableCompat.create(resources, R.drawable.stationmark, null)!!, stationMarkerWidth, stationMarkerHeight) }
+    private val drawableMarkerSelectedA by lazy { VectorDrawableCompat.create(resources, R.drawable.stationmark_selected, theme)!! }
     private val drawableMarkerSelected by lazy { DrawableBitmap(VectorDrawableCompat.create(resources, R.drawable.stationmark_selected, null)!!, stationMarkerWidth, stationMarkerHeight) }
     private val symbolMarker by lazy { MarkerSymbol(drawableMarker, MarkerSymbol.HotspotPlace.BOTTOM_CENTER) }
     private val symbolMarkerSelected by lazy { MarkerSymbol(drawableMarkerSelected, MarkerSymbol.HotspotPlace.BOTTOM_CENTER) }
@@ -147,6 +177,13 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
     }
     protected val layerMarkers by lazy { ItemizedLayer(map, mutableListOf(), symbolMarker, this) }
     protected val layerMarkersShadow by lazy { ItemizedLayer(map, MarkerSymbol(drawableMarkerShadow, MarkerSymbol.HotspotPlace.BOTTOM_CENTER)) }
+
+    protected val layerModels by lazy { ModelLayer(map) }
+    protected val sublayerMarkers by lazy { layerModels.createInstanceSubLayer(modelMarker) }
+    protected val sublayerModels by lazy { layerModels.createModelSubLayer() }
+    protected val sublayerMarkerSelected by lazy { layerModels.createInstanceSubLayer(modelMarkerSelected) }
+    protected val modelMarker by lazy { MarkerModel(drawableMarkerA) }
+    protected val modelMarkerSelected by lazy { MarkerModel(drawableMarkerSelectedA) }
 
     protected var showMarkers = true
     protected val zoomMarkerMin by lazy { 13 }
@@ -249,6 +286,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
                 mAzimutDegMovAvg += (1 - mAzimutDegMovAvgFactor) * azimutInDeg
 
                 locationMarker.setRotation(-mAzimutDegMovAvg.toFloat())
+                layerMarkerLocation.populate()
 
                 // only force a redraw of the map, when the change would be noticeable
                 if ((mAzimutDegMovAvg - mLastAzimutDeg).absoluteValue < mDeltaAzimutDegNoticeable) {
@@ -316,8 +354,6 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
     private fun initVariables() {
         updateMarkerZoomConstants()
 
-        //locationMarker.icon = locationMarkerDrawable
-
         if (shouldSearchForStations) {
             poiSelected?.let { addPOIMarker(it); selectPOI(it) }
             pullupStation.visibility = View.VISIBLE
@@ -343,29 +379,14 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
         checkMobileDataUsage()
     }
 
-    fun initMap() {
+    open fun initMap() {
         // Set tile source
         val tileSource = MapFileTileSource()
-        val mapFile = File(cacheDir, resources.getString(R.string.fileMapExtracted))
-        if (!mapFile.exists()) {
-            println("MADDIN101: extracting map")
-            val inputStream = resources.openRawResource(R.raw.fileMapRaw)
-            val outputStream = mapFile.outputStream()
-            val buffer = ByteArray(8192)
-            var read: Int
-            while (true) {
-                read = inputStream.read(buffer)
-                if (read < 0) { break }
-                outputStream.write(buffer, 0, read)
-            }
-            inputStream.close()
-            outputStream.flush()
-            outputStream.close()
-        }
+        val mapFile = unpackResourceIntoCache(R.raw.fileMapRaw, getString(R.string.fileMapExtracted))
         tileSource.setMapFileInputStream(mapFile.inputStream())
 
         // Assign tile source to map (has to be done before adding the theme)
-        val tileLayer = map.setBaseMap(tileSource)
+        tileLayer = map.setBaseMap(tileSource)
 
         // Set theme (has to be done before adding the layers)
         val theme = StreamRenderTheme(null, resources.openRawResource(R.raw.vtm_map_theme))
@@ -373,12 +394,28 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
 
         // Add map layers
         val layers = map.layers()
-        layers.add(BuildingLayer(map, tileLayer)) // 3D buildings
+        layers.add(ModelSetupLayer(map)) // Needed to reset the depth mask, so we can properly render the models at the correct position and blend them behind (obstructing) buildings of the 3d-buildings layer; if we remove this, the model will flicker because the VectorTileRenderer (i think?) randomly fills the entire depth buffer with 0.0, so nothing respecting the depth buffer will draw -> after tile layer, before all other (3d-)layers
+        layers.add(BuildingLayer(map, tileLayer, 15, ceil(zoomMax).toInt(), false, false)) // 3D buildings
         layers.add(LabelLayer(map, tileLayer)) // Labels
-        layers.add(layerMarkersShadow)
-        layers.add(layerMarkers)
-        layers.add(layerMarkerLocation)
+        layers.add(layerModels) // 3D Models and Markers
 
+        if (willMarkersBeVisible) { sublayerMarkers }
+        initCustomModels(sublayerModels)
+        if (willMarkersBeVisible) { sublayerMarkerSelected }
+
+        if (MapContractShowTrip.appliesToIntent(intent)) {
+            val paths = GroupLayer(map)
+            MapContractShowTrip.parseIntent(intent)?.connections?.forEach {
+                val path = it.estimatedPath
+                if (path.isEmpty()) { return@forEach }
+                val pathLayer = PathLayer(map, LineStyle(org.oscim.backend.canvas.Color.RED, 5f, Paint.Cap.ROUND))
+                paths.layers.add(pathLayer)
+                pathLayer.addPoints(path.map { p -> GeoPoint(p.lat, p.lon) })
+            }
+            if (paths.layers.isNotEmpty()) {
+                layers.add(paths)
+            }
+        }
 
         // Set map limits and initial values
         map.mapPosition = MapPosition(latStart, lonStart, 1.0).setZoom(zoomStart)
@@ -390,6 +427,10 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
         controller.maxTilt = 60f
 
         map.events.bind(this)
+    }
+
+    open fun initCustomModels(layer: ModelSubLayer) {
+
     }
 
     private fun initHandlers() {
@@ -516,12 +557,14 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
 
     override fun onResume() {
         super.onResume()
+        mapView.onResume()
         updateLocation(force=false, goto=false)
     }
 
     private var updateMapScaleAddConstant = 0.0001
     private fun updateMapWorkaround() {
         // map.updateMap(true) does not work reliably, so we slightly change the position/scale of the map to force a redraw
+        if (map.animator().isActive)  { return } // skip workaround during an animation as (1) -> it already updates due to the animation so no need to update manually and (2) -> it would interrupt the running animation
         map.mapPosition = MapPosition().also { it.copy(map.mapPosition) }.also { it.scale += updateMapScaleAddConstant }
         updateMapScaleAddConstant *= -1
     }
@@ -538,11 +581,12 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
         zoomLastUpdateMarkers = zoomLevel
         scaleLastUpdateMarkers = scale
 
-        drawableMarker.setScale(scale)
+        /*drawableMarker.setScale(scale)
         drawableMarkerSelected.setScale(scale)
         drawableMarkerShadow.setScale(scale)
         locationMarkerDrawable.setScale(scale)
-        locationMarkerDrawableDirected.setScale(scale)
+        locationMarkerDrawableDirected.setScale(scale)*/
+        modelMarker.scale = scale // TODO(LAY): reenable
     }
 
     private fun getMarkerZoomValue(x: Double) : Double {
@@ -586,7 +630,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
 
         if (!checkIfForeground.block(0)) { return }
 
-        runOnUiThread {
+        runOnUiThread { // TODO(LAG): reenable
             pois.forEach(::addPOIMarker)
             map.updateMap()
         }
@@ -604,14 +648,20 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
 
     fun addPOIMarker(poi: POI) {
         val locMarker = (poi.location as? LocationLatLon)?.let { GeoPoint(it.lat, it.lon) } ?: return // has no location, cannot be displayed in map
-        if (layerMarkers.itemList.find { ((it as? MarkerItem)?.uid as? POI).sameAs(poi) } != null) { return } // already exists within the map, dont add a second time
+        //if (layerModels.models.find { (it.uid as? POI).sameAs(poi) } != null) { return } // already exists within the map, dont add a second time
+        if (sublayerMarkers.instances.find { (it.data.uid as? POI).sameAs(poi) } != null) { return }
+        if (sublayerMarkerSelected.instances.find { (it.data.uid as? POI).sameAs(poi) } != null) { return }
 
-        val marker = MarkerItem(poi, null, null, locMarker)
-        if (poi.sameAs(poiSelected)) { marker.marker = symbolMarkerSelected }
-        layerMarkers.addItem(marker)
+        //val marker = MarkerItem(poi, null, null, locMarker)
+        //if (poi.sameAs(poiSelected)) { marker.marker = symbolMarkerSelected }
+        //layerMarkers.addItem(marker)
+        //layerModels.addModel(modelMarker.newInstance(locMarker, 1.0, 1.0))
+        //layerModels.addModel(modelMarker.newInstance(poi, locMarker, 1.0, 1.0)) TODO(LAY): reenable
+        val instance = sublayerMarkers.createInstance(InstanceData(poi, locMarker))
+        if (poi.sameAs(poiSelected)) { instance.moveToLayer(sublayerMarkerSelected) }
 
-        val shadowMarker = MarkerItem(null, null, locMarker)
-        layerMarkersShadow.addItem(shadowMarker)
+        //val shadowMarker = MarkerItem(null, null, locMarker)
+        //layerMarkersShadow.addItem(shadowMarker)
     }
 
     private fun getStartLatitude() : Double {
@@ -721,14 +771,15 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
 
         locationMarker.geoPoint = GeoPoint(location.latitude, location.longitude) // TODO: animate
         layerMarkerLocation.isEnabled = true
+        layerMarkerLocation.populate()
         updateMarkerAlphas()
-        mapView.invalidate()
+        map.updateMap(true)
     }
 
     private fun onLocationChanged(location: Location?, goto: Boolean) {
         if (location == null) {
             locationLast = null
-            layerMarkerLocation.isEnabled = false
+            //layerMarkerLocation.isEnabled = false
             map.updateMap()
             return
         }
@@ -739,7 +790,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
     private fun gotoLocation(location: Location?) {
         if (location == null) { return }
         val position = MapPosition(location.latitude, location.longitude, map.mapPosition.scale)
-        if (!map.getBoundingBox(0).contains(position.geoPoint)) {
+        if (!map.viewport().mapLimit.contains(position.geoPoint)) {
             mCurrentToast?.cancel()
             mCurrentToast = Toast.makeText(this, R.string.mapOutsidePermittedArea, Toast.LENGTH_SHORT)
             mCurrentToast?.show()
@@ -797,7 +848,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
         val extremeAlpha = markersAlpha == 255 || markersAlpha == 0
         if (insignificantChange && !extremeAlpha) { return }
 
-        drawableMarker.alpha = markersAlpha
+        modelMarker.alpha = markersAlpha / 255.0
         //if (markersAlpha < 5 || markersAlphaT < 5) { updateMarkerVisibilities(getMarkerVisibilitiesBoundingBox()) }
         if (significantChange || extremeAlpha) {
             updateMapWorkaround()
@@ -856,6 +907,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
 
     override fun onPause() {
         mCurrentDialog?.dismiss()
+        mapView.onPause()
         super.onPause()
     }
 

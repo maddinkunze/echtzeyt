@@ -148,11 +148,11 @@ fun Resources.getShadowColors(@ArrayRes colorsRes: Int, @ArrayRes stopsRes: Int)
 // retrieveExplicitStyle() which would call theme.getExplicitStyle(), resulting in a NPE
 // by not passing the attributeset onto the view (but instead null) we can circumvent this behaviour
 // https://medium.com/@debuggingisfun/retrieveexplicitstyle-android-10-crash-cef9bced1d01
-private val workaroundSetAttrsNull = BuildConfig.DEBUG && Build.VERSION.SDK_INT >= 21
+private val workaroundSetAttrsNull = BuildConfig.DEBUG // && Build.VERSION.SDK_INT >= 21
 
 @Suppress("unused")
 class DropShadow : View {
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    //@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : super(context, if (workaroundSetAttrsNull) null else attrs, defStyleAttr, defStyleRes) {
         getAttributes(attrs, defStyleAttr, defStyleRes)
     }

@@ -2,7 +2,6 @@ package com.maddin.echtzeyt.fragments.echtzeyt
 
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
@@ -11,6 +10,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
 import com.maddin.echtzeyt.ECHTZEYT_CONFIGURATION
 import com.maddin.echtzeyt.R
+import com.maddin.echtzeyt.activities.MapContractShowTrip
 import com.maddin.echtzeyt.activities.MapResultContractSelectPOI
 import com.maddin.echtzeyt.components.AnimatableImageButton
 import com.maddin.echtzeyt.components.DepartureDropdown
@@ -32,7 +32,6 @@ import com.maddin.transportapi.components.Connection
 import com.maddin.transportapi.components.POI
 import com.maddin.transportapi.components.Station
 import com.maddin.transportapi.components.Trip
-import com.maddin.transportapi.endpoints.RealtimeAPI
 import com.maddin.transportapi.endpoints.TripSearchAPI
 import com.maddin.transportapi.endpoints.TripSearchRequestImpl
 import kotlin.concurrent.thread
@@ -54,7 +53,8 @@ class TripsFragment : EchtzeytPullupFragment(R.layout.fragment_trips),
     private val layoutsFilter by lazy { listOf(layoutDeparture) }
 
     // Everything related to other activities (such as the settings or a station selection map)
-    private val activityMapLauncher by lazy { registerForActivityResult(MapResultContractSelectPOI()) { if (it == null) { return@registerForActivityResult }; mEdtInvokedMap?.currentPOI = it } }
+    private val activityMapLauncherStation by lazy { registerForActivityResult(MapResultContractSelectPOI()) { if (it == null) { return@registerForActivityResult }; mEdtInvokedMap?.currentPOI = it; updateTrips() } }
+    private val activityMapLauncherTrip by lazy { registerForActivityResult(MapContractShowTrip()) {} }
 
     val pullupTrip: TripPullup by LazyPullup(R.id.ft_pullupTrip, this)
     val pullupStation: StationPullup by LazyPullup(R.id.ft_pullupStation, this)
@@ -72,15 +72,16 @@ class TripsFragment : EchtzeytPullupFragment(R.layout.fragment_trips),
     }
 
     private fun initVariables() {
-        if (ECHTZEYT_CONFIGURATION.mapsSupportLocateStations) { activityMapLauncher }
+        if (ECHTZEYT_CONFIGURATION.mapsSupportLocateStations) { activityMapLauncherStation }
+        if (ECHTZEYT_CONFIGURATION.mapsSupportShowTrip) { activityMapLauncherTrip }
         mEdtSearchFrom.searchStationAPI = ECHTZEYT_CONFIGURATION.tripsStationAPI!!
         mEdtSearchTo.searchStationAPI = ECHTZEYT_CONFIGURATION.tripsStationAPI!!
 
         addStationSearchIfNeeded(false)
 
         // TODO: remove after testing
-        mEdtSearchFrom.setText("Reichsstr")
-        mEdtSearchTo.setText("Hauptbahnhof")
+        //mEdtSearchFrom.setText("Reichsstr")
+        //mEdtSearchTo.setText("Hauptbahnhof")
     }
 
     private fun initListeners() {
@@ -179,7 +180,7 @@ class TripsFragment : EchtzeytPullupFragment(R.layout.fragment_trips),
         if (ECHTZEYT_CONFIGURATION.mapsSupportLocateStations) {
             btnMap.setOnClickListener {
                 mEdtInvokedMap = edtSearch
-                activityMapLauncher.launch(edtSearch.currentPOI)
+                activityMapLauncherStation.launch(edtSearch.currentPOI)
             }
         }
         edtSearch.onItemSelectedListeners.add { shouldUpdateTrips = true }
@@ -301,6 +302,7 @@ class TripsFragment : EchtzeytPullupFragment(R.layout.fragment_trips),
     }
 
     override fun showTripPullup(trip: Trip, connection: Connection?) {
+        pullupTrip.setMapLauncher(activityMapLauncherTrip)
         pullupTrip.setTrip(trip, connection, true)
     }
 

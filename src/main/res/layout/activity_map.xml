@@ -34,12 +34,15 @@
         android:paddingBottom="@dimen/map_copyright_padding_y"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" >
+
         <TextView
             android:id="@+id/txtMapCopyright"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/mapCopyright"
             android:textColor="@color/foregroundText"
+            android:textColorHighlight="@color/foregroundText"
+            android:textColorLink="@color/foregroundText"
             android:textSize="@dimen/map_copyright_text_size" />
     </LinearLayout>
 

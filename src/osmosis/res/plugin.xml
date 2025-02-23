@@ -1,0 +1,19 @@
+<?xml version="1.0" ?><!DOCTYPE plugin PUBLIC "-//JPF//Java Plug-in Manifest 1.0"
+    "http://jpf.sourceforge.net/plugin_1_0.dtd">
+<plugin id="com.maddin.mapcomplete" version="0.1.0">
+
+    <requires>
+        <import plugin-id="org.openstreetmap.osmosis.core.plugin.Core" reverse-lookup="false" />
+    </requires>
+
+    <runtime>
+        <library id="mycode" path="/" type="code" />
+    </runtime>
+
+    <extension id="com.maddin.MapComplete"
+        plugin-id="org.openstreetmap.osmosis.core.plugin.Core" point-id="Task">
+        <parameter id="name" value="mapcomplete" />
+        <parameter id="class" value="com.maddin.mapcomplete.MapCompletePluginLoader" />
+    </extension>
+
+</plugin>

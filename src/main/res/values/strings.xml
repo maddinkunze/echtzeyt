@@ -171,6 +171,6 @@
     <string name="_libraryEchtzeytVersion" translatable="false" />
 
     <string name="urlMapDownload" translatable="false">https://lol</string>
-    <item name="fileMapRaw" type="raw">@raw/chemnitz</item>
-    <string name="fileMapExtracted" translatable="false">extracted.map</string>
+    <item name="fileMapRaw" type="raw" />
+    <string name="fileMapExtracted" translatable="false" />
 </resources>

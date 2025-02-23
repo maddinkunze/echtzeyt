@@ -4,9 +4,11 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.util.TypedValueCompat
@@ -43,7 +45,10 @@ class TripPullup : PullupScrollView {
 
     private val txtStationFrom: TextView by LazyView(R.id.put_txtStationFrom)
     private val txtStationTo: TextView by LazyView(R.id.put_txtStationTo)
+    private val btnShowOnMap: ImageButton by LazyView(R.id.put_btnShowOnMap)
     private val layoutConnections: LinearLayout by LazyView(R.id.put_layoutConnections)
+
+    private var activityMapLauncher: ActivityResultLauncher<Trip?>? = null
 
     fun setTrip(trip: Trip, connectionS: Connection?=null, showPullup: Boolean=true) {
         txtStationFrom.text = trip.from.poi.name
@@ -63,6 +68,14 @@ class TripPullup : PullupScrollView {
             if (!isVisible()) { showPullup() }
         }
         connView?.post {  }
+
+        btnShowOnMap.setOnClickListener {
+            activityMapLauncher?.launch(trip)
+        }
+    }
+
+    fun setMapLauncher(launcher: ActivityResultLauncher<Trip?>?) {
+        activityMapLauncher = launcher
     }
 }
 
