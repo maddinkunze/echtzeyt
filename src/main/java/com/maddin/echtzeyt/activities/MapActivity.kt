@@ -46,15 +46,16 @@ import com.maddin.echtzeyt.components.StationPullup
 import com.maddin.echtzeyt.components.createShadowBitmap
 import com.maddin.echtzeyt.components.getShadowColors
 import com.maddin.echtzeyt.randomcode.ActivityResultSerializable
+import com.maddin.echtzeyt.randomcode.BaseInstanceData
 import com.maddin.echtzeyt.randomcode.DrawableBitmap
-import com.maddin.echtzeyt.randomcode.DynamicBitmap
 import com.maddin.echtzeyt.randomcode.InstanceData
 import com.maddin.echtzeyt.randomcode.LazyMutable
 import com.maddin.echtzeyt.randomcode.LazyView
 import com.maddin.echtzeyt.randomcode.MarkerModel
+import com.maddin.echtzeyt.randomcode.ModelInstanceLayer
 import com.maddin.echtzeyt.randomcode.ModelLayer
-import com.maddin.echtzeyt.randomcode.ModelSubLayer
 import com.maddin.echtzeyt.randomcode.ModelSetupLayer
+import com.maddin.echtzeyt.randomcode.OnModelClickListener
 import com.maddin.echtzeyt.randomcode.unpackResourceIntoCache
 import com.maddin.transportapi.components.LocationAreaRect
 import com.maddin.transportapi.components.LocationLatLon
@@ -72,7 +73,6 @@ import org.oscim.event.Event
 import org.oscim.layers.GroupLayer
 import org.oscim.layers.PathLayer
 import org.oscim.layers.marker.ItemizedLayer
-import org.oscim.layers.marker.MarkerInterface
 import org.oscim.layers.marker.MarkerItem
 import org.oscim.layers.marker.MarkerSymbol
 import org.oscim.layers.tile.buildings.BuildingLayer
@@ -133,7 +133,7 @@ class MapContractShowTrip :  ActivityResultSerializable<Trip, Nothing>(ECHTZEYT_
 }
 
 @Suppress("MemberVisibilityCanBePrivate")
-open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateListener, ItemizedLayer.OnItemGestureListener<MarkerInterface> {
+open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateListener, OnModelClickListener {
     private val mapView: MapView by LazyView(R.id.mapView)
     private val txtCopyright: TextView by LazyView(R.id.txtMapCopyright)
     private val btnBack: FloatingButton by LazyView(R.id.btnMapBack)
@@ -156,16 +156,12 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
     private val willMarkersBeVisible by lazy { MapResultContractSelectPOI.appliesToIntent(intent) }
     private val stationMarkerWidth by lazy { resources.getDimensionPixelSize(R.dimen.stationmarker_width) }
     private val stationMarkerHeight by lazy { resources.getDimensionPixelSize(R.dimen.stationmarker_height) }
-    private val drawableMarkerA by lazy { VectorDrawableCompat.create(resources, R.drawable.stationmark, theme)!! }
-    private val drawableMarker by lazy { DrawableBitmap(VectorDrawableCompat.create(resources, R.drawable.stationmark, null)!!, stationMarkerWidth, stationMarkerHeight) }
-    private val drawableMarkerSelectedA by lazy { VectorDrawableCompat.create(resources, R.drawable.stationmark_selected, theme)!! }
-    private val drawableMarkerSelected by lazy { DrawableBitmap(VectorDrawableCompat.create(resources, R.drawable.stationmark_selected, null)!!, stationMarkerWidth, stationMarkerHeight) }
-    private val symbolMarker by lazy { MarkerSymbol(drawableMarker, MarkerSymbol.HotspotPlace.BOTTOM_CENTER) }
-    private val symbolMarkerSelected by lazy { MarkerSymbol(drawableMarkerSelected, MarkerSymbol.HotspotPlace.BOTTOM_CENTER) }
+    private val drawableMarker by lazy { VectorDrawableCompat.create(resources, R.drawable.stationmark, theme)!! }
+    private val drawableMarkerSelected by lazy { VectorDrawableCompat.create(resources, R.drawable.stationmark_selected, theme)!! }
     protected val drawableMarkerShadow by lazy {
-        val w = resources.getDimensionPixelSize(R.dimen.stationmarker_width)
+        val w = stationMarkerWidth
         val ha = resources.getDimensionPixelSize(R.dimen.stationmarker_arrow_size)
-        val h = resources.getDimensionPixelSize(R.dimen.stationmarker_height) - ha
+        val h = stationMarkerHeight - ha
         val r = resources.getDimensionPixelSize(R.dimen.stationmarker_radius)
         val ss = resources.getDimensionPixelSize(R.dimen.stationmarker_shadow_size)
         val bitmapShadow = createShadowBitmap(w, h, r, ss, resources.getShadowColors(R.array.shadowColors, R.array.shadowStops))
@@ -173,17 +169,16 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
         bitmapShadowS.applyCanvas { drawBitmap(bitmapShadow, 0f, 0f, null) }// currently, the shadow will be aligned on the bottom, and therefore it will may clipped at the bottom
         // if someone wants a shadow that is larger than sm_arrow_size, it may look weird
         // TODO: to fix this, the anchor could be recalculated if the drawable exceeds the "lower limit"
-        DynamicBitmap(bitmapShadowS)
+        bitmapShadowS
     }
-    protected val layerMarkers by lazy { ItemizedLayer(map, mutableListOf(), symbolMarker, this) }
-    protected val layerMarkersShadow by lazy { ItemizedLayer(map, MarkerSymbol(drawableMarkerShadow, MarkerSymbol.HotspotPlace.BOTTOM_CENTER)) }
 
+    protected val modelMarker by lazy { MarkerModel(drawableMarker) }
+    protected val modelMarkerSelected by lazy { MarkerModel(drawableMarkerSelected) }
+    protected val modelMarkerShadow by lazy { MarkerModel(drawableMarkerShadow) }
+    protected val layerMarkerShadows by lazy { ModelInstanceLayer(map, modelMarkerShadow) }
+    protected val layerMarkers by lazy { ModelInstanceLayer(map, modelMarker).also { it.onClickListener = this } }
     protected val layerModels by lazy { ModelLayer(map) }
-    protected val sublayerMarkers by lazy { layerModels.createInstanceSubLayer(modelMarker) }
-    protected val sublayerModels by lazy { layerModels.createModelSubLayer() }
-    protected val sublayerMarkerSelected by lazy { layerModels.createInstanceSubLayer(modelMarkerSelected) }
-    protected val modelMarker by lazy { MarkerModel(drawableMarkerA) }
-    protected val modelMarkerSelected by lazy { MarkerModel(drawableMarkerSelectedA) }
+    protected val layerMarkerSelected by lazy { ModelInstanceLayer(map, modelMarkerSelected) }
 
     protected var showMarkers = true
     protected val zoomMarkerMin by lazy { 13 }
@@ -397,11 +392,14 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
         layers.add(ModelSetupLayer(map)) // Needed to reset the depth mask, so we can properly render the models at the correct position and blend them behind (obstructing) buildings of the 3d-buildings layer; if we remove this, the model will flicker because the VectorTileRenderer (i think?) randomly fills the entire depth buffer with 0.0, so nothing respecting the depth buffer will draw -> after tile layer, before all other (3d-)layers
         layers.add(BuildingLayer(map, tileLayer, 15, ceil(zoomMax).toInt(), false, false)) // 3D buildings
         layers.add(LabelLayer(map, tileLayer)) // Labels
-        layers.add(layerModels) // 3D Models and Markers
 
-        if (willMarkersBeVisible) { sublayerMarkers }
-        initCustomModels(sublayerModels)
-        if (willMarkersBeVisible) { sublayerMarkerSelected }
+        if (willMarkersBeVisible) { layers.add(layerMarkerShadows) } // Marker Shadows
+        if (willMarkersBeVisible) { layers.add(layerMarkers) } // Markers
+
+        layers.add(layerModels) // 3D Models and Markers
+        initCustomModels(layerModels)
+
+        if (willMarkersBeVisible) { layers.add(layerMarkerSelected) } // Selected Markers (should only be 1)
 
         if (MapContractShowTrip.appliesToIntent(intent)) {
             val paths = GroupLayer(map)
@@ -429,7 +427,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
         map.events.bind(this)
     }
 
-    open fun initCustomModels(layer: ModelSubLayer) {
+    open fun initCustomModels(layer: ModelLayer) {
 
     }
 
@@ -581,12 +579,11 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
         zoomLastUpdateMarkers = zoomLevel
         scaleLastUpdateMarkers = scale
 
-        /*drawableMarker.setScale(scale)
-        drawableMarkerSelected.setScale(scale)
-        drawableMarkerShadow.setScale(scale)
-        locationMarkerDrawable.setScale(scale)
+        /*locationMarkerDrawable.setScale(scale)
         locationMarkerDrawableDirected.setScale(scale)*/
-        modelMarker.scale = scale // TODO(LAY): reenable
+        modelMarker.scale = scale
+        modelMarkerSelected.scale = scale
+        modelMarkerShadow.scale = scale
     }
 
     private fun getMarkerZoomValue(x: Double) : Double {
@@ -630,38 +627,41 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
 
         if (!checkIfForeground.block(0)) { return }
 
-        runOnUiThread { // TODO(LAG): reenable
-            pois.forEach(::addPOIMarker)
-            map.updateMap()
-        }
+        pois.forEach(::addPOIMarker)
+        map.updateMap()
     }
 
     fun selectPOI(poi: POI) {
         poiSelected = poi
         pullupStation.setPOI(poi, true)
-        for (marker in layerMarkers.itemList) {
-            if (marker !is MarkerItem) { continue }
-            marker.marker = if (poi.sameAs(marker.uid)) { symbolMarkerSelected } else { symbolMarker }
+
+        synchronized(layerMarkerSelected.instanceSync) {
+            if (layerMarkerSelected.instances.size == 1 && layerMarkerSelected.instances.find { poi.sameAs(it.data.uid) } != null) { return }
+            layerMarkerSelected.instances.forEach {
+                it.moveToLayer(layerMarkers)
+            }
+        }
+
+        synchronized(layerMarkers) {
+            layerMarkers.instances.find { poi.sameAs(it.data.uid) }?.moveToLayer(layerMarkerSelected)
         }
         map.updateMap()
     }
 
     fun addPOIMarker(poi: POI) {
         val locMarker = (poi.location as? LocationLatLon)?.let { GeoPoint(it.lat, it.lon) } ?: return // has no location, cannot be displayed in map
-        //if (layerModels.models.find { (it.uid as? POI).sameAs(poi) } != null) { return } // already exists within the map, dont add a second time
-        if (sublayerMarkers.instances.find { (it.data.uid as? POI).sameAs(poi) } != null) { return }
-        if (sublayerMarkerSelected.instances.find { (it.data.uid as? POI).sameAs(poi) } != null) { return }
 
-        //val marker = MarkerItem(poi, null, null, locMarker)
-        //if (poi.sameAs(poiSelected)) { marker.marker = symbolMarkerSelected }
-        //layerMarkers.addItem(marker)
-        //layerModels.addModel(modelMarker.newInstance(locMarker, 1.0, 1.0))
-        //layerModels.addModel(modelMarker.newInstance(poi, locMarker, 1.0, 1.0)) TODO(LAY): reenable
-        val instance = sublayerMarkers.createInstance(InstanceData(poi, locMarker))
-        if (poi.sameAs(poiSelected)) { instance.moveToLayer(sublayerMarkerSelected) }
+        synchronized(layerMarkers.instanceSync) {
+            if (layerMarkers.instances.find { (it.data.uid as? POI).sameAs(poi) } != null) { return }
+        }
+        synchronized(layerMarkerSelected.instanceSync) {
+            if (layerMarkerSelected.instances.find { (it.data.uid as? POI).sameAs(poi) } != null) { return }
+        }
 
-        //val shadowMarker = MarkerItem(null, null, locMarker)
-        //layerMarkersShadow.addItem(shadowMarker)
+        val instanceData = InstanceData(poi, locMarker)
+        val instance = layerMarkers.createInstance(instanceData)
+        if (poi.sameAs(poiSelected)) { instance.moveToLayer(layerMarkerSelected) }
+        layerMarkerShadows.createInstance(instanceData.createShadowData())
     }
 
     private fun getStartLatitude() : Double {
@@ -821,35 +821,34 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
     private fun updateMarkerAlphas() {
         if (!willMarkersBeVisible) { return }
         val zoom = map.mapPosition.zoom
-        drawableMarkerShadow.alpha = when {
-            !showMarkers -> 0
-            zoom > zoomShadowMax -> 255
-            zoom > zoomShadowMin -> (255 * ((zoom - zoomShadowMin) / (zoomShadowMax - zoomShadowMin))).toInt()
-            else -> 0
+        modelMarkerShadow.alpha = when {
+            !showMarkers -> 0.0
+            zoom > zoomShadowMax -> 1.0
+            zoom > zoomShadowMin -> (zoom - zoomShadowMin) / (zoomShadowMax - zoomShadowMin)
+            else -> 0.0
         }
 
         val markerSelectedAlpha = when {
-            showMarkers -> 255
-            else -> 0
+            showMarkers -> 1.0
+            else -> 0.0
         }
-        drawableMarkerSelected.alpha = markerSelectedAlpha
+        modelMarkerSelected.alpha = markerSelectedAlpha
 
-        val markersAlphaT = drawableMarker.alpha
+        val markersAlphaT = modelMarker.alpha
         val markersAlpha = when {
-            !showMarkers -> 0
-            zoom > zoomMarkerMax -> 255
-            zoom > zoomMarkerMin -> (255 * ((zoom - zoomMarkerMin) / (zoomMarkerMax - zoomMarkerMin))).roundToInt()
-            else -> 0
+            !showMarkers -> 0.0
+            zoom > zoomMarkerMax -> 1.0
+            zoom > zoomMarkerMin -> ((zoom - zoomMarkerMin) / (zoomMarkerMax - zoomMarkerMin))
+            else -> 0.0
         }
         if (markersAlpha == markersAlphaT) { return }
 
-        val significantChange = (markersAlpha - markersAlphaT).absoluteValue > 15
-        val insignificantChange = (markersAlpha - markersAlphaT).absoluteValue <= 5
-        val extremeAlpha = markersAlpha == 255 || markersAlpha == 0
+        val significantChange = (markersAlpha - markersAlphaT).absoluteValue > 0.05
+        val insignificantChange = (markersAlpha - markersAlphaT).absoluteValue <= 0.02
+        val extremeAlpha = markersAlpha >= 0.999 || markersAlpha < 0.001
         if (insignificantChange && !extremeAlpha) { return }
 
-        modelMarker.alpha = markersAlpha / 255.0
-        //if (markersAlpha < 5 || markersAlphaT < 5) { updateMarkerVisibilities(getMarkerVisibilitiesBoundingBox()) }
+        modelMarker.alpha = markersAlpha
         if (significantChange || extremeAlpha) {
             updateMapWorkaround()
         }
@@ -857,7 +856,9 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
 
     private fun closePullup() {
         poiSelected = null
-        layerMarkers.itemList.forEach { (it as? MarkerItem)?.marker = symbolMarker }
+        synchronized(layerMarkerSelected.instanceSync) {
+            layerMarkerSelected.instances.forEach { it.moveToLayer(layerMarkers) }
+        }
         map.updateMap()
     }
 
@@ -917,11 +918,8 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
     }
 
     // On station marker pressed
-    override fun onItemSingleTapUp(p0: Int, p1: MarkerInterface?): Boolean {
-        ((p1 as? MarkerItem)?.uid as? POI)?.let { selectPOI(it) } ?: return false
+    override fun onModelClicked(instance: BaseInstanceData): Boolean {
+        (instance.uid as? POI)?.let { selectPOI(it) } ?: return false
         return true
     }
-
-    // On marker long-pressed
-    override fun onItemLongPress(p0: Int, p1: MarkerInterface?) = false
 }

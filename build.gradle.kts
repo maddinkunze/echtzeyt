@@ -227,11 +227,11 @@ dependencies {
     implementation("androidx.multidex:multidex:2.0.1")
     implementation("androidx.startup:startup-runtime:1.2.0")
 
-    api("org.mapsforge:vtm-android:0.22.0")
-    runtimeOnly("org.mapsforge:vtm-android:0.22.0:natives-armeabi-v7a")
-    runtimeOnly("org.mapsforge:vtm-android:0.22.0:natives-arm64-v8a")
-    runtimeOnly("org.mapsforge:vtm-android:0.22.0:natives-x86")
-    runtimeOnly("org.mapsforge:vtm-android:0.22.0:natives-x86_64")
+    api("org.mapsforge:vtm-android:0.23.0")
+    runtimeOnly("org.mapsforge:vtm-android:0.23.0:natives-armeabi-v7a")
+    runtimeOnly("org.mapsforge:vtm-android:0.23.0:natives-arm64-v8a")
+    runtimeOnly("org.mapsforge:vtm-android:0.23.0:natives-x86")
+    runtimeOnly("org.mapsforge:vtm-android:0.23.0:natives-x86_64")
 
     api(project(path=":transportapi"))
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
