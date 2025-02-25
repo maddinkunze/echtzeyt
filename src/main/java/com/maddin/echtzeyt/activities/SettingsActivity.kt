@@ -41,18 +41,21 @@ open class SettingsActivity : EchtzeytForegroundActivity(), ActivityViewpagerScr
     }
 
     private val spaceNavbar: View by LazyView(R.id.fillerNavbar)
+    private val spaceNavbarBI: View by LazyView(R.id.fillerNavbarBuildInfo)
     override fun updateWindowNavigationInsets() {
-        val navHeight = getNavigationHeight()
-        val gestHeight = getGesturesHeight()
+        val navHeight = navigationHeight
+        val gestHeight = gesturesHeight
         val heights = listOf(navHeight, gestHeight).filter { it != 0 }
         if (heights.isEmpty()) { return }
-        spaceNavbar.updateLayoutParams { height = heights.min() }
-        BuildConfig.LIBRARY_PACKAGE_NAME
+        spaceNavbarBI.updateLayoutParams { height = heights.min() }
+        println("MADDIN101: settings uses gestures $usesGestures")
+        if (usesGestures) { return }
+        spaceNavbar.updateLayoutParams { height = navHeight }
     }
 
     private val spaceStatus: View by LazyView(R.id.fillerStatus)
     override fun updateWindowStatusInsets() {
-        val statusHeight = getStatusBarHeight()
+        val statusHeight = statusBarHeight
         if (statusHeight <= 0) { return }
         spaceStatus.updateLayoutParams { height = statusHeight }
     }

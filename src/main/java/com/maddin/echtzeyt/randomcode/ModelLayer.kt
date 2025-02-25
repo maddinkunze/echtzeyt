@@ -65,6 +65,36 @@ interface OnModelClickListener {
     fun onModelClicked(instance: BaseInstanceData): Boolean
 }
 
+class InstanceRotation(angle: Double=0.0, x: Double=0.0, y: Double=0.0, z: Double=0.0) {
+    var angle = angle; set(value) { field = value; changed = true }
+    var x = x; set(value) { field = value; changed = true }
+    var y = y; set(value) { field = value; changed = true }
+    var z = z; set(value) { field = value; changed = true }
+    private var changed = true
+    private val matrix by lazy { GLMatrix() }
+    private val hasAngle get() = angle.absoluteValue > ZERO_THRESHOLD
+    private val hasAxis get() = x.absoluteValue > ZERO_THRESHOLD || y.absoluteValue > ZERO_THRESHOLD || z.absoluteValue > ZERO_THRESHOLD
+    val asMatrix: GLMatrix? get() {
+        if (!hasAngle) { return null }
+        if (!hasAxis) { return null }
+
+        if (changed) {
+            matrix.setRotation(angle.toFloat(), x.toFloat(), y.toFloat(), z.toFloat())
+        }
+        return matrix
+    }
+    internal fun applyToMatrix(matrix: GLMatrix) {
+        if (angle.absoluteValue < ZERO_THRESHOLD) { return }
+        if (x.absoluteValue < ZERO_THRESHOLD && y.absoluteValue < ZERO_THRESHOLD && z.absoluteValue < ZERO_THRESHOLD) {
+            return
+        }
+        matrix.setRotation(angle.toFloat(), x.toFloat(), y.toFloat(), z.toFloat())
+    }
+    companion object {
+        private const val ZERO_THRESHOLD = 0.00001;
+    }
+}
+
 abstract class BaseInstanceData {
     abstract val uid: Any?
     abstract val position: GeoPoint
@@ -74,11 +104,12 @@ abstract class BaseInstanceData {
     abstract val changed: Boolean
     abstract val alpha: Double
     abstract val scale: Double
+    abstract val rotation: InstanceRotation
     abstract val mercatorX: Double
     abstract val mercatorY: Double
 }
 
-class InstanceData (override var uid: Any?, position: GeoPoint, scale: Double=SCALE_DEFAULT, alpha: Double=ALPHA_DEFAULT) : BaseInstanceData() {
+class InstanceData (override var uid: Any?, position: GeoPoint, scale: Double=SCALE_DEFAULT, alpha: Double=ALPHA_DEFAULT, rotation: InstanceRotation=InstanceRotation()) : BaseInstanceData() {
     constructor(position: GeoPoint, scale: Double=SCALE_DEFAULT, alpha: Double=ALPHA_DEFAULT) : this(null, position, scale, alpha)
     internal var mChanged = true
     override val changed: Boolean get() {
@@ -101,6 +132,10 @@ class InstanceData (override var uid: Any?, position: GeoPoint, scale: Double=SC
         field = value
         mChanged = true
     }
+    override var rotation = rotation; set(value) {
+        field = value
+        mChanged = true
+    }
     override var mercatorX: Double = 0.0; private set
     override var mercatorY: Double = 0.0; private set
     init {
@@ -111,6 +146,7 @@ class InstanceData (override var uid: Any?, position: GeoPoint, scale: Double=SC
         mercatorY = MercatorProjection.latitudeToY(position.latitude)
     }
     fun createShadowData() = ShadowInstanceData(this)
+    fun setChanged() { mChanged = true }
     companion object {
         private const val ALPHA_DEFAULT = 1.0
         private const val SCALE_DEFAULT = 1.0
@@ -123,6 +159,7 @@ class ShadowInstanceData(val other: BaseInstanceData) : BaseInstanceData() {
     override val alpha: Double get() = other.alpha
     override val position: GeoPoint get() = other.position
     override val scale: Double get() = other.scale
+    override val rotation: InstanceRotation get() = other.rotation
     override val mercatorX: Double get() = other.mercatorX
     override val mercatorY: Double get() = other.mercatorY
 }
@@ -469,6 +506,7 @@ open class Base3DModel(faces: Iterable<Face>) : Model {
         val iy = (instance.mercatorY - viewport.pos.y) * sTileScale
 
         viewport.mvp.setTransScale(ix.toFloat(), iy.toFloat(), 1f)
+        instance.rotation.asMatrix?.let { viewport.mvp.multiplyRhs(it) }
         viewport.mvp.multiplyMM(viewport.viewproj, viewport.mvp)
         viewport.mvp.get(tempArray)
 

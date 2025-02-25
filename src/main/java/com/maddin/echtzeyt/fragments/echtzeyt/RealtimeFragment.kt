@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import com.maddin.echtzeyt.ECHTZEYT_CONFIGURATION
 import com.maddin.echtzeyt.R
@@ -471,5 +472,13 @@ class RealtimeFragment : EchtzeytPullupFragment(R.layout.fragment_realtime) {
 
     protected fun apiSupportsDifferentTimeThanNow(): Boolean {
         return transportRealtimeAPI.supportsRealtimeFeature(RealtimeAPI.FEATURE_REALTIME_FUTURE or RealtimeAPI.FEATURE_REALTIME_PAST)
+    }
+
+    private val connectionsBottomPadding: View by LazyView(R.id.realtime_bottomPaddingConnections)
+    private val connectionsBottomDefaultPadding by lazy { connectionsBottomPadding.layoutParams.height }
+    override fun updateWindowNavigationInsets() {
+        super.updateWindowNavigationInsets()
+        val newHeight = (connectionsBottomDefaultPadding - spaceNavbar.layoutParams.height).coerceAtLeast(0)
+        connectionsBottomPadding.updateLayoutParams { height = newHeight }
     }
 }

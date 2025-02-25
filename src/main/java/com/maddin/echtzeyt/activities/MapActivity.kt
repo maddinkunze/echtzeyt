@@ -451,8 +451,8 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
 
     private val spaceCutout: View by LazyView(R.id.fillerCutout)
     override fun updateWindowStatusInsets() {
-        val statusBarTop = getStatusBarHeight()
-        val cutoutTop = getNotchHeight()
+        val statusBarTop = statusBarHeight
+        val cutoutTop = notchHeight
         var safeTop = cutoutTop.coerceAtLeast(statusBarTop)
 
         if (safeTop <= 0) { return }
@@ -467,7 +467,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
 
     private val spaceNavbar: View by LazyView(R.id.fillerNavbar)
     override fun updateWindowNavigationInsets() {
-        val safeBottom = getNavigationHeight()
+        val safeBottom = navigationHeight
         if (safeBottom <= 0) { return }
         spaceNavbar.updateLayoutParams { height = safeBottom }
     }

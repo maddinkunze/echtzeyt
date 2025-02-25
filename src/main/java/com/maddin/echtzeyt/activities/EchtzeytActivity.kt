@@ -130,10 +130,11 @@ abstract class EchtzeytForegroundActivity: AppCompatActivity() {
     protected abstract fun updateWindowNavigationInsets()
     protected abstract fun updateWindowStatusInsets()
 
-    protected fun getNotchHeight() = ViewCompat.getRootWindowInsets(window.decorView)?.displayCutout?.safeInsetTop ?: 0
-    protected fun getStatusBarHeight() = ViewCompat.getRootWindowInsets(window.decorView)?.getInsets(WindowInsetsCompat.Type.statusBars())?.top ?: 0
-    protected fun getNavigationHeight() = ViewCompat.getRootWindowInsets(window.decorView)?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: 0
-    protected fun getGesturesHeight() = ViewCompat.getRootWindowInsets(window.decorView)?.getInsets(WindowInsetsCompat.Type.systemGestures())?.bottom ?: 0
+    protected val notchHeight get() = ViewCompat.getRootWindowInsets(window.decorView)?.displayCutout?.safeInsetTop ?: 0
+    protected val statusBarHeight get() = ViewCompat.getRootWindowInsets(window.decorView)?.getInsets(WindowInsetsCompat.Type.statusBars())?.top ?: 0
+    protected val navigationHeight get() = ViewCompat.getRootWindowInsets(window.decorView)?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: 0
+    protected val gesturesHeight get() = ViewCompat.getRootWindowInsets(window.decorView)?.getInsets(WindowInsetsCompat.Type.systemGestures())?.bottom ?: 0
+    protected val usesGestures get() = ViewCompat.getRootWindowInsets(window.decorView)?.getInsets(WindowInsetsCompat.Type.systemGestures())?.let { it.left > 0 || it.right > 0 } ?: false
 }
 
 
@@ -446,16 +447,15 @@ open class EchtzeytActivity : EchtzeytForegroundActivity(), ActivityViewpagerScr
 
     private val spaceNavbar: View by LazyView(R.id.fillerNavbar)
     override fun updateWindowNavigationInsets() {
-        val navHeight = getNavigationHeight()
-        val gestHeight = getGesturesHeight()
+        val navHeight = navigationHeight
         if (navHeight <= 0) { return }
-        if (gestHeight > 0) { return }
+        if (usesGestures) { return }
         spaceNavbar.updateLayoutParams { height = navHeight }
     }
 
     private val spaceStatus: View by LazyView(R.id.fillerStatus)
     override fun updateWindowStatusInsets() {
-        val statusHeight = getStatusBarHeight()
+        val statusHeight = statusBarHeight
         if (statusHeight <= 0) { return }
         spaceStatus.updateLayoutParams { height = statusHeight }
     }

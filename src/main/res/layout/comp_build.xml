@@ -48,7 +48,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@id/fillerNavbar"
+        app:layout_constraintBottom_toTopOf="@id/fillerNavbarBuildInfo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
@@ -88,5 +88,15 @@
             android:textSize="10sp"
             tools:ignore="SmallSp,TextContrastCheck" />
     </LinearLayout>
+
+
+    <View
+        android:id="@+id/fillerNavbarBuildInfo"
+        android:layout_width="match_parent"
+        android:layout_height="0.001px"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="PxUsage" />
 
 </merge>

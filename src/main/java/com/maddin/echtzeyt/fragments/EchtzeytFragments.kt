@@ -113,13 +113,15 @@ abstract class EchtzeytForegroundFragment: Fragment {
         updateWindowNavigationInsets()
     }
 
-    protected fun getNavbarHeight() = activity?.let { ViewCompat.getRootWindowInsets(it.window.decorView) }?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: 0
-    protected fun getGesturesHeight() = activity?.let { ViewCompat.getRootWindowInsets(it.window.decorView) }?.getInsets(WindowInsetsCompat.Type.systemGestures())?.bottom ?: 0
+    protected val navbarHeight get() = activity?.let { ViewCompat.getRootWindowInsets(it.window.decorView) }?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: 0
+    protected val gesturesHeight get() = activity?.let { ViewCompat.getRootWindowInsets(it.window.decorView) }?.getInsets(WindowInsetsCompat.Type.systemGestures())?.bottom ?: 0
+    protected val usesGestures get() = activity?.let { ViewCompat.getRootWindowInsets(it.window.decorView)?.getInsets(WindowInsetsCompat.Type.systemGestures())?.let { it.left > 0 || it.right > 0 } } ?: false
 
     protected abstract val spaceNavbar: View?
     protected open fun updateWindowNavigationInsets() {
-        val navHeight = getNavbarHeight()
-        val gestHeight = getGesturesHeight()
+        if (!usesGestures) { return }
+        val navHeight = navbarHeight
+        val gestHeight = gesturesHeight
         val heights = listOf(navHeight, gestHeight).filter { it != 0 }
         if (heights.isEmpty()) { return }
         spaceNavbar?.updateLayoutParams { height = heights.min() }
