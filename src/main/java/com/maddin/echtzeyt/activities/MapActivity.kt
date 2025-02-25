@@ -449,21 +449,10 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
         }
     }
 
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        updateWindowInsets()
-    }
-
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-        if (!hasFocus) { return }
-        updateWindowInsets()
-    }
-
     private val spaceCutout: View by LazyView(R.id.fillerCutout)
-    private fun updateWindowInsets() {
-        val statusBarTop = ViewCompat.getRootWindowInsets(window.decorView)?.getInsets(WindowInsetsCompat.Type.statusBars())?.top ?: 0
-        val cutoutTop = ViewCompat.getRootWindowInsets(window.decorView)?.displayCutout?.safeInsetTop ?: 0
+    override fun updateWindowStatusInsets() {
+        val statusBarTop = getStatusBarHeight()
+        val cutoutTop = getNotchHeight()
         var safeTop = cutoutTop.coerceAtLeast(statusBarTop)
 
         if (safeTop <= 0) { return }
@@ -474,6 +463,13 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
         if (safeTop <= 0) { return }
 
         spaceCutout.updateLayoutParams{ height = safeTop }
+    }
+
+    private val spaceNavbar: View by LazyView(R.id.fillerNavbar)
+    override fun updateWindowNavigationInsets() {
+        val safeBottom = getNavigationHeight()
+        if (safeBottom <= 0) { return }
+        spaceNavbar.updateLayoutParams { height = safeBottom }
     }
 
     private fun initResourceIntensiveHandlers() {

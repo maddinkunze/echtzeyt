@@ -12,6 +12,9 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
@@ -41,11 +44,7 @@ abstract class EchtzeytForegroundFragment: Fragment {
     protected val safeContext: Context  // should always return the last valid context (or at least any valid context); maintains a copy of the old context even after the fragment is destroyed
         get() { return context ?: mContext ?: safeView.context }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // TODO: fix this weird bug -> seems to be present in the fragment_realtime.xml and settings_fragment_realtime.xml files but no other
         return try { super.onCreateView(inflater, container, savedInstanceState) } catch(e: Throwable) { null }
     }
@@ -57,6 +56,8 @@ abstract class EchtzeytForegroundFragment: Fragment {
         onBackPressedCallback = activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner) {
             onBackPressed()
         }
+
+        updateWindowInsets()
     }
 
     override fun onAttach(context: Context) {
@@ -106,6 +107,22 @@ abstract class EchtzeytForegroundFragment: Fragment {
         (activity as? ActivityViewpagerScrollable)?.let {
             view.changeParentScrollListeners.add { enable -> if (enable) it.enableScroll() else it.disableScroll() }
         }
+    }
+
+    protected open fun updateWindowInsets() {
+        updateWindowNavigationInsets()
+    }
+
+    protected fun getNavbarHeight() = activity?.let { ViewCompat.getRootWindowInsets(it.window.decorView) }?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: 0
+    protected fun getGesturesHeight() = activity?.let { ViewCompat.getRootWindowInsets(it.window.decorView) }?.getInsets(WindowInsetsCompat.Type.systemGestures())?.bottom ?: 0
+
+    protected abstract val spaceNavbar: View?
+    protected open fun updateWindowNavigationInsets() {
+        val navHeight = getNavbarHeight()
+        val gestHeight = getGesturesHeight()
+        val heights = listOf(navHeight, gestHeight).filter { it != 0 }
+        if (heights.isEmpty()) { return }
+        spaceNavbar?.updateLayoutParams { height = heights.min() }
     }
 }
 

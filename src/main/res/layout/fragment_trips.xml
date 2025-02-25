@@ -114,7 +114,7 @@
         android:layout_marginLeft="@dimen/layout_padding"
         android:layout_marginRight="@dimen/layout_padding"
         android:layout_marginBottom="@dimen/layout_padding"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/fillerNavbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/trip_layoutParameters" />
@@ -139,5 +139,14 @@
         app:allowedModes="arrive|depart"
         app:layout_constraintStart_toStartOf="@+id/trip_layoutParameters"
         app:layout_constraintTop_toBottomOf="@+id/trip_layoutParameters" />
+
+    <View
+        android:id="@+id/fillerNavbar"
+        android:layout_width="match_parent"
+        android:layout_height="0.001px"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="PxUsage" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -354,9 +354,10 @@ open class Base3DModel(faces: Iterable<Face>) : Model {
             else -> return
         } ?: return
 
+        GLState.bindBuffer(GL.ARRAY_BUFFER, currentBufferToWrite)
+
         // Step 1: intialize buffer
         if (currentIndexToWrite < 0) {
-            GLState.bindBuffer(GL.ARRAY_BUFFER, currentBufferToWrite)
             val data = if (GLAdapter.NO_BUFFER_SUB_DATA) { bufferData } else { null } // immediately upload all data, if the driver does not support subData (i.e. adreno drivers)
             gl.bufferData(GL.ARRAY_BUFFER, numCoords * ModelUtils.BYTES_PER_FLOAT, data, GL.STATIC_DRAW)
             currentIndexToWrite = 0
@@ -367,7 +368,6 @@ open class Base3DModel(faces: Iterable<Face>) : Model {
         // Steps 2-...: Write incrementally to buffer
         val uploadSize = (numCoords - currentIndexToWrite).coerceAtMost(incrementalGlUploadSize)
 
-        GLState.bindBuffer(GL.ARRAY_BUFFER, currentBufferToWrite)
         gl.bufferSubData(GL.ARRAY_BUFFER, currentIndexToWrite * ModelUtils.BYTES_PER_FLOAT, uploadSize * ModelUtils.BYTES_PER_FLOAT, bufferData.slice(currentIndexToWrite, uploadSize))
 
         currentIndexToWrite += uploadSize
@@ -397,7 +397,6 @@ open class Base3DModel(faces: Iterable<Face>) : Model {
                 colorTris = null
                 colorTrisBuffer = null
                 isReady = true
-                println("MADDIN101: finished loading model into gl")
             }
         }
     }
@@ -419,14 +418,17 @@ open class Base3DModel(faces: Iterable<Face>) : Model {
         sWasDepthMaskEnabled = tempBuffer.also { gl.getIntegerv(GL.DEPTH_WRITEMASK, it) }[0] != 0
         gl.depthMask(true)
 
+        GLState.enableVertexArrays(0, 1) // enable two vertex arrays
+        gl.enableVertexAttribArray(2) // enable a third vertex array (not possible using GLState)
+
         GLState.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer)
         gl.vertexAttribPointer(locAttrPosition, COORDS_PER_VERTEX, GL.FLOAT, false, 0, 0)
 
-        GLState.bindBuffer(GL.ARRAY_BUFFER, normalBuffer)
-        gl.vertexAttribPointer(locAttrNormal, COORDS_PER_VERTEX, GL.FLOAT, false, 0, 0)
-
         GLState.bindBuffer(GL.ARRAY_BUFFER, colorBuffer)
         gl.vertexAttribPointer(locAttrColor, COORDS_PER_VERTEX, GL.FLOAT, false, 0, 0)
+
+        GLState.bindBuffer(GL.ARRAY_BUFFER, normalBuffer)
+        gl.vertexAttribPointer(locAttrNormal, COORDS_PER_VERTEX, GL.FLOAT, false, 0, 0)
     }
     override fun render(viewport: GLViewport, instance: BaseInstanceData) {
         val renderData = instance.renderData as? RenderData ?: return
@@ -440,6 +442,7 @@ open class Base3DModel(faces: Iterable<Face>) : Model {
 
     override fun finish(viewport: GLViewport) {
         gl.depthMask(sWasDepthMaskEnabled) // Reset depth mask value
+        gl.disableVertexAttribArray(2) // Disable third vertex array (see begin()) the other two will be enabled/disabled by GLState
     }
 
     private val visibilityState = ModelUtils.VisibilityState()
@@ -584,25 +587,31 @@ open class Base3DModel(faces: Iterable<Face>) : Model {
         private val SHADER_VERTEX = """
                 precision mediump float;
                 attribute vec3 a_position;
-                attribute vec3 a_normal;
                 attribute vec3 a_color;
+                attribute vec3 a_normal;
                 uniform mat4 u_mvp;
                 uniform float u_scale;
-                varying vec3 v_color;
+                varying vec3 v_color, v_normal;
                 
                 void main()  {
                     gl_Position = u_mvp * vec4(a_position * u_scale, 1.0);
-                    //gl_Normal = vec4(a_normal, 1.0);
                     v_color = a_color;
+                    v_normal = a_normal;
                 }
                 """.trimIndent()
         val SHADER_FRAGMENT = """
                 precision mediump float;
-                varying vec3 v_color;
+                varying vec3 v_color, v_normal;
+                const vec3 c_sun = normalize(vec3(0.3, -1.0, -0.8));
     
                 void main() {
-                    //gl_FragColor = vec4(1, 0, 0.5, 1);
-                    gl_FragColor = vec4(v_color, 1);
+                    //gl_FragColor = vec4(1.0, 0.0, 0.5, 1.0);
+                    float light = 1.0;
+                    float length = length(v_normal);
+                    if (length > 0.0) {
+                        light = max(0.0, 0.6*dot(v_normal, c_sun)) + 0.9;
+                    }
+                    gl_FragColor = vec4(light * v_color, 1.0);
                 }
                 """.trimIndent()
     }

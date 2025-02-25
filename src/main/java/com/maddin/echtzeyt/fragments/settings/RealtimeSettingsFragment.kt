@@ -8,8 +8,11 @@ import com.maddin.echtzeyt.R
 import com.maddin.echtzeyt.components.DescriptiveSeekbar
 import com.maddin.echtzeyt.components.DescriptiveSwitch
 import com.maddin.echtzeyt.components.LabeledDiscreteSeekBar
+import com.maddin.echtzeyt.randomcode.LazyView
 
 class RealtimeSettingsFragment : SettingsFragment(R.layout.fragment_settings_realtime) {
+    override val spaceNavbar: View? by LazyView(R.id.fillerNavbar)
+
     override lateinit var settings: Array<SettingsProperty>
     private lateinit var propUseIcons: BoolProperty
     private lateinit var propIconsSameWidth: BoolProperty

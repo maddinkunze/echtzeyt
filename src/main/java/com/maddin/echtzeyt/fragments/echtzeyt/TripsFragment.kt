@@ -47,6 +47,7 @@ class TripsFragment : EchtzeytPullupFragment(R.layout.fragment_trips),
     private val layoutDeparture: DepartureDropdown by LazyView(R.id.trip_layoutFilterDeparture)
     private val layoutSearches by lazy { mEdtSearchFrom.parent as ViewGroup }
     private val layoutTrips: TripsScrollView by LazyView(R.id.trip_trips)
+    override val spaceNavbar: View? by LazyView(R.id.fillerNavbar)
     private var mEdtInvokedMap: POISearchbar? = null
     private var mKeyboardVisible = false
 

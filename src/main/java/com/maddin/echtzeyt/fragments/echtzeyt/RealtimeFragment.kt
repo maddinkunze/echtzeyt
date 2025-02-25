@@ -55,6 +55,7 @@ class RealtimeFragment : EchtzeytPullupFragment(R.layout.fragment_realtime) {
     private val btnShowConnectionsNow: Button by LazyView(R.id.realtime_btnShowConnectionsNow)
     private val btnShowConnectionsTime: Button by LazyView(R.id.realtime_btnShowConnectionsFrom)
     private val pullupStation: StationPullup by LazyPullup(R.id.pullupStationInfo, this)
+    override val spaceNavbar: View by LazyView(R.id.fillerNavbar)
 
     private val layoutsFilter by lazy { listOf(layoutDeparture) }
 

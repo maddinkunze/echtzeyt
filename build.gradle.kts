@@ -195,10 +195,10 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        val versionName = "1.3.0"
         resValue("raw", "fileMapRaw", taskCompileMap.resFileOut)
         resValue("string", "fileMapExtracted", taskCompileMap.nameFileOut)
-        resValue("string", "_libraryEchtzeytVersion", "${defaultConfig.versionName}")
-        buildConfigField("String", "LIBRARY_VERSION_NAME", "\"${defaultConfig.versionName}\"")
+        resValue("string", "_libraryEchtzeytVersion", versionName)
     }
 
     buildFeatures {

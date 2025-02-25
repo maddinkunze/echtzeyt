@@ -10,9 +10,13 @@ import androidx.core.view.forEach
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import com.maddin.echtzeyt.R
+import com.maddin.echtzeyt.fragments.EchtzeytForegroundFragment
 import com.maddin.echtzeyt.fragments.NamedFragment
+import com.maddin.echtzeyt.randomcode.LazyView
 
-class AboutSettingsFragment : Fragment(R.layout.fragment_settings_about) {
+class AboutSettingsFragment : EchtzeytForegroundFragment(R.layout.fragment_settings_about) {
+    override val spaceNavbar: View? by LazyView(R.id.fillerNavbar)
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 

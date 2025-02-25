@@ -10,11 +10,11 @@
     <org.oscim.android.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:clickable="true"
         android:contentDescription="@string/appName"
         android:focusable="true"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/fillerNavbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -32,7 +32,7 @@
         android:paddingTop="@dimen/map_copyright_padding_y"
         android:paddingRight="@dimen/map_copyright_padding_x"
         android:paddingBottom="@dimen/map_copyright_padding_y"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/mapView"
         app:layout_constraintStart_toStartOf="parent" >
 
         <TextView
@@ -57,11 +57,20 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="PxUsage" />
 
+    <View
+        android:id="@+id/fillerNavbar"
+        android:layout_width="match_parent"
+        android:layout_height="0.001px"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:ignore="PxUsage" />
+
     <com.maddin.echtzeyt.components.StationPullup
         android:id="@+id/pullupStationInfo"
         style="@style/Theme.Echtzeyt.PullupScrollView"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/mapView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:minimumVisibleHeight="80dp"

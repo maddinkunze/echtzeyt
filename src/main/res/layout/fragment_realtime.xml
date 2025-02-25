@@ -158,7 +158,7 @@
         android:text="@string/updateNotYet"
         android:textColor="@color/error"
         android:textSize="11sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/fillerNavbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:ignore="TextContrastCheck" />
@@ -280,5 +280,14 @@
         app:allowedModes="depart"
         app:layout_constraintStart_toStartOf="@+id/layoutRealtimeParameters"
         app:layout_constraintTop_toBottomOf="@+id/layoutRealtimeParameters" />
+
+    <View
+        android:id="@+id/fillerNavbar"
+        android:layout_width="match_parent"
+        android:layout_height="0.001px"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="PxUsage" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

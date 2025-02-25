@@ -16,6 +16,8 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import com.maddin.echtzeyt.BuildConfig
@@ -109,6 +111,29 @@ abstract class EchtzeytForegroundActivity: AppCompatActivity() {
         return (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        updateWindowInsets()
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (!hasFocus) { return }
+        updateWindowInsets()
+    }
+
+    protected open fun updateWindowInsets() {
+        updateWindowNavigationInsets()
+        updateWindowStatusInsets()
+    }
+
+    protected abstract fun updateWindowNavigationInsets()
+    protected abstract fun updateWindowStatusInsets()
+
+    protected fun getNotchHeight() = ViewCompat.getRootWindowInsets(window.decorView)?.displayCutout?.safeInsetTop ?: 0
+    protected fun getStatusBarHeight() = ViewCompat.getRootWindowInsets(window.decorView)?.getInsets(WindowInsetsCompat.Type.statusBars())?.top ?: 0
+    protected fun getNavigationHeight() = ViewCompat.getRootWindowInsets(window.decorView)?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: 0
+    protected fun getGesturesHeight() = ViewCompat.getRootWindowInsets(window.decorView)?.getInsets(WindowInsetsCompat.Type.systemGestures())?.bottom ?: 0
 }
 
 
@@ -417,5 +442,21 @@ open class EchtzeytActivity : EchtzeytForegroundActivity(), ActivityViewpagerScr
 
     protected fun openSettings() {
         startActivity(Intent().setClass(this, activitySettings))
+    }
+
+    private val spaceNavbar: View by LazyView(R.id.fillerNavbar)
+    override fun updateWindowNavigationInsets() {
+        val navHeight = getNavigationHeight()
+        val gestHeight = getGesturesHeight()
+        if (navHeight <= 0) { return }
+        if (gestHeight > 0) { return }
+        spaceNavbar.updateLayoutParams { height = navHeight }
+    }
+
+    private val spaceStatus: View by LazyView(R.id.fillerStatus)
+    override fun updateWindowStatusInsets() {
+        val statusHeight = getStatusBarHeight()
+        if (statusHeight <= 0) { return }
+        spaceStatus.updateLayoutParams { height = statusHeight }
     }
 }

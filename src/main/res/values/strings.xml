@@ -141,12 +141,12 @@
     <string name="mapNoGpsProviders">No location providers could be found. Does your device have GPS functionality?</string>
     <string name="mapCopyright" translatable="false">&#169; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a></string>
     <string name="licenseBase">This App is based on the <a href="https://github.com/maddinkunze/echtzeyt">Echtzeyt</a> Framework.</string>
-    <string name="licenseSelf">The App itself is published under the Apache License 2.0.</string>
+    <string name="licenseSelf">The App itself is published under the GPLv3.</string>
     <string name="licenseLibrariesTitle">The following libraries are currently used:</string>
     <string name="licenseLibraries"><ul>
-        <li><a href="https://github.com/osmdroid/osmdroid">OSMDroid</a> (Apache License 2.0)</li>\n
+        <li><a href="https://github.com/mapsforge/vtm">VTM</a> by Mapsforge (simplified LGPLv3)</li>\n
         <li><a href="https://github.com/material-components/material-components-android">Material Components</a> by Google (Apache License 2.0)</li>\n
-        <li><a href="https://github.com/maddinkunze/transportapi">TransportAPI</a></li>
+        <li><a href="https://github.com/maddinkunze/transportapi">TransportAPI</a> by Martin Kunze (MIT License)</li>
     </ul></string>
     <string name="licenseAdditionalTitle">Furthermore, the following sources were used in some way, shape, or form:</string>
     <string name="licenseAdditional"><ul>

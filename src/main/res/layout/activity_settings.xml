@@ -46,10 +46,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fillerStatus"
             app:layout_constraintEnd_toEndOf="parent"
             app:title="@string/appNameSettings"
             style="@style/Theme.Echtzeyt.Toolbar" />
+
+        <View
+            android:id="@+id/fillerStatus"
+            android:layout_width="match_parent"
+            android:layout_height="0.001px"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="PxUsage" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.maddin.echtzeyt.components.FloatingButton
@@ -69,5 +78,14 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <include layout="@layout/comp_build" />
+
+    <View
+        android:id="@+id/fillerNavbar"
+        android:layout_width="match_parent"
+        android:layout_height="0.001px"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="PxUsage" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

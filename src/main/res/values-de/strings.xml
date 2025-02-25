@@ -115,12 +115,12 @@
     <string name="mapMobileAllowNo">Nein</string>
     <string name="mapOutsidePermittedArea">Du scheinst außerhalb des abgedeckten Bereichs zu sein</string>
     <string name="licenseBase">Diese App basiert auf dem <a href="https://github.com/maddinkunze/echtzeyt">Echtzeyt</a> Framework.</string>
-    <string name="licenseSelf">Die App selber ist unter der Apache License 2.0 veröffentlicht.</string>
+    <string name="licenseSelf">Die App selber ist unter der GPLv3 veröffentlicht.</string>
     <string name="licenseLibrariesTitle">Die folgenden Bibliotheken werden aktuell genutzt:</string>
     <string name="licenseLibraries"><ul>
-        <li><a href="https://github.com/osmdroid/osmdroid">OSMDroid</a> (Apache License 2.0)</li>\n
+        <li><a href="https://github.com/mapsforge/vtm">VTM</a> by Mapsforge (gelockerte LGPLv3)</li>\n
         <li><a href="https://github.com/material-components/material-components-android">Material Components</a> von Google (Apache License 2.0)</li>\n
-        <li><a href="https://github.com/maddinkunze/transportapi">TransportAPI</a></li>
+        <li><a href="https://github.com/maddinkunze/transportapi">TransportAPI</a> von Martin Kunze (MIT Lizenz)</li>
     </ul></string>
     <string name="licenseAdditionalTitle">Außerdem werden/wurden Daten aus folgenden Quellen benutzt:</string>
     <string name="licenseAdditional"><ul>

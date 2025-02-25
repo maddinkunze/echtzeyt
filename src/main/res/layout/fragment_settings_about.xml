@@ -77,6 +77,12 @@
                 android:text="@string/licenseAdditionalImplementation"
                 android:textColor="@color/foregroundText"
                 android:textColorLink="@color/foreground" />
+
+            <View
+                android:id="@+id/fillerNavbar"
+                android:layout_width="match_parent"
+                android:layout_height="0.001px"
+                tools:ignore="PxUsage" />
         </LinearLayout>
     </com.maddin.echtzeyt.components.BottomFadeEdgeScrollView>
 

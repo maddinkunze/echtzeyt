@@ -102,7 +102,6 @@ class EchtzeytConfiguration {
     var motTypeResolver: MOTTypeResolver = DefaultMOTTypeResolver()
     val onFavoriteStationsChangedListeners = mutableListOf<() -> Unit>()
 
-    var osmdroidUserAgent = getUserAgent(null)
     lateinit var application: Application  // it is bad practice to access this variable directly, but it may be needed in some very special cases -> public getter
         private set
 
@@ -150,7 +149,6 @@ class EchtzeytConfiguration {
 
     fun initApplication(application: Application) {
         this.application = application
-        osmdroidUserAgent = getUserAgent(application)
         locale = ConfigurationCompat.getLocales(application.resources.configuration).get(0)
     }
 
@@ -163,17 +161,6 @@ class EchtzeytConfiguration {
             mPreferences = context.getSharedPreferences(context.packageName, AppCompatActivity.MODE_PRIVATE)
         }
         return mPreferences
-    }
-
-    fun getUserAgent(context: Context?): String {
-        val packageName = context?.packageName?:"unknown"
-        var versionName = "unknown"
-        try { versionName = context?.packageManager?.getPackageInfo(packageName, 0)?.versionName?:versionName } catch (_: Throwable) {}
-        return "$packageName/$versionName (application) ${getLibraryUserAgent()}"
-    }
-
-    fun getLibraryUserAgent(): String {
-        return "${BuildConfig.LIBRARY_PACKAGE_NAME}/${BuildConfig.LIBRARY_VERSION_NAME} (library)"
     }
 
     fun getFavoritePOIs(): Set<String> {
