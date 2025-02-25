@@ -27,6 +27,8 @@ import android.view.View.OnLayoutChangeListener
 import android.view.WindowManager
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DimenRes
 import androidx.appcompat.app.AlertDialog
@@ -310,8 +312,6 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        initWindow()
-
         //inflate and create the map
         setContentView(R.layout.activity_map)
 
@@ -325,18 +325,6 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
     override fun onStart() {
         super.onStart()
         initResourceIntensiveHandlers()
-    }
-
-    @Suppress("DEPRECATION")
-    private fun initWindow() {
-        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-        setWindowFlag(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, false)
-        window.statusBarColor = Color.TRANSPARENT
-
-        if (!isInNightMode()) {
-            val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
-            windowInsetsController.isAppearanceLightStatusBars = true
-        }
     }
 
     @Suppress("SameParameterValue")

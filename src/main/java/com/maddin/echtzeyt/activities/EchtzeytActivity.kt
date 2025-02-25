@@ -12,7 +12,9 @@ import android.text.Html
 import android.text.Spanned
 import android.text.SpannedString
 import android.view.View
+import android.view.WindowManager
 import android.widget.*
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -68,10 +70,13 @@ abstract class EchtzeytForegroundActivity: AppCompatActivity() {
             throw IllegalStateException("EchteytConfiguration not loaded/filled! Please make sure you are calling ECHTZEYT_CONFIGURATION.load() before any activity or similar is created. One way to make ensure wanted behaviour is overriding tha default Application class, overriding the onCreate() method and calling ECHTZEYT_CONFIGURATION.load() from there.")
         }
         checkIfForeground.open()
+
+        enableEdgeToEdge()
     }
 
     override fun onResume() {
         super.onResume()
+        enableEdgeToEdge()
         checkIfForeground.open()
     }
 
