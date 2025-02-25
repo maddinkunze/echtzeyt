@@ -368,7 +368,7 @@ open class Base3DModel(faces: Iterable<Face>) : Model {
         // Steps 2-...: Write incrementally to buffer
         val uploadSize = (numCoords - currentIndexToWrite).coerceAtMost(incrementalGlUploadSize)
 
-        gl.bufferSubData(GL.ARRAY_BUFFER, currentIndexToWrite * ModelUtils.BYTES_PER_FLOAT, uploadSize * ModelUtils.BYTES_PER_FLOAT, bufferData.slice(currentIndexToWrite, uploadSize))
+        gl.bufferSubData(GL.ARRAY_BUFFER, currentIndexToWrite * ModelUtils.BYTES_PER_FLOAT, uploadSize * ModelUtils.BYTES_PER_FLOAT, bufferData.position(currentIndexToWrite))
 
         currentIndexToWrite += uploadSize
 
