@@ -6,14 +6,15 @@ import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Color
 import android.net.Uri
 import android.os.*
 import android.text.Html
 import android.text.Spanned
 import android.text.SpannedString
 import android.view.View
-import android.view.WindowManager
 import android.widget.*
+import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -38,24 +39,6 @@ import java.util.*
 import kotlin.concurrent.thread
 
 
-/*@Suppress("deprecation", "unused")
-fun setAppLocale(context: Context, language: String) {
-    val resources = context.resources
-    val config = resources.configuration
-    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
-        val locale = Locale(language)
-        Locale.setDefault(locale)
-        config.setLocale(locale)
-        context.createConfigurationContext(config)
-    } else {
-        val locale = Locale(language)
-        Locale.setDefault(locale)
-        config.locale = locale
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) { config.setLayoutDirection(locale) }
-    }
-    resources.updateConfiguration(config, resources.displayMetrics)
-}*/
-
 // val EXAMPLE_API = com.maddin.transportapi.impl.EmptyAPI() // this api should not be used anywhere
 // val EXAMPLE_API = com.maddin.transportapi.impl.ExampleAPI() // uncomment this to test the app with mock data
 
@@ -71,12 +54,12 @@ abstract class EchtzeytForegroundActivity: AppCompatActivity() {
         }
         checkIfForeground.open()
 
-        enableEdgeToEdge()
+        enableFullscreen()
     }
 
     override fun onResume() {
         super.onResume()
-        enableEdgeToEdge()
+        enableFullscreen()
         checkIfForeground.open()
     }
 
@@ -114,6 +97,17 @@ abstract class EchtzeytForegroundActivity: AppCompatActivity() {
 
     protected fun isInNightMode() : Boolean {
         return (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+    }
+
+    protected open val useDarkStatusBarInLightMode by lazy { resources.getBoolean(R.bool.window_use_dark_status_bar_in_light_mode) }
+    protected open fun enableFullscreen() {
+        // use the dark status bar (i.e. white text) on some screens, especially where the status bar
+        // has the theme color as a background (usually dark enough so white has a better contrast)
+        if (useDarkStatusBarInLightMode) {
+            enableEdgeToEdge(statusBarStyle=SystemBarStyle.dark(Color.TRANSPARENT))
+        } else {
+            enableEdgeToEdge()
+        }
     }
 
     override fun onAttachedToWindow() {

@@ -96,4 +96,6 @@
     <dimen name="shadow_size_small">8dp</dimen>
 
     <dimen name="padding_negative_safe">-10000dp</dimen>
+
+    <bool name="window_use_dark_status_bar_in_light_mode">true</bool>
 </resources>

@@ -906,4 +906,10 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
         (instance.uid as? POI)?.let { selectPOI(it) } ?: return false
         return true
     }
+
+    // Compared to the rest of the app, where the status bar is the app color (thus white text/icons
+    //          in the status bar have a better contrast -> use dark status bar = use white text)
+    // the map activity needs a light status bar in light mode (-> dark text)
+    // and a dark status bar in dark mode (-> light text, as all other activities)
+    override val useDarkStatusBarInLightMode = false
 }
