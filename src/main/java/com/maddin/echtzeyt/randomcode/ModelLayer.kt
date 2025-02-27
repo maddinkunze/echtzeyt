@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.opengl.GLUtils
 import androidx.core.graphics.drawable.toBitmap
+import com.maddin.echtzeyt.randomcode.Base3DModel.RenderData
 import org.oscim.backend.GL
 import org.oscim.backend.GLAdapter
 import org.oscim.backend.GLAdapter.gl
@@ -51,14 +52,14 @@ class ModelSetupRenderer : LayerRenderer() {
 
 interface Model {
     val isReady: Boolean
-    fun prepare(viewport: GLViewport)
-    fun update(viewport: GLViewport, instance: BaseInstanceData)
-    fun setup()
-    fun setupIncremental()
-    fun begin(viewport: GLViewport)
-    fun render(viewport: GLViewport, instance: BaseInstanceData)
-    fun finish(viewport: GLViewport)
-    fun checkPointerEvent(x: Double, y: Double, instance: BaseInstanceData): Boolean
+    fun prepare(viewport: GLViewport) // Step 1
+    fun update(viewport: GLViewport, instance: BaseInstanceData) // Step 2 repeating per instance, stops here if instance.isVisible is false after this call (only true if instance.isVisible is false for all instances when using and InstanceLayer)
+    fun setup() // Step 3, only if isReady is not true
+    fun setupIncremental() // Step 4 repeating until isReady is true (may not be executed until isReady if the incremental setup takes too much time but will continued at the next frame after executing Steps 1-3 again)
+    fun begin(viewport: GLViewport) // Step 5, stops before this if isReady is false before this call
+    fun render(viewport: GLViewport, instance: BaseInstanceData) // Step 6 repeating per instance
+    fun finish(viewport: GLViewport) // Step 7
+    fun checkPointerEvent(x: Double, y: Double, instance: BaseInstanceData): Boolean // will be called when the user has potentially clicked on a model
 }
 
 interface OnModelClickListener {
@@ -142,8 +143,11 @@ class InstanceData (override var uid: Any?, position: GeoPoint, scale: Double=SC
         recalculateMercator()
     }
     private fun recalculateMercator() {
-        mercatorX = MercatorProjection.longitudeToX(position.longitude)
-        mercatorY = MercatorProjection.latitudeToY(position.latitude)
+        synchronized(this) {
+            mercatorX = MercatorProjection.longitudeToX(position.longitude)
+            mercatorY = MercatorProjection.latitudeToY(position.latitude)
+        }
+
     }
     fun createShadowData() = ShadowInstanceData(this)
     fun setChanged() { mChanged = true }
@@ -173,6 +177,8 @@ class ModelLayer(map: VMap) : Layer(map), GestureListener {
         mRenderer = modelRenderer
     }
     fun createModelInstance(model: Model, data: BaseInstanceData) = modelRenderer.createModelInstance(model, data)
+    fun clearModelInstances() = modelRenderer.clearModelInstances()
+    fun removeModelInstance(instance: ModelInstance) = modelRenderer.removeModelInstance(instance)
 
     override fun onGesture(g: Gesture?, e: MotionEvent?): Boolean {
         e ?: return false
@@ -233,6 +239,18 @@ class ModelRenderer : LayerRenderer() {
             mModels.add(instance)
         }
         return instance
+    }
+
+    fun clearModelInstances() {
+        synchronized(this) {
+            mModels.clear()
+        }
+    }
+
+    fun removeModelInstance(instance: ModelInstance) {
+        synchronized(this) {
+            mModels.remove(instance)
+        }
     }
 }
 
@@ -537,8 +555,8 @@ open class Base3DModel(faces: Iterable<Face>) : Model {
 
         if (clipSpacePos[2] < instance.renderDepth) { instance.renderDepth = clipSpacePos[2].toDouble() }
 
-        // force loading the object when it is not ready yet and close to the displayable area
-        val border = if (isReady) 1.2 else 1.0
+        // force pre-loading the object when it is not ready yet but close to the displayable area
+        val border = if (!isReady) 1.2 else 1.0
 
         if (clipSpacePos[0] < border) {
             visibilityState.hasPartsOnTheLeft = true
@@ -745,7 +763,6 @@ class MarkerModel(private val bitmap: Bitmap) : Model {
 
     private val tempArray = FloatArray(16)
     private val tempBuffer = IntBuffer.allocate(1)
-    private val clipSpacePos = FloatArray(3)
 
     override var isReady = false; protected set
     private val vertexBuffer by lazy { tempBuffer.also { gl.genBuffers(1, it) }[0] }
@@ -891,6 +908,185 @@ class MarkerModel(private val bitmap: Bitmap) : Model {
                 
                 void main() {
                     vec4 color = texture2D(u_texture, vec2(1, -1) * v_texture + vec2(0.5, 1));
+                    gl_FragColor = color * u_alpha;
+                }
+            """.trimIndent()
+    }
+}
+
+class ImageModel(private val bitmap: Bitmap) : Model {
+    constructor(drawable: Drawable) : this(drawable.toBitmap(config= Bitmap.Config.ARGB_8888))
+    constructor(drawable: Drawable, maxWidth: Int, maxHeight: Int?=null) : this(drawable.toBitmap(maxWidth, maxHeight ?: ((drawable.intrinsicHeight.toDouble() / drawable.intrinsicWidth) * maxWidth).roundToInt(), Bitmap.Config.ARGB_8888))
+
+    private val tempArray = FloatArray(16)
+    private val tempBuffer = IntBuffer.allocate(1)
+
+    override var isReady = false; protected set
+    private val vertexBuffer by lazy { tempBuffer.also { gl.genBuffers(1, it) }[0] }
+    private val textureBuffer by lazy { tempBuffer.also { gl.genTextures(1, it) }[0] }
+
+    private val program by lazy { ModelUtils.makeProgram(SHADER_VERTEX, SHADER_FRAGMENT) }
+    private val locAttribCorner by lazy { gl.getAttribLocation(program, "a_corner") }
+    private val locUnifScale by lazy { gl.getUniformLocation(program, "u_scale") }
+    private val locUnifMvp by lazy { gl.getUniformLocation(program, "u_mvp") }
+    private val locUnifAlpha by lazy { gl.getUniformLocation(program, "u_alpha") }
+    private val locUnifTexture by lazy { gl.getUniformLocation(program, "u_texture") }
+    private var sPixelPerMeter = 0.0
+    private var sTileScale = 0.0
+    private var sWasDepthMaskEnabled = false
+
+    override fun prepare(viewport: GLViewport) {
+        sPixelPerMeter = 1 / MercatorProjection.groundResolution(viewport.pos)
+        sTileScale = Tile.SIZE * viewport.pos.scale
+    }
+
+    override fun update(viewport: GLViewport, instance: BaseInstanceData) {
+        if (instance.alpha < 0.005) {
+            instance.renderVisible = false
+            return
+        }
+
+        var renderData = instance.renderData as? RenderData
+        if (!viewport.changed() && !instance.changed && renderData != null) {
+            return
+        }
+
+        if (renderData == null) {
+            renderData = RenderData()
+            instance.renderData = renderData
+        }
+
+        val ix = (instance.mercatorX - viewport.pos.x) * sTileScale
+        val iy = (instance.mercatorY - viewport.pos.y) * sTileScale
+
+        viewport.mvp.setTransScale(ix.toFloat(), iy.toFloat(), 1f)
+        instance.rotation.asMatrix?.let { viewport.mvp.multiplyRhs(it) }
+        viewport.mvp.multiplyMM(viewport.viewproj, viewport.mvp)
+        viewport.mvp.get(tempArray)
+
+        visibilityState.reset()
+        instance.renderDepth = Double.POSITIVE_INFINITY
+
+        val width = 1.2 * instance.scale * bitmap.width // times 1.2 to add a little buffer due to perspective mapping
+        val height = 1.2 * instance.scale * bitmap.height // times 1.2 because see above
+
+        var visible = false
+        for (x in 0..1) {
+            for (y in 0..1) {
+                visible = couldBeOnScreen(tempArray, (x-0.5)*width, (y-0.5)*height, 0.0, instance)
+                if (visible) { break }
+            }
+            if (visible) { break }
+        }
+
+        if (visible) {
+            renderData.mvp.copy(viewport.mvp)
+        }
+        instance.renderVisible = visible
+    }
+
+    private val visibilityState = ModelUtils.VisibilityState()
+    private val clipSpacePos = FloatArray(3)
+    private fun couldBeOnScreen(array: FloatArray, x: Double, y: Double, z: Double, instance: BaseInstanceData): Boolean {
+        ModelUtils.calcScreenPosition(array, x, y, z, clipSpacePos)
+
+        if (clipSpacePos[2] < instance.renderDepth) { instance.renderDepth = clipSpacePos[2].toDouble() }
+
+        // force pre-loading the object when it is not ready yet but close to the displayable area
+        val border = if (!isReady) 1.2 else 1.0
+
+        if (clipSpacePos[0] < border) {
+            visibilityState.hasPartsOnTheLeft = true
+        }
+        if (clipSpacePos[0] > -border) {
+            visibilityState.hasPartsOnTheRight = true
+        }
+        if (clipSpacePos[1] < border) {
+            visibilityState.hasPartsOnTheBottom = true
+        }
+        if (clipSpacePos[1] > -border) {
+            visibilityState.hasPartsOnTheTop = true
+        }
+
+        return visibilityState.spansHorizontally && visibilityState.spansVertically
+    }
+
+    override fun setup() {
+        if (isReady) { return }
+
+        GLState.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer)
+        val buffer = FloatBuffer.wrap(floatArrayOf(-0.5f, -0.5f,  -0.5f, 0.5f,  0.5f, -0.5f,  0.5f, 0.5f))
+        gl.bufferData(GL.ARRAY_BUFFER, 8 * ModelUtils.BYTES_PER_FLOAT, buffer, GL.STATIC_DRAW)
+
+        GLState.bindTex2D(textureBuffer)
+        gl.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
+        gl.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
+        gl.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
+        gl.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
+        GLUtils.texImage2D(GL.TEXTURE_2D, 0, bitmap, 0)
+
+        isReady = true
+    }
+
+    override fun setupIncremental() {}
+
+    override fun begin(viewport: GLViewport) {
+        GLState.useProgram(program)
+        GLState.blend(true)
+        GLState.test(true, false)
+        sWasDepthMaskEnabled = tempBuffer.also { gl.getIntegerv(GL.DEPTH_WRITEMASK, it) }[0] != 0
+        gl.depthMask(true)
+        gl.depthFunc(GL.ALWAYS)
+
+        gl.activeTexture(GL.TEXTURE0)
+        GLState.bindTex2D(textureBuffer)
+        gl.uniform1i(locUnifTexture, 0)
+    }
+
+    override fun render(viewport: GLViewport, instance: BaseInstanceData) {
+        val renderData = instance.renderData as? RenderData ?: return
+
+        renderData.mvp.setAsUniform(locUnifMvp)
+        gl.uniform2f(locUnifScale, bitmap.width * instance.scale.toFloat(), bitmap.height * instance.scale.toFloat())
+        gl.uniform1f(locUnifAlpha, instance.alpha.toFloat())
+
+        GLState.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer)
+        gl.vertexAttribPointer(locAttribCorner, 2, GL.FLOAT, false, 0, 0)
+
+        gl.drawArrays(GL.TRIANGLE_STRIP, 0, 4)
+    }
+
+    override fun finish(viewport: GLViewport) {
+        gl.depthMask(sWasDepthMaskEnabled)
+        gl.depthFunc(GL.LESS)
+    }
+
+    override fun checkPointerEvent(x: Double, y: Double, instance: BaseInstanceData): Boolean {
+        return false
+    }
+
+    private class RenderData(val mvp: GLMatrix=GLMatrix())
+
+    companion object {
+        val SHADER_VERTEX = """
+                precision mediump float;
+                attribute vec2 a_corner;
+                uniform mat4 u_mvp;
+                uniform vec2 u_scale;
+                varying vec2 v_texture;
+                
+                void main()  {
+                    gl_Position = u_mvp * vec4(a_corner * u_scale, 0.0, 1.0);
+                    v_texture = a_corner;
+                }
+            """.trimIndent()
+        val SHADER_FRAGMENT = """
+                uniform sampler2D u_texture;
+                uniform float u_alpha;
+                varying vec2 v_texture;
+                
+                void main() {
+                    vec4 color = texture2D(u_texture, vec2(1, -1) * v_texture + 0.5);
                     gl_FragColor = color * u_alpha;
                 }
             """.trimIndent()

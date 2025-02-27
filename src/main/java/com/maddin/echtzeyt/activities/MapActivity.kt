@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -24,11 +23,8 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.view.View.OnLayoutChangeListener
-import android.view.WindowManager
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DimenRes
 import androidx.appcompat.app.AlertDialog
@@ -36,9 +32,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.graphics.applyCanvas
 import androidx.core.location.LocationManagerCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.maddin.echtzeyt.ECHTZEYT_CONFIGURATION
@@ -49,7 +42,9 @@ import com.maddin.echtzeyt.components.createShadowBitmap
 import com.maddin.echtzeyt.components.getShadowColors
 import com.maddin.echtzeyt.randomcode.ActivityResultSerializable
 import com.maddin.echtzeyt.randomcode.BaseInstanceData
-import com.maddin.echtzeyt.randomcode.DrawableBitmap
+import com.maddin.echtzeyt.randomcode.BezierAnimator
+import com.maddin.echtzeyt.randomcode.BezierAnimator2D
+import com.maddin.echtzeyt.randomcode.ImageModel
 import com.maddin.echtzeyt.randomcode.InstanceData
 import com.maddin.echtzeyt.randomcode.LazyMutable
 import com.maddin.echtzeyt.randomcode.LazyView
@@ -74,9 +69,6 @@ import org.oscim.core.MapPosition
 import org.oscim.event.Event
 import org.oscim.layers.GroupLayer
 import org.oscim.layers.PathLayer
-import org.oscim.layers.marker.ItemizedLayer
-import org.oscim.layers.marker.MarkerItem
-import org.oscim.layers.marker.MarkerSymbol
 import org.oscim.layers.tile.buildings.BuildingLayer
 import org.oscim.layers.tile.vector.labeling.LabelLayer
 import org.oscim.map.Map.UpdateListener
@@ -195,7 +187,6 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
     protected val zoomStation by lazy { resources.getFloatValue(R.dimen.map_zoom_station).toDouble() }
     private var zoomLastUpdateMarkers = Double.POSITIVE_INFINITY
     protected val zoomDeltaNoticeable = 0.01
-    protected val zoomTile = 0.95f
 
     protected val scaleMin = 0.25
     protected val scaleMax = 0.9
@@ -205,8 +196,6 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
 
     private var mScaleFactorY = 0.0
     private var mScaleOffsetY = 0.0
-
-    private var nextUpdateMarkerVisibility = -1L
 
     protected val latStart by lazy { getStartLatitude() }
     protected val latMin by lazy { resources.getFloatValue(R.dimen.map_lat_min).toDouble() }
@@ -227,15 +216,16 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
     private var locationProviderMain: String? = null
     private var locationLast: Location? = null
     private var locationLastUpdate: Location? = null
-    protected val locationMinDeltaTime: Long = 700L
+    protected val locationMinDeltaTime: Long = 300L
     protected val locationMinDeltaDistance: Float = 2f
-    private val locationMarkerSize by lazy { resources.getDimensionPixelSize(R.dimen.positionmarker_size) }
-    private val locationMarkerDrawable by lazy { DrawableBitmap(VectorDrawableCompat.create(resources, R.drawable.locationmark, null)!!, locationMarkerSize, locationMarkerSize) }
-    private val locationMarkerDrawableDirected by lazy { DrawableBitmap(VectorDrawableCompat.create(resources, R.drawable.locationmark_directed, null)!!, locationMarkerSize, locationMarkerSize) }
-    private val locationMarkerSymbol by lazy { MarkerSymbol(locationMarkerDrawable, MarkerSymbol.HotspotPlace.CENTER) }
-    private val locationMarkerSymbolDirected by lazy { MarkerSymbol(locationMarkerDrawableDirected, MarkerSymbol.HotspotPlace.CENTER) }
-    private val locationMarker by lazy { MarkerItem(null, null, GeoPoint(0.0, 0.0)) }
-    protected val layerMarkerLocation by lazy { ItemizedLayer(map, listOf(locationMarker), locationMarkerSymbol, null) }
+    private val locationMarkerDrawable by lazy { VectorDrawableCompat.create(resources, R.drawable.locationmark, null)!! }
+    private val locationMarkerDrawableDirected by lazy { VectorDrawableCompat.create(resources, R.drawable.locationmark_directed, null)!! }
+    private val layerLocation by lazy { ModelLayer(map) }
+    private val modelLocation by lazy { ImageModel(locationMarkerDrawable) }
+    private val modelLocationDirected by lazy { ImageModel(locationMarkerDrawableDirected) }
+    private val instanceLocation by lazy { InstanceData(GeoPoint(0.0, 0.0)) }
+    private val animatorLocation by lazy { BezierAnimator2D() }
+    private var animatorLocationIndex = 0
 
     private var gpsHandlersInitialized = false
     @Volatile private var gpsEnabled = false
@@ -244,6 +234,8 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
 
     private val sensorManager by lazy { ContextCompat.getSystemService(this, SensorManager::class.java) }
     private val sensorSampling = SensorManager.SENSOR_DELAY_NORMAL
+    private val sensorAnimation by lazy { BezierAnimator() }
+    private var sensorAnimationIndex = 0
     private val sensorAcc by lazy { sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) }
     private val sensorMag by lazy { sensorManager?.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) }
     // thanks to https://stackoverflow.com/questions/8315913/how-to-get-direction-in-android-such-as-north-west for this code
@@ -255,6 +247,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
             private val mAzimutDegMovAvgFactor = 0.9
             private var mLastAzimutDeg = Double.POSITIVE_INFINITY
             private val mDeltaAzimutDegNoticeable = 1.0
+            private val orientation = FloatArray(3)
 
             @Suppress("LocalVariableName")
             override fun onSensorChanged(event: SensorEvent) {
@@ -271,7 +264,6 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
                 }
 
                 // orientation contains azimut, pitch and roll
-                val orientation = FloatArray(3)
                 SensorManager.getOrientation(R, orientation)
                 val azimutInRad = orientation[0]
                 val azimutInDeg = azimutInRad * (180 / Math.PI)
@@ -282,8 +274,8 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
                 mAzimutDegMovAvg *= mAzimutDegMovAvgFactor
                 mAzimutDegMovAvg += (1 - mAzimutDegMovAvgFactor) * azimutInDeg
 
-                locationMarker.setRotation(-mAzimutDegMovAvg.toFloat())
-                layerMarkerLocation.populate()
+                sensorAnimation.setTargetValue(mAzimutDegMovAvg, 250)
+                animateLocationAngleStep(++sensorAnimationIndex)
 
                 // only force a redraw of the map, when the change would be noticeable
                 if ((mAzimutDegMovAvg - mLastAzimutDeg).absoluteValue < mDeltaAzimutDegNoticeable) {
@@ -381,6 +373,8 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
         layers.add(BuildingLayer(map, tileLayer, 15, ceil(zoomMax).toInt(), false, false)) // 3D buildings
         layers.add(LabelLayer(map, tileLayer)) // Labels
 
+        layers.add(layerLocation)
+
         if (willMarkersBeVisible) { layers.add(layerMarkerShadows) } // Marker Shadows
         if (willMarkersBeVisible) { layers.add(layerMarkers) } // Markers
 
@@ -465,12 +459,13 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
 
         ntInitGpsHandlers()
 
+        layerLocation.clearModelInstances()
         if (sensorAcc != null && sensorMag != null) {
             sensorManager?.registerListener(orientationHandler, sensorAcc, sensorSampling)
             sensorManager?.registerListener(orientationHandler, sensorMag, sensorSampling)
-            locationMarker.marker = locationMarkerSymbolDirected
+            layerLocation.createModelInstance(modelLocationDirected, instanceLocation)
         } else {
-            locationMarker.marker = locationMarkerSymbol
+            layerLocation.createModelInstance(modelLocation, instanceLocation)
         }
     }
 
@@ -563,11 +558,10 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
         zoomLastUpdateMarkers = zoomLevel
         scaleLastUpdateMarkers = scale
 
-        /*locationMarkerDrawable.setScale(scale)
-        locationMarkerDrawableDirected.setScale(scale)*/
         modelMarker.scale = scale
         modelMarkerSelected.scale = scale
         modelMarkerShadow.scale = scale
+        instanceLocation.scale = scale
     }
 
     private fun getMarkerZoomValue(x: Double) : Double {
@@ -738,6 +732,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
     }
 
     override fun onLocationChanged(location: Location) {
+        val animateToNewLocation = locationLast != null
         locationLast = location
 
         gpsEnabled = true
@@ -753,9 +748,14 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
         }
         locationLastUpdate = location
 
-        locationMarker.geoPoint = GeoPoint(location.latitude, location.longitude) // TODO: animate
-        layerMarkerLocation.isEnabled = true
-        layerMarkerLocation.populate()
+        layerLocation.isEnabled = true
+        if (animateToNewLocation) {
+            animatorLocation.setTargetPosition(location.latitude, location.longitude, 1000)
+            animateLocationMarkerStep(++animatorLocationIndex)
+        } else {
+            animatorLocation.setPosition(location.latitude, location.longitude)
+        }
+
         updateMarkerAlphas()
         map.updateMap(true)
     }
@@ -763,7 +763,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
     private fun onLocationChanged(location: Location?, goto: Boolean) {
         if (location == null) {
             locationLast = null
-            //layerMarkerLocation.isEnabled = false
+            layerLocation.isEnabled = false
             map.updateMap()
             return
         }
@@ -783,6 +783,24 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
 
         position.zoom = position.zoom.coerceAtLeast(zoomDefault)
         map.animator().animateTo(700L, position)
+    }
+
+    private fun animateLocationMarkerStep(index: Int) {
+        if (index < animatorLocationIndex) { return }
+        instanceLocation.position = GeoPoint(animatorLocation.x, animatorLocation.y)
+        map.updateMap()
+        if (!animatorLocation.isRunning) { return }
+        mapView.postOnAnimationDelayed({ animateLocationMarkerStep(index) }, 30)
+    }
+
+    private fun animateLocationAngleStep(index: Int) {
+        if (index < sensorAnimationIndex) { return }
+        instanceLocation.rotation.z = 1.0
+        instanceLocation.rotation.angle = sensorAnimation.value
+        instanceLocation.setChanged()
+        map.updateMap()
+        if (!sensorAnimation.isRunning) { return }
+        mapView.postOnAnimationDelayed({ animateLocationAngleStep(index) }, 30)
     }
 
     private fun askForLocationTurnedOn() {
