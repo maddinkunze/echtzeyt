@@ -3,10 +3,13 @@ package com.maddin.echtzeyt
 import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.graphics.Color
 import androidx.annotation.ColorRes
+import androidx.annotation.DimenRes
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.multidex.MultiDexApplication
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.maddin.echtzeyt.components.DefaultMOTTypeResolver
@@ -28,6 +31,10 @@ import com.maddin.transportapi.components.isNightBus
 import com.maddin.transportapi.components.isReplacement
 import com.maddin.transportapi.components.isRunning
 import com.maddin.transportapi.impl.germany.SBahn
+import org.oscim.backend.CanvasAdapter
+import org.oscim.backend.canvas.Color as VColor
+import org.oscim.backend.canvas.Paint
+import org.oscim.theme.styles.LineStyle
 
 interface ThemedContext {
     val themedContext: Context
@@ -81,9 +88,21 @@ abstract class EchtzeytApplication : MultiDexApplication(), ThemedContext {
         addDefaultVehicleTypeBadges()
     }
 
+    private fun createLineStyle(@ColorRes colorId: Int, @DimenRes widthId: Int=R.dimen.map_connection_default_line_width, cap: Paint.Cap=Paint.Cap.ROUND): LineStyle {
+        val colorA = ResourcesCompat.getColor(resources, colorId, theme)
+        val color = VColor.get(Color.alpha(colorA), Color.red(colorA), Color.green(colorA), Color.blue(colorA))
+
+        return LineStyle(0, "",
+            color, resources.getDimension(widthId),
+            cap, true, 1.0, 1, 0, 0f, -1, 0f, false, null, true, floatArrayOf(1f, 2f),
+            LineStyle.REPEAT_START_DEFAULT * CanvasAdapter.getScale(), LineStyle.REPEAT_GAP_DEFAULT * CanvasAdapter.getScale(), false
+        )
+    }
+
     private fun addDefaultVehicleTypeBadges() {
         (ECHTZEYT_CONFIGURATION.motTypeResolver as? DefaultMOTTypeResolver)?.let { resolver ->
             resolver.defaultDrawable = LineDrawable(this, R.color.lineBackgroundDefault, R.color.lineForegroundDefault, R.color.lineForegroundHintLight)
+            resolver.defaultLineStyle = createLineStyle(R.color.lineBackgroundBus)
 
             resolver.add({ it is Bus && it.isReplacement }, drawable=IconLineDrawable(this, R.color.lineBackgroundBusTrainReplacement, R.color.lineForegroundBusTrainReplacement, R.color.lineForegroundHintLight, R.drawable.ic_bus))
             resolver.add({ it is Bus && it.isNightBus },    drawable=IconLineDrawable(this, R.color.lineBackgroundBusNight,            R.color.lineForegroundBusNight,            R.color.lineForegroundHintDark,  R.drawable.ic_bus))

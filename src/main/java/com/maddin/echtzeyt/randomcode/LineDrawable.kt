@@ -1,7 +1,5 @@
 package com.maddin.echtzeyt.randomcode
 
-import android.content.Context
-import android.content.res.Resources.NotFoundException
 import android.graphics.Canvas
 import android.graphics.ColorFilter
 import android.graphics.Paint
@@ -9,12 +7,8 @@ import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
-import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.graphics.toRectF
-import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
-import com.maddin.echtzeyt.R
 import com.maddin.echtzeyt.ThemedContext
 import kotlin.math.roundToInt
 

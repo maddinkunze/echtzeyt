@@ -57,6 +57,7 @@
 
     <color name="lineBackgroundDefault">#C0C0C0</color>
     <color name="lineForegroundDefault">#606060</color>
+    <color name="lineColorDefault">@color/foreground</color>
     <color name="lineForegroundHintLight">#404040</color>
     <color name="lineForegroundHintDark">#C0C0C0</color>
     <color name="lineForegroundHintAuto">@color/lineForegroundHintLight</color>

@@ -65,6 +65,8 @@
     <item name="map_buttons_top_up_factor" type="dimen" format="float">0.35</item>
     <dimen name="map_buttons_top_up_max">18dp</dimen> <!-- smaller than bigfloating_margin -->
 
+    <dimen name="map_connection_default_line_width">5dp</dimen>
+
     <dimen name="map_copyright_text_size">13sp</dimen>
     <dimen name="map_copyright_padding_x">11dp</dimen>
     <dimen name="map_copyright_padding_y">4dp</dimen>

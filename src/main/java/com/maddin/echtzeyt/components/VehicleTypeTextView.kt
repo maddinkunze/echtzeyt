@@ -13,6 +13,7 @@ import com.maddin.transportapi.components.LineMOT
 import com.maddin.transportapi.components.LineVariant
 import com.maddin.transportapi.components.MOTType
 import com.maddin.transportapi.components.ModeOfTransport
+import org.oscim.theme.styles.LineStyle
 import kotlin.math.roundToInt
 
 interface MOTTypeResolver {
@@ -23,6 +24,7 @@ interface MOTTypeResolver {
     fun getLineName(type: MOTType?, variant: LineVariant, line: Line?) : String {
         return variant.direction?.name ?: ""
     }
+    fun getLineStyle(type: MOTType?): LineStyle
 }
 
 typealias MOTPredicate = (MOTType?) -> Boolean
@@ -31,15 +33,19 @@ open class DefaultMOTTypeResolver : MOTTypeResolver {
     private val mDrawables = mutableListOf<MOTPair<LineDrawable>>()
     private val mLineNumberResolvers = mutableListOf<MOTPair<(MOTType?, Line, LineVariant?) -> String?>>()
     private val mLineNameResolvers = mutableListOf<MOTPair<(MOTType?, LineVariant, Line?) -> String?>>()
+    private val mLineStyles = mutableListOf<MOTPair<LineStyle>>()
     lateinit var defaultDrawable: LineDrawable
+    lateinit var defaultLineStyle: LineStyle
 
     fun add(predicate: MOTPredicate, drawable: LineDrawable? = null,
             numberResolver: ((MOTType?, Line, LineVariant?) -> String?)? = null,
-            nameResolver: ((MOTType?, LineVariant, Line?) -> String?)? = null
+            nameResolver: ((MOTType?, LineVariant, Line?) -> String?)? = null,
+            lineStyle: LineStyle? = null
     ) {
         drawable?.let { mDrawables.add(MOTPair(predicate, it)) }
         numberResolver?.let { mLineNumberResolvers.add(MOTPair(predicate, it)) }
         nameResolver?.let { mLineNameResolvers.add(MOTPair(predicate, it)) }
+        lineStyle?.let { mLineStyles.add(MOTPair(predicate, it)) }
     }
 
     private fun <T> List<MOTPair<T>>.find(type: MOTType?) : T? = find{ it.first(type) }?.second
@@ -54,6 +60,10 @@ open class DefaultMOTTypeResolver : MOTTypeResolver {
 
     override fun getLineName(type: MOTType?, variant: LineVariant, line: Line?): String {
         return mLineNameResolvers.find(type)?.invoke(type, variant, line) ?: super.getLineName(type, variant, line)
+    }
+
+    override fun getLineStyle(type: MOTType?): LineStyle {
+        return mLineStyles.find(type) ?: defaultLineStyle
     }
 }
 

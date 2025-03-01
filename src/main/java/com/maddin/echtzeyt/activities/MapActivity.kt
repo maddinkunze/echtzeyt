@@ -67,6 +67,7 @@ import org.oscim.core.BoundingBox
 import org.oscim.core.GeoPoint
 import org.oscim.core.MapPosition
 import org.oscim.event.Event
+import org.oscim.event.MotionEvent
 import org.oscim.layers.GroupLayer
 import org.oscim.layers.PathLayer
 import org.oscim.layers.tile.buildings.BuildingLayer
@@ -139,6 +140,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
     // Stuff for locating/searching stations
     private val shouldSearchForStations by lazy { MapResultContractSelectPOI.appliesToIntent(intent) }
     private var nextLocateUpdate = -1L
+    private val lastLocationSearchMapPosition by lazy { MapPosition() }
     private val stationsFound = mutableSetOf<String>()
     protected val transportLocateStationAPI by lazy { ECHTZEYT_CONFIGURATION.mapsStationAPI!! }
     protected var poiSelected: POI? by LazyMutable { if (shouldSearchForStations) MapResultContractSelectPOI.parseIntent(intent) else null }
@@ -203,6 +205,18 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
     protected val lonStart by lazy { getStartLongitude() }
     protected val lonMin by lazy { resources.getFloatValue(R.dimen.map_lon_min).toDouble() }
     protected val lonMax by lazy { resources.getFloatValue(R.dimen.map_lon_max).toDouble() }
+
+    // Everything related to displaying the paths when viewing a connection/trip
+    protected val willPathsBeVisible by lazy { MapContractShowTrip.appliesToIntent(intent) }
+    protected val connectionLayer by lazy { GroupLayer(map) }
+    protected val connectionPaths by lazy { MapContractShowTrip.parseIntent(intent)?.connections?.mapNotNull {
+        val path = it.estimatedPath
+        if (path.isEmpty()) { return@mapNotNull null }
+        val lineStyle = ECHTZEYT_CONFIGURATION.motTypeResolver.getLineStyle(it.modeOfTransport?.motType)
+        val layer = PathLayer(map, lineStyle)
+        layer.addPoints(path.map { GeoPoint(it.lat, it.lon) })
+        return@mapNotNull layer
+    } }
 
     // Everything related to location permissions and gps updates and whatnot
     private val locationPermissionRequest = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { updateLocation(force=true, goto=true) }
@@ -274,15 +288,19 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
                 mAzimutDegMovAvg *= mAzimutDegMovAvgFactor
                 mAzimutDegMovAvg += (1 - mAzimutDegMovAvgFactor) * azimutInDeg
 
-                sensorAnimation.setTargetValue(mAzimutDegMovAvg, 250)
-                animateLocationAngleStep(++sensorAnimationIndex)
+                if (instanceLocation.renderVisible) {
+                    sensorAnimation.setTargetValue(mAzimutDegMovAvg, 250)
+                } else {
+                    sensorAnimation.setValue(mAzimutDegMovAvg)
+                }
 
                 // only force a redraw of the map, when the change would be noticeable
                 if ((mAzimutDegMovAvg - mLastAzimutDeg).absoluteValue < mDeltaAzimutDegNoticeable) {
                     return
                 }
+
+                animateLocationAngleStep(++sensorAnimationIndex)
                 mLastAzimutDeg = mAzimutDegMovAvg
-                map.updateMap()
             }
 
             override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
@@ -317,13 +335,6 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
     override fun onStart() {
         super.onStart()
         initResourceIntensiveHandlers()
-    }
-
-    @Suppress("SameParameterValue")
-    private fun setWindowFlag(bits: Int, on: Boolean) {
-        val params = window.attributes
-        params.flags = if (on) { params.flags or bits } else { params.flags and bits.inv() }
-        window.attributes = params
     }
 
     private fun initVariables() {
@@ -373,28 +384,24 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
         layers.add(BuildingLayer(map, tileLayer, 15, ceil(zoomMax).toInt(), false, false)) // 3D buildings
         layers.add(LabelLayer(map, tileLayer)) // Labels
 
+        if (willPathsBeVisible) { connectionPaths?.let {
+            if (it.isEmpty()) { return@let }
+            connectionLayer.layers.addAll(it)
+            layers.add(connectionLayer)
+        } }
+
         layers.add(layerLocation)
 
-        if (willMarkersBeVisible) { layers.add(layerMarkerShadows) } // Marker Shadows
-        if (willMarkersBeVisible) { layers.add(layerMarkers) } // Markers
+        if (willMarkersBeVisible) {
+            layers.add(layerMarkerShadows) // Marker Shadows
+            layers.add(layerMarkers) // Markers
+        }
 
-        layers.add(layerModels) // 3D Models and Markers
+        layers.add(layerModels) // 3D Models
         initCustomModels(layerModels)
 
-        if (willMarkersBeVisible) { layers.add(layerMarkerSelected) } // Selected Markers (should only be 1)
-
-        if (MapContractShowTrip.appliesToIntent(intent)) {
-            val paths = GroupLayer(map)
-            MapContractShowTrip.parseIntent(intent)?.connections?.forEach {
-                val path = it.estimatedPath
-                if (path.isEmpty()) { return@forEach }
-                val pathLayer = PathLayer(map, LineStyle(org.oscim.backend.canvas.Color.RED, 5f, Paint.Cap.ROUND))
-                paths.layers.add(pathLayer)
-                pathLayer.addPoints(path.map { p -> GeoPoint(p.lat, p.lon) })
-            }
-            if (paths.layers.isNotEmpty()) {
-                layers.add(paths)
-            }
+        if (willMarkersBeVisible) {
+            layers.add(layerMarkerSelected) // Selected Markers (should only be 1)
         }
 
         // Set map limits and initial values
@@ -409,9 +416,7 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
         map.events.bind(this)
     }
 
-    open fun initCustomModels(layer: ModelLayer) {
-
-    }
+    open fun initCustomModels(layer: ModelLayer) {}
 
     private fun initHandlers() {
         mapView.addOnLayoutChangeListener(object : OnLayoutChangeListener {
@@ -578,6 +583,13 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
 
     private fun updateLocationSearch(after: Long) {
         if (!shouldSearchForStations) { return }
+        val currentMapPos = map.mapPosition
+        if (currentMapPos.x == lastLocationSearchMapPosition.x &&
+            currentMapPos.y == lastLocationSearchMapPosition.y &&
+            currentMapPos.zoom == lastLocationSearchMapPosition.zoom &&
+            currentMapPos.bearing == lastLocationSearchMapPosition.bearing &&
+            currentMapPos.tilt == lastLocationSearchMapPosition.tilt) { return }
+        lastLocationSearchMapPosition.copy(currentMapPos)
         nextLocateUpdate = System.currentTimeMillis() + after
     }
 
@@ -800,7 +812,8 @@ open class MapActivity : EchtzeytForegroundActivity(), LocationListener, UpdateL
         instanceLocation.setChanged()
         map.updateMap()
         if (!sensorAnimation.isRunning) { return }
-        mapView.postOnAnimationDelayed({ animateLocationAngleStep(index) }, 30)
+        val delay = if (instanceLocation.renderVisible) { 50L } else { 5000L }
+        mapView.postOnAnimationDelayed({ animateLocationAngleStep(index) }, delay)
     }
 
     private fun askForLocationTurnedOn() {
